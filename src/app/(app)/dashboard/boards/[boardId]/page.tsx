@@ -6,7 +6,10 @@ import { db, schema } from "@/lib/db";
 import { requireWorkspaceContext } from "@/lib/auth/guard";
 import { listBoardPosts } from "@/lib/data/posts";
 import { clusterDuplicates } from "@/lib/dedupe";
-import { Card, StatusBadge, LinkButton, Badge } from "@/components/ui";
+import { Card, StatusBadge, LinkButton } from "@/components/ui";
+import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
+import { EditBoardForm } from "@/components/dashboard/edit-forms";
+import { deleteBoardAction } from "@/lib/actions/moderation";
 import { statusLabel, absoluteUrl } from "@/lib/utils";
 
 export default async function BoardManagePage({ params }: { params: Promise<{ boardId: string }> }) {
@@ -25,8 +28,12 @@ export default async function BoardManagePage({ params }: { params: Promise<{ bo
           <Link href="/dashboard" className="text-sm text-ink-muted hover:text-ink">← Boards</Link>
           <h1 className="mt-1 text-2xl font-bold text-ink">{board.name}</h1>
         </div>
-        <LinkButton href={absoluteUrl(`/b/${workspace.slug}/${board.slug}`)} variant="outline" size="sm">View public ↗</LinkButton>
+        <div className="flex items-center gap-2">
+          <LinkButton href={absoluteUrl(`/b/${workspace.slug}/${board.slug}`)} variant="outline" size="sm">View public ↗</LinkButton>
+          <ConfirmSubmit action={deleteBoardAction} fields={{ boardId: board.id }} label="Delete board" confirmMessage={`Delete "${board.name}" and all its posts? This cannot be undone.`} variant="ghost" />
+        </div>
       </div>
+      <EditBoardForm boardId={board.id} name={board.name} description={board.description} />
 
       {dupeClusters.length > 0 && (
         <Card className="mt-6 border-amber-200 bg-amber-50/50 p-4">

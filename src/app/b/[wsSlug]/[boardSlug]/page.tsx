@@ -1,16 +1,13 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { and, eq } from "drizzle-orm";
-import { MessageSquare } from "lucide-react";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { getWorkspaceBySlug } from "@/lib/data/workspace";
 import { listBoardPosts, votedPostIds } from "@/lib/data/posts";
 import { getVoterKey } from "@/lib/voter";
-import { Card, StatusBadge } from "@/components/ui";
-import { VoteButton } from "@/components/public/vote-button";
 import { SubmitPostForm } from "@/components/public/submit-post-form";
-import { statusLabel } from "@/lib/utils";
+import { BoardPostList } from "@/components/public/board-post-list";
 import { pageMetadata } from "@/lib/seo";
 
 async function load(wsSlug: string, boardSlug: string) {
@@ -41,9 +38,14 @@ export default async function BoardPage({ params }: { params: Promise<{ wsSlug: 
   const posts = await listBoardPosts(board.id);
   const voterKey = await getVoterKey();
   const voted = await votedPostIds(voterKey, posts.map((p) => p.id));
-  const commentCounts = await Promise.all(
-    posts.map(async (p) => (await db.select({ id: schema.comments.id }).from(schema.comments).where(eq(schema.comments.postId, p.id))).length),
-  );
+
+  // Comment counts in one grouped query (no N+1).
+  const commentRows = await db
+    .select({ postId: schema.comments.postId, n: sql<number>`count(*)` })
+    .from(schema.comments)
+    .where(inArray(schema.comments.postId, posts.length ? posts.map((p) => p.id) : ["__none__"]))
+    .groupBy(schema.comments.postId);
+  const commentCounts: Record<string, number> = Object.fromEntries(commentRows.map((r) => [r.postId, Number(r.n)]));
 
   return (
     <div>
@@ -55,24 +57,8 @@ export default async function BoardPage({ params }: { params: Promise<{ wsSlug: 
         <SubmitPostForm boardId={board.id} />
       </div>
 
-      <div className="mt-4 space-y-2">
-        {posts.map((p, i) => (
-          <Card key={p.id} className="flex items-start gap-4 p-4">
-            <VoteButton postId={p.id} initialCount={p.voteCount} initialVoted={voted.has(p.id)} />
-            <div className="min-w-0 flex-1">
-              <Link href={`/b/${ws.slug}/p/${p.id}`} className="font-medium text-ink hover:text-brand-700">
-                {p.title}
-              </Link>
-              {p.body && <p className="mt-1 line-clamp-2 text-sm text-ink-soft">{p.body}</p>}
-              <div className="mt-2 flex items-center gap-3 text-xs text-ink-muted">
-                <StatusBadge status={p.status} label={statusLabel(p.status)} />
-                <span className="flex items-center gap-1"><MessageSquare className="h-3.5 w-3.5" /> {commentCounts[i]}</span>
-                {p.shippedChangelogId && <span className="font-medium text-emerald-700">✓ Shipped</span>}
-              </div>
-            </div>
-          </Card>
-        ))}
-        {posts.length === 0 && <Card className="p-10 text-center text-ink-muted">No ideas yet — be the first to suggest one!</Card>}
+      <div className="mt-6">
+        <BoardPostList posts={posts} votedIds={[...voted]} wsSlug={ws.slug} commentCounts={commentCounts} />
       </div>
     </div>
   );

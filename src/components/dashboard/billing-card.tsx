@@ -19,7 +19,7 @@ export function BillingCard({ plan }: { plan: string }) {
         <li className={limits.canRemoveBranding ? "text-ink" : "text-ink-muted"}>{limits.canRemoveBranding ? "✓" : "—"} Remove Feedlark branding</li>
         <li className={limits.canCustomDomain ? "text-ink" : "text-ink-muted"}>{limits.canCustomDomain ? "✓" : "—"} Custom domain</li>
         <li className={limits.canPrivateBoards ? "text-ink" : "text-ink-muted"}>{limits.canPrivateBoards ? "✓" : "—"} Private boards</li>
-        <li className={limits.canUseAI ? "text-ink" : "text-ink-muted"}>{limits.canUseAI ? "✓" : "—"} AI duplicate-clustering</li>
+        <li className={limits.canUseAI ? "text-ink" : "text-ink-muted"}>{limits.canUseAI ? "✓" : "—"} Smart duplicate detection</li>
       </ul>
 
       <div className="mt-6">

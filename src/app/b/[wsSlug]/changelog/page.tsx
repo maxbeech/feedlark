@@ -5,15 +5,12 @@ import { and, desc, eq, isNotNull } from "drizzle-orm";
 import { Rss } from "lucide-react";
 import { db, schema } from "@/lib/db";
 import { getWorkspaceBySlug } from "@/lib/data/workspace";
-import { Card, Badge } from "@/components/ui";
+import { Card, CategoryBadge } from "@/components/ui";
+import { Markdown } from "@/components/markdown";
 import { pageMetadata } from "@/lib/seo";
 import { formatDate } from "@/lib/date";
 
-const catColor: Record<string, string> = {
-  new: "bg-emerald-100 text-emerald-800",
-  improved: "bg-blue-100 text-blue-800",
-  fixed: "bg-amber-100 text-amber-800",
-};
+export const revalidate = 300;
 
 export async function generateMetadata({ params }: { params: Promise<{ wsSlug: string }> }): Promise<Metadata> {
   const { wsSlug } = await params;
@@ -47,14 +44,14 @@ export default async function ChangelogPage({ params }: { params: Promise<{ wsSl
         {entries.map((e) => (
           <Card key={e.id} id={e.slug} className="scroll-mt-24 p-6">
             <div className="flex items-center gap-2">
-              <Badge className={catColor[e.category] ?? catColor.new}>{e.category}</Badge>
+              <CategoryBadge category={e.category} />
               {e.linkedPostId && (
                 <Link href={`/b/${ws.slug}/p/${e.linkedPostId}`} className="text-xs font-medium text-brand-600">You asked → We shipped</Link>
               )}
               <span className="ml-auto text-xs text-ink-muted">{e.publishedAt ? formatDate(e.publishedAt) : ""}</span>
             </div>
             <h2 className="mt-2 text-lg font-semibold text-ink">{e.title}</h2>
-            {e.body && <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-ink-soft">{e.body}</p>}
+            {e.body && <Markdown text={e.body} className="mt-2 text-sm leading-6 text-ink-soft" />}
           </Card>
         ))}
         {entries.length === 0 && <Card className="p-10 text-center text-ink-muted">No updates published yet.</Card>}

@@ -7,8 +7,11 @@ import { requireWorkspaceContext } from "@/lib/auth/guard";
 import { listComments } from "@/lib/data/posts";
 import { Card, Button, Textarea, StatusBadge } from "@/components/ui";
 import { StatusControl } from "@/components/dashboard/status-control";
+import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
+import { EditPostForm } from "@/components/dashboard/edit-forms";
 import { togglePinAction, adminReplyAction } from "@/lib/actions/admin";
 import { shipPostAction as shipAction } from "@/lib/actions/changelog";
+import { deletePostAction, deleteCommentAction } from "@/lib/actions/moderation";
 import { statusLabel, timeAgo } from "@/lib/utils";
 
 export default async function PostManagePage({ params }: { params: Promise<{ postId: string }> }) {
@@ -48,6 +51,8 @@ export default async function PostManagePage({ params }: { params: Promise<{ pos
               <Button type="submit" size="sm"><Rocket className="h-3.5 w-3.5" /> Ship it</Button>
             </form>
           )}
+          <EditPostForm postId={post.id} title={post.title} body={post.body} />
+          <ConfirmSubmit action={deletePostAction} fields={{ postId: post.id }} label="Delete" confirmMessage="Delete this post and all its votes/comments? This cannot be undone." />
         </div>
 
         {shipped && (
@@ -64,7 +69,10 @@ export default async function PostManagePage({ params }: { params: Promise<{ pos
       <div className="mt-3 space-y-3">
         {comments.map((c) => (
           <Card key={c.id} className={`p-4 ${c.isAdmin ? "border-brand-200 bg-brand-50/40" : ""}`}>
-            <p className="text-sm font-medium text-ink">{c.authorName}{c.isAdmin && <span className="ml-2 rounded bg-brand-600 px-1.5 py-0.5 text-xs text-white">Team</span>}</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-sm font-medium text-ink">{c.authorName}{c.isAdmin && <span className="ml-2 rounded bg-brand-600 px-1.5 py-0.5 text-xs text-white">Team</span>}</p>
+              <ConfirmSubmit action={deleteCommentAction} fields={{ commentId: c.id }} label="Delete" confirmMessage="Delete this comment?" variant="ghost" />
+            </div>
             <p className="mt-1 whitespace-pre-wrap text-sm text-ink-soft">{c.body}</p>
           </Card>
         ))}

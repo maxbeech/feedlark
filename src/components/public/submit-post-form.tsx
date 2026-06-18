@@ -32,6 +32,8 @@ export function SubmitPostForm({ boardId }: { boardId: string }) {
     <Card className="p-5">
       <form ref={formRef} action={action} className="space-y-3">
         <input type="hidden" name="boardId" value={boardId} />
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
+
         <div>
           <Label htmlFor="title">Your idea</Label>
           <Input id="title" name="title" required minLength={3} maxLength={140} placeholder="Add dark mode" autoFocus />

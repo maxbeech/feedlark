@@ -68,6 +68,8 @@ export async function setPostStatusAction(formData: FormData) {
   await db.update(schema.posts).set({ status }).where(eq(schema.posts.id, postId));
   revalidatePath(`/dashboard/posts/${postId}`);
   revalidatePath("/dashboard");
+  const ws = (await db.select({ slug: schema.workspaces.slug }).from(schema.workspaces).where(eq(schema.workspaces.id, post.workspaceId)).limit(1))[0];
+  if (ws) revalidatePath(`/b/${ws.slug}/roadmap`);
 }
 
 export async function togglePinAction(formData: FormData) {
@@ -100,7 +102,12 @@ export async function adminReplyAction(formData: FormData) {
 const settingsSchema = z.object({
   workspaceId: z.string().min(1),
   name: z.string().trim().min(1).max(80),
-  accentColor: z.string().trim().max(9).optional(),
+  accentColor: z
+    .string()
+    .trim()
+    .regex(/^#[0-9a-fA-F]{6}$/, "Use a hex colour like #f97316")
+    .optional()
+    .or(z.literal("")),
 });
 
 export async function updateWorkspaceAction(_prev: { error?: string; ok?: boolean }, formData: FormData) {
@@ -115,6 +122,23 @@ export async function updateWorkspaceAction(_prev: { error?: string; ok?: boolea
     .update(schema.workspaces)
     .set({ name: parsed.data.name, accentColor: parsed.data.accentColor || "#f97316" })
     .where(eq(schema.workspaces.id, parsed.data.workspaceId));
+  revalidatePath("/dashboard/settings");
+  return { ok: true };
+}
+
+const domainSchema = z.object({ workspaceId: z.string().min(1), customDomain: z.string().trim().max(120).optional().or(z.literal("")) });
+
+export async function updateCustomDomainAction(_prev: { error?: string; ok?: boolean }, formData: FormData) {
+  const parsed = domainSchema.safeParse({ workspaceId: formData.get("workspaceId"), customDomain: formData.get("customDomain") || undefined });
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  const ws = (await db.select().from(schema.workspaces).where(eq(schema.workspaces.id, parsed.data.workspaceId)).limit(1))[0];
+  await assertMembership(parsed.data.workspaceId);
+  if (!ws) return { error: "Workspace not found." };
+  if (!limitsFor(ws.plan).canCustomDomain) return { error: "Custom domains are a Pro feature." };
+
+  const domain = (parsed.data.customDomain || "").toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "").trim();
+  if (domain && !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(domain)) return { error: "Enter a valid domain like feedback.yourcompany.com" };
+  await db.update(schema.workspaces).set({ customDomain: domain || null }).where(eq(schema.workspaces.id, ws.id));
   revalidatePath("/dashboard/settings");
   return { ok: true };
 }

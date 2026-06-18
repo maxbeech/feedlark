@@ -13,5 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const alts = COMPETITORS.map((c) => ({ url: absoluteUrl(`/alternatives/${c.slug}`), priority: 0.7 }));
   const uses = USE_CASES.map((u) => ({ url: absoluteUrl(`/use-cases/${u.slug}`), priority: 0.6 }));
   const posts = BLOG_POSTS.map((p) => ({ url: absoluteUrl(`/blog/${p.slug}`), lastModified: p.date, priority: 0.6 }));
-  return [...stat, ...alts, ...uses, ...posts];
+  // Dogfood: our own public board surfaces (real, indexable product pages).
+  const demo = ["/b/feedlark", "/b/feedlark/roadmap", "/b/feedlark/changelog"].map((p) => ({ url: absoluteUrl(p), priority: 0.5 }));
+  return [...stat, ...alts, ...uses, ...posts, ...demo];
 }

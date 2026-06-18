@@ -34,6 +34,11 @@ export function AuthForm({ mode, action }: { mode: "login" | "signup"; action: A
           placeholder={isSignup ? "At least 8 characters" : "Your password"}
           autoComplete={isSignup ? "new-password" : "current-password"}
         />
+        {!isSignup && (
+          <div className="mt-1 text-right">
+            <Link href="/forgot" className="text-xs font-medium text-brand-600">Forgot password?</Link>
+          </div>
+        )}
       </div>
 
       {state.error && (

@@ -15,6 +15,8 @@ export function CommentForm({ postId }: { postId: string }) {
     <Card className="p-4">
       <form ref={ref} action={action} className="space-y-3">
         <input type="hidden" name="postId" value={postId} />
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
+
         <Textarea name="body" rows={3} required placeholder="Add a comment…" maxLength={4000} />
         <div className="grid grid-cols-2 gap-3">
           <Input name="authorName" placeholder="Name (optional)" maxLength={80} />

@@ -9,6 +9,7 @@ import { getVoterKey } from "@/lib/voter";
 import { Card, StatusBadge } from "@/components/ui";
 import { VoteButton } from "@/components/public/vote-button";
 import { CommentForm } from "@/components/public/comment-form";
+import { NotifyMe } from "@/components/public/notify-me";
 import { statusLabel, timeAgo } from "@/lib/utils";
 import { pageMetadata } from "@/lib/seo";
 
@@ -57,10 +58,12 @@ export default async function PostDetailPage({ params }: { params: Promise<{ wsS
           </div>
           <h1 className="mt-2 text-xl font-bold text-ink">{post.title}</h1>
           {post.body && <p className="mt-3 whitespace-pre-wrap text-ink-soft">{post.body}</p>}
-          {changelog && (
+          {changelog ? (
             <Link href={`/b/${ws.slug}/changelog#${changelog.slug}`} className="mt-4 block rounded-xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
               ✓ You asked → We shipped this. Read the changelog →
             </Link>
+          ) : (
+            <NotifyMe postId={post.id} />
           )}
         </div>
       </Card>

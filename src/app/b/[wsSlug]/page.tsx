@@ -5,8 +5,12 @@ import { and, eq, desc } from "drizzle-orm";
 import { MessageSquare, ArrowRight } from "lucide-react";
 import { db, schema } from "@/lib/db";
 import { getWorkspaceBySlug } from "@/lib/data/workspace";
+import { boardPostCounts } from "@/lib/data/posts";
 import { Card } from "@/components/ui";
 import { pageMetadata } from "@/lib/seo";
+
+// ISR: cached at the edge, refreshed in the background; writes call revalidatePath.
+export const revalidate = 300;
 
 export async function generateMetadata({ params }: { params: Promise<{ wsSlug: string }> }): Promise<Metadata> {
   const { wsSlug } = await params;
@@ -30,9 +34,7 @@ export default async function PublicWorkspaceHome({ params }: { params: Promise<
     .where(and(eq(schema.boards.workspaceId, ws.id), eq(schema.boards.isPrivate, false)))
     .orderBy(schema.boards.sortOrder, desc(schema.boards.createdAt));
 
-  const counts = await Promise.all(
-    boards.map(async (b) => (await db.select({ id: schema.posts.id }).from(schema.posts).where(eq(schema.posts.boardId, b.id))).length),
-  );
+  const countMap = await boardPostCounts(ws.id);
 
   return (
     <div>
@@ -40,13 +42,13 @@ export default async function PublicWorkspaceHome({ params }: { params: Promise<
       <p className="mt-1 text-ink-muted">Pick a board, share an idea or upvote what matters most to you.</p>
 
       <div className="mt-6 space-y-3">
-        {boards.map((b, i) => (
+        {boards.map((b) => (
           <Link key={b.id} href={`/b/${ws.slug}/${b.slug}`}>
             <Card className="flex items-center justify-between p-5 transition-shadow hover:shadow-md">
               <div>
                 <h2 className="font-semibold text-ink">{b.name}</h2>
                 <p className="text-sm text-ink-muted">{b.description || "Share your feedback"}</p>
-                <p className="mt-1 flex items-center gap-1 text-xs text-ink-muted"><MessageSquare className="h-3.5 w-3.5" /> {counts[i]} ideas</p>
+                <p className="mt-1 flex items-center gap-1 text-xs text-ink-muted"><MessageSquare className="h-3.5 w-3.5" /> {countMap[b.id] ?? 0} ideas</p>
               </div>
               <ArrowRight className="h-5 w-5 text-slate-400" />
             </Card>

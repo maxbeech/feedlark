@@ -9,6 +9,8 @@ import { ROADMAP_COLUMNS } from "@/lib/utils";
 import { pageMetadata } from "@/lib/seo";
 import { JsonLd } from "@/components/json-ld";
 
+export const revalidate = 300;
+
 export async function generateMetadata({ params }: { params: Promise<{ wsSlug: string }> }): Promise<Metadata> {
   const { wsSlug } = await params;
   const ws = await getWorkspaceBySlug(wsSlug);

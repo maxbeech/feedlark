@@ -17,7 +17,7 @@ export interface PlanLimits {
   canPrivateBoards: boolean;
   /** Can map a custom domain. */
   canCustomDomain: boolean;
-  /** AI duplicate-clustering of incoming feedback. */
+  /** Smart (similarity-based) duplicate detection of incoming feedback. */
   canUseAI: boolean;
 }
 

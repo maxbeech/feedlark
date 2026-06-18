@@ -1,15 +1,11 @@
 import { desc, eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { requireWorkspaceContext } from "@/lib/auth/guard";
-import { Card, Badge } from "@/components/ui";
+import { Card, Badge, CategoryBadge } from "@/components/ui";
 import { NewChangelogForm } from "@/components/dashboard/new-changelog-form";
+import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
+import { deleteChangelogAction } from "@/lib/actions/moderation";
 import { timeAgo, absoluteUrl } from "@/lib/utils";
-
-const catColor: Record<string, string> = {
-  new: "bg-emerald-100 text-emerald-800",
-  improved: "bg-blue-100 text-blue-800",
-  fixed: "bg-amber-100 text-amber-800",
-};
 
 export default async function ChangelogAdminPage() {
   const { workspace } = await requireWorkspaceContext();
@@ -30,12 +26,15 @@ export default async function ChangelogAdminPage() {
           {entries.map((e) => (
             <Card key={e.id} className="p-5">
               <div className="flex items-center gap-2">
-                <Badge className={catColor[e.category] ?? catColor.new}>{e.category}</Badge>
+                <CategoryBadge category={e.category} />
                 {e.linkedPostId && <Badge className="bg-brand-100 text-brand-700">You asked → We shipped</Badge>}
                 <span className="ml-auto text-xs text-ink-muted">{e.publishedAt ? timeAgo(e.publishedAt) : "draft"}</span>
               </div>
               <h2 className="mt-2 font-semibold text-ink">{e.title}</h2>
               {e.body && <p className="mt-1 line-clamp-2 text-sm text-ink-soft">{e.body}</p>}
+              <div className="mt-3">
+                <ConfirmSubmit action={deleteChangelogAction} fields={{ entryId: e.id }} label="Delete" confirmMessage="Delete this changelog entry?" variant="ghost" />
+              </div>
             </Card>
           ))}
           {entries.length === 0 && <Card className="p-10 text-center text-ink-muted">No changelog entries yet. Publish your first update — or ship a roadmap item to auto-generate one.</Card>}

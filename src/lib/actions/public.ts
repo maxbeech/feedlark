@@ -17,7 +17,13 @@ const postSchema = z.object({
 
 export type PublicResult = { error?: string; ok?: boolean };
 
+/** Bot honeypot: a hidden field real users never fill. Silently "succeed". */
+function isBot(formData: FormData): boolean {
+  return Boolean(String(formData.get("website") || "").trim());
+}
+
 export async function submitPostAction(_prev: PublicResult, formData: FormData): Promise<PublicResult> {
+  if (isBot(formData)) return { ok: true };
   const parsed = postSchema.safeParse({
     boardId: formData.get("boardId"),
     title: formData.get("title"),
@@ -47,7 +53,10 @@ export async function submitPostAction(_prev: PublicResult, formData: FormData):
   await db.insert(schema.votes).values({ id: newId("vote"), postId, voterKey, voterEmail: email });
 
   const ws = (await db.select({ slug: schema.workspaces.slug }).from(schema.workspaces).where(eq(schema.workspaces.id, board.workspaceId)).limit(1))[0];
-  if (ws) revalidatePath(`/b/${ws.slug}/${board.slug}`);
+  if (ws) {
+    revalidatePath(`/b/${ws.slug}/${board.slug}`);
+    revalidatePath(`/b/${ws.slug}`); // workspace home shows per-board post counts
+  }
   return { ok: true };
 }
 
@@ -59,6 +68,7 @@ const commentSchema = z.object({
 });
 
 export async function addCommentAction(_prev: PublicResult, formData: FormData): Promise<PublicResult> {
+  if (isBot(formData)) return { ok: true };
   const parsed = commentSchema.safeParse({
     postId: formData.get("postId"),
     body: formData.get("body"),

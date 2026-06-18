@@ -3,7 +3,15 @@ import { and, eq, sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { ensureVoterKey } from "@/lib/voter";
 import { newId } from "@/lib/ids";
+import { revalidatePath } from "next/cache";
 
+/**
+ * Toggle a vote (or attach a notify-email). The vote count is recomputed
+ * authoritatively from COUNT(votes) on every call, so the denormalized
+ * posts.vote_count can never drift and concurrent races self-heal. The unique
+ * index (post_id, voter_key) is the source of truth; a racing duplicate insert
+ * is caught and treated as "already voted".
+ */
 export async function POST(req: Request, { params }: { params: Promise<{ postId: string }> }) {
   const { postId } = await params;
   const voterKey = await ensureVoterKey();
@@ -15,7 +23,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ postId:
   let email: string | undefined;
   try {
     const body = await req.json();
-    if (typeof body?.email === "string" && body.email.includes("@")) email = body.email.toLowerCase();
+    if (typeof body?.email === "string" && body.email.includes("@")) email = body.email.toLowerCase().trim();
   } catch {
     /* no body is fine */
   }
@@ -27,27 +35,46 @@ export async function POST(req: Request, { params }: { params: Promise<{ postId:
     .limit(1);
 
   let voted: boolean;
-  if (existing.length) {
-    if (email) {
+  if (email) {
+    // "Notify me / subscribe" — always results in a vote, never removes one.
+    if (existing.length) {
       await db.update(schema.votes).set({ voterEmail: email }).where(eq(schema.votes.id, existing[0].id));
-      voted = true;
     } else {
-      await db.delete(schema.votes).where(eq(schema.votes.id, existing[0].id));
-      await db
-        .update(schema.posts)
-        .set({ voteCount: sql`max(${schema.posts.voteCount} - 1, 0)` })
-        .where(eq(schema.posts.id, postId));
-      voted = false;
+      try {
+        await db.insert(schema.votes).values({ id: newId("vote"), postId, voterKey, voterEmail: email });
+      } catch {
+        /* unique race — already voted */
+      }
     }
-  } else {
-    await db.insert(schema.votes).values({ id: newId("vote"), postId, voterKey, voterEmail: email });
-    await db
-      .update(schema.posts)
-      .set({ voteCount: sql`${schema.posts.voteCount} + 1` })
-      .where(eq(schema.posts.id, postId));
     voted = true;
+  } else if (existing.length) {
+    await db.delete(schema.votes).where(eq(schema.votes.id, existing[0].id));
+    voted = false;
+  } else {
+    try {
+      await db.insert(schema.votes).values({ id: newId("vote"), postId, voterKey });
+      voted = true;
+    } catch {
+      voted = true; // unique race: a vote already exists
+    }
   }
 
-  const fresh = await db.select({ c: schema.posts.voteCount }).from(schema.posts).where(eq(schema.posts.id, postId)).limit(1);
-  return NextResponse.json({ count: fresh[0]?.c ?? 0, voted });
+  // Authoritative recount — eliminates drift regardless of races above.
+  const counted = await db
+    .select({ c: sql<number>`count(*)` })
+    .from(schema.votes)
+    .where(eq(schema.votes.postId, postId));
+  const count = Number(counted[0]?.c ?? 0);
+  await db.update(schema.posts).set({ voteCount: count }).where(eq(schema.posts.id, postId));
+
+  // Refresh ISR-cached public surfaces that show this post's count.
+  if (post) {
+    const ws = (await db.select({ slug: schema.workspaces.slug }).from(schema.workspaces).where(eq(schema.workspaces.id, post.workspaceId)).limit(1))[0];
+    if (ws) {
+      revalidatePath(`/b/${ws.slug}/roadmap`);
+      revalidatePath(`/b/${ws.slug}/p/${postId}`);
+    }
+  }
+
+  return NextResponse.json({ count, voted });
 }

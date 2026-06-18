@@ -8,7 +8,13 @@ const COOKIE = "fl_session";
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 function secret(): Uint8Array {
-  const s = process.env.AUTH_SECRET || "dev-insecure-secret-change-me-please-32x";
+  const s = process.env.AUTH_SECRET;
+  if (!s) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("AUTH_SECRET is not set — refusing to sign sessions with a known dev secret.");
+    }
+    return new TextEncoder().encode("dev-insecure-secret-change-me-please-32x");
+  }
   return new TextEncoder().encode(s);
 }
 

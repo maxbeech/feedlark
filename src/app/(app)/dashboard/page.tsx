@@ -3,6 +3,7 @@ import { eq, desc } from "drizzle-orm";
 import { Plus, MessageSquare, Lock } from "lucide-react";
 import { db, schema } from "@/lib/db";
 import { requireWorkspaceContext } from "@/lib/auth/guard";
+import { boardPostCounts } from "@/lib/data/posts";
 import { LinkButton, Card, Badge } from "@/components/ui";
 import { absoluteUrl } from "@/lib/utils";
 
@@ -14,12 +15,7 @@ export default async function DashboardHome() {
     .where(eq(schema.boards.workspaceId, workspace.id))
     .orderBy(schema.boards.sortOrder, desc(schema.boards.createdAt));
 
-  const counts = await Promise.all(
-    boards.map(async (b) => {
-      const rows = await db.select({ id: schema.posts.id }).from(schema.posts).where(eq(schema.posts.boardId, b.id));
-      return rows.length;
-    }),
-  );
+  const countMap = await boardPostCounts(workspace.id);
 
   return (
     <div>
@@ -34,7 +30,7 @@ export default async function DashboardHome() {
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {boards.map((b, i) => (
+        {boards.map((b) => (
           <Link key={b.id} href={`/dashboard/boards/${b.id}`}>
             <Card className="h-full p-5 transition-shadow hover:shadow-md">
               <div className="flex items-center justify-between">
@@ -43,7 +39,7 @@ export default async function DashboardHome() {
               </div>
               <p className="mt-1 line-clamp-2 text-sm text-ink-muted">{b.description || "No description"}</p>
               <div className="mt-4 flex items-center gap-1 text-sm text-ink-soft">
-                <MessageSquare className="h-4 w-4" /> {counts[i]} posts
+                <MessageSquare className="h-4 w-4" /> {countMap[b.id] ?? 0} posts
               </div>
             </Card>
           </Link>

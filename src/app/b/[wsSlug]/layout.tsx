@@ -3,8 +3,6 @@ import { notFound } from "next/navigation";
 import { getWorkspaceBySlug } from "@/lib/data/workspace";
 import { LarkMark } from "@/components/logo";
 
-export const dynamic = "force-dynamic";
-
 export default async function PublicWorkspaceLayout({
   children,
   params,

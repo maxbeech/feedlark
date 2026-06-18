@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { LinkButton } from "@/components/ui";
+import { MobileNav } from "@/components/marketing/mobile-nav";
 
 const nav = [
   { href: "/#features", label: "Features" },
@@ -27,10 +28,11 @@ export function SiteHeader({ isAuthed }: { isAuthed?: boolean }) {
             <LinkButton href="/dashboard" size="sm">Dashboard</LinkButton>
           ) : (
             <>
-              <LinkButton href="/login" variant="ghost" size="sm">Log in</LinkButton>
-              <LinkButton href="/signup" size="sm">Start free</LinkButton>
+              <div className="hidden sm:block"><LinkButton href="/login" variant="ghost" size="sm">Log in</LinkButton></div>
+              <div className="hidden sm:block"><LinkButton href="/signup" size="sm">Start free</LinkButton></div>
             </>
           )}
+          <MobileNav links={nav} />
         </div>
       </div>
     </header>

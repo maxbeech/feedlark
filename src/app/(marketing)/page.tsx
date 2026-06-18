@@ -1,6 +1,7 @@
 import { ArrowRight, Check, MessageSquare, Map, Megaphone, Sparkles, X } from "lucide-react";
 import { LinkButton } from "@/components/ui";
 import { JsonLd, faqJsonLd, softwareAppJsonLd } from "@/components/json-ld";
+import { BoardPreview } from "@/components/marketing/board-preview";
 import { HOME_FAQS } from "@/lib/content/faqs";
 
 export default function HomePage() {
@@ -10,29 +11,35 @@ export default function HomePage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-dotted">
-        <div className="mx-auto max-w-5xl px-4 py-20 text-center md:py-28">
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-sm font-medium text-brand-700">
-            <Sparkles className="h-4 w-4" /> The free Canny alternative — no growth tax
-          </span>
-          <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold tracking-tight text-ink md:text-6xl">
-            Customer feedback that doesn&apos;t <span className="text-brand-600">tax your growth</span>
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-lg text-ink-soft">
-            Collect feature requests, prioritise a public roadmap and ship a changelog — all in one place.
-            Unlimited end-users, posts and votes. <strong className="text-ink">Free forever.</strong> Your 26th
-            user is free. Your 26,000th user is free.
-          </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <LinkButton href="/signup" size="lg">
-              Start free — no card <ArrowRight className="h-4 w-4" />
-            </LinkButton>
-            <LinkButton href="/feedback" variant="outline" size="lg">
-              See a live board
-            </LinkButton>
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 md:py-24 lg:grid-cols-2">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-sm font-medium text-brand-700">
+              <Sparkles className="h-4 w-4" /> The free Canny alternative — no growth tax
+            </span>
+            <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-ink md:text-5xl lg:text-6xl">
+              Customer feedback that doesn&apos;t <span className="text-brand-600">tax your growth</span>
+            </h1>
+            <p className="mt-5 max-w-xl text-lg text-ink-soft">
+              Collect feature requests, prioritise a public roadmap and ship a changelog — in one place.
+              Unlimited end-users, posts and votes. <strong className="text-ink">Free forever.</strong> Your 26th
+              user is free. Your 26,000th user is free.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <LinkButton href="/signup" size="lg">
+                Start free — no card <ArrowRight className="h-4 w-4" />
+              </LinkButton>
+              <LinkButton href="/feedback" variant="outline" size="lg">
+                See a live board
+              </LinkButton>
+            </div>
+            <p className="mt-4 text-sm text-ink-muted">
+              Unlimited voters · Public roadmap · Changelog + widget · Set up in 2 minutes
+            </p>
           </div>
-          <p className="mt-4 text-sm text-ink-muted">
-            Unlimited voters · Public roadmap · Changelog + widget · Set up in 2 minutes
-          </p>
+          <div className="relative">
+            <div className="pointer-events-none absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-tr from-brand-100/60 to-transparent blur-2xl" />
+            <BoardPreview />
+          </div>
         </div>
       </section>
 

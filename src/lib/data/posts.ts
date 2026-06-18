@@ -1,14 +1,28 @@
 import "server-only";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
+
+// Bounded to keep memory/transfer sane; client-side filter/sort runs over this.
+const BOARD_POST_CAP = 500;
 
 export async function listBoardPosts(boardId: string, opts?: { includeClosed?: boolean }) {
   const rows = await db
     .select()
     .from(schema.posts)
     .where(eq(schema.posts.boardId, boardId))
-    .orderBy(desc(schema.posts.pinned), desc(schema.posts.voteCount), desc(schema.posts.createdAt));
+    .orderBy(desc(schema.posts.pinned), desc(schema.posts.voteCount), desc(schema.posts.createdAt))
+    .limit(BOARD_POST_CAP);
   return opts?.includeClosed ? rows : rows.filter((p) => p.status !== "closed");
+}
+
+/** Post counts per board for a workspace, in one grouped query (no N+1). */
+export async function boardPostCounts(workspaceId: string): Promise<Record<string, number>> {
+  const rows = await db
+    .select({ boardId: schema.posts.boardId, n: sql<number>`count(*)` })
+    .from(schema.posts)
+    .where(eq(schema.posts.workspaceId, workspaceId))
+    .groupBy(schema.posts.boardId);
+  return Object.fromEntries(rows.map((r) => [r.boardId, Number(r.n)]));
 }
 
 export async function getPost(postId: string) {
