@@ -66,8 +66,9 @@ async function main() {
   ];
 
   for (const [title, body, status, votes, shipped] of posts) {
+    const postId = newId("post");
     await db.insert(schema.posts).values({
-      id: newId("post"),
+      id: postId,
       workspaceId: wsId,
       boardId,
       title,
@@ -77,6 +78,10 @@ async function main() {
       authorName: "A Feedlark user",
       shippedChangelogId: shipped,
     });
+    // Insert real vote rows so the count is authoritative (matches COUNT(votes)).
+    for (let i = 0; i < votes; i++) {
+      await db.insert(schema.votes).values({ id: newId("vote"), postId, voterKey: `seed_${postId}_${i}` });
+    }
   }
 
   console.log("Seed: created 'feedlark' demo workspace with", posts.length, "posts.");
