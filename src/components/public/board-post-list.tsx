@@ -37,20 +37,20 @@ export function BoardPostList({
     <div>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search ideas…"
-            className="h-10 w-full rounded-xl border border-slate-300 bg-white pl-9 pr-3 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            className="h-11 w-full rounded-xl border border-sand-200 bg-white pl-9 pr-3 text-sm shadow-sm placeholder:text-ink-muted/70 focus:border-brand-400 focus:outline-none focus:ring-4 focus:ring-brand-100"
           />
         </div>
-        <div className="inline-flex shrink-0 rounded-xl border border-slate-300 p-0.5">
+        <div className="inline-flex shrink-0 rounded-xl border border-sand-200 bg-white p-0.5 shadow-sm">
           {(["top", "new"] as SortKey[]).map((s) => (
             <button
               key={s}
               onClick={() => setSort(s)}
-              className={cn("rounded-lg px-3 py-1.5 text-sm font-medium capitalize", sort === s ? "bg-brand-600 text-white" : "text-ink-soft hover:text-ink")}
+              className={cn("rounded-lg px-3 py-1.5 text-sm font-medium capitalize transition-colors", sort === s ? "bg-ink text-white" : "text-ink-soft hover:text-ink")}
             >
               {s}
             </button>
@@ -65,10 +65,10 @@ export function BoardPostList({
             onClick={() => setStatus(f.key)}
             className={cn(
               "rounded-full px-3 py-1 text-sm font-medium transition-colors",
-              status === f.key ? "bg-ink text-white" : "bg-slate-100 text-ink-soft hover:bg-slate-200",
+              status === f.key ? "bg-ink text-white" : "bg-cream text-ink-soft hover:bg-sand-200",
             )}
           >
-            {f.label} <span className="opacity-60">{counts[f.key] ?? 0}</span>
+            {f.label} <span className="opacity-60 tabular">{counts[f.key] ?? 0}</span>
           </button>
         ))}
       </div>
@@ -83,14 +83,14 @@ export function BoardPostList({
               <div className="mt-2 flex items-center gap-3 text-xs text-ink-muted">
                 <StatusBadge status={p.status} label={statusLabel(p.status)} />
                 <span className="flex items-center gap-1"><MessageSquare className="h-3.5 w-3.5" /> {commentCounts[p.id] ?? 0}</span>
-                {p.shippedChangelogId && <span className="font-medium text-emerald-700">✓ Shipped</span>}
+                {p.shippedChangelogId && <span className="font-medium text-spruce-700">Shipped</span>}
               </div>
             </div>
           </Card>
         ))}
         {shown.length === 0 && (
           <Card className="p-10 text-center text-ink-muted">
-            {query || status !== "all" ? "No ideas match your filters." : "No ideas yet — be the first to suggest one!"}
+            {query || status !== "all" ? "No ideas match your filters." : "No ideas yet. Be the first to suggest one."}
           </Card>
         )}
       </div>

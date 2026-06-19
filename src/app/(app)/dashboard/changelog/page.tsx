@@ -19,7 +19,7 @@ export default async function ChangelogAdminPage() {
     <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
       <div>
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-ink">Changelog</h1>
+          <h1 className="font-display text-2xl font-semibold tracking-tightest text-ink">Changelog</h1>
           <a href={absoluteUrl(`/b/${workspace.slug}/changelog`)} target="_blank" rel="noreferrer" className="text-sm font-medium text-brand-600">View public ↗</a>
         </div>
         <div className="mt-6 space-y-3">
@@ -37,7 +37,7 @@ export default async function ChangelogAdminPage() {
               </div>
             </Card>
           ))}
-          {entries.length === 0 && <Card className="p-10 text-center text-ink-muted">No changelog entries yet. Publish your first update — or ship a roadmap item to auto-generate one.</Card>}
+          {entries.length === 0 && <Card className="p-10 text-center text-ink-muted">No changelog entries yet. Publish your first update, or ship a roadmap item to auto-generate one.</Card>}
         </div>
       </div>
       <NewChangelogForm workspaceId={workspace.id} />

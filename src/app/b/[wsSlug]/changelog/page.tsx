@@ -36,8 +36,11 @@ export default async function ChangelogPage({ params }: { params: Promise<{ wsSl
   return (
     <div className="mx-auto max-w-2xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-ink">Changelog</h1>
-        <a href={`/b/${ws.slug}/changelog/rss`} className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"><Rss className="h-4 w-4" /> RSS</a>
+        <div>
+          <h1 className="font-display text-3xl font-semibold tracking-tightest text-ink">Changelog</h1>
+          <p className="mt-1 text-sm text-ink-muted">Everything we&apos;ve shipped lately.</p>
+        </div>
+        <a href={`/b/${ws.slug}/changelog/rss`} className="inline-flex items-center gap-1 rounded-lg border border-sand-200 bg-white px-2.5 py-1.5 text-sm text-ink-muted shadow-sm hover:text-ink"><Rss className="h-4 w-4" /> RSS</a>
       </div>
 
       <div className="mt-6 space-y-6">

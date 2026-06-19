@@ -29,6 +29,14 @@ export function isReservedSlug(slug: string): boolean {
   return RESERVED_SLUGS.has(slug);
 }
 
+/**
+ * Single source of truth for email validity. Stricter than a bare `includes("@")`
+ * so we never store/send to junk addresses like "@", "a@" or "@b".
+ */
+export function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
 export function statusLabel(status: string): string {
   return (
     {

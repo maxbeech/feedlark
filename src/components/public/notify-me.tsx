@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Check } from "lucide-react";
 import { Button, Input } from "@/components/ui";
+import { isValidEmail } from "@/lib/utils";
 
 /**
  * Optional email capture so a voter is notified when this request ships.
@@ -15,7 +16,7 @@ export function NotifyMe({ postId }: { postId: string }) {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.includes("@")) return;
+    if (!isValidEmail(email)) return;
     setPending(true);
     try {
       await fetch(`/api/posts/${postId}/vote`, {
@@ -29,10 +30,10 @@ export function NotifyMe({ postId }: { postId: string }) {
     }
   }
 
-  if (done) return <p className="mt-4 text-sm font-medium text-emerald-700">✓ We&apos;ll email you when this ships.</p>;
+  if (done) return <p className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-spruce-700"><Check className="h-4 w-4" /> We&apos;ll email you when this ships.</p>;
 
   return (
-    <form onSubmit={submit} className="mt-4 flex flex-col gap-2 rounded-xl bg-slate-50 p-3 sm:flex-row">
+    <form onSubmit={submit} className="mt-4 flex flex-col gap-2 rounded-xl bg-cream p-3 sm:flex-row">
       <div className="flex flex-1 items-center gap-2">
         <Bell className="h-4 w-4 shrink-0 text-ink-muted" />
         <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Email me when this ships" className="bg-white" />

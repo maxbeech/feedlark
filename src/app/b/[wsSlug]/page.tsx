@@ -38,19 +38,19 @@ export default async function PublicWorkspaceHome({ params }: { params: Promise<
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink">Help shape {ws.name}</h1>
-      <p className="mt-1 text-ink-muted">Pick a board, share an idea or upvote what matters most to you.</p>
+      <h1 className="font-display text-3xl font-semibold tracking-tightest text-ink">Help shape {ws.name}</h1>
+      <p className="mt-1 text-ink-muted">Pick a board, share an idea, or upvote what matters most to you.</p>
 
-      <div className="mt-6 space-y-3">
+      <div className="mt-8 space-y-3">
         {boards.map((b) => (
-          <Link key={b.id} href={`/b/${ws.slug}/${b.slug}`}>
-            <Card className="flex items-center justify-between p-5 transition-shadow hover:shadow-md">
+          <Link key={b.id} href={`/b/${ws.slug}/${b.slug}`} className="group block">
+            <Card className="flex items-center justify-between p-5 transition-all hover:-translate-y-0.5 hover:shadow-lift">
               <div>
-                <h2 className="font-semibold text-ink">{b.name}</h2>
+                <h2 className="font-display text-lg font-semibold text-ink">{b.name}</h2>
                 <p className="text-sm text-ink-muted">{b.description || "Share your feedback"}</p>
-                <p className="mt-1 flex items-center gap-1 text-xs text-ink-muted"><MessageSquare className="h-3.5 w-3.5" /> {countMap[b.id] ?? 0} ideas</p>
+                <p className="mt-1.5 flex items-center gap-1 text-xs text-ink-muted"><MessageSquare className="h-3.5 w-3.5" /> <span className="tabular">{countMap[b.id] ?? 0}</span> ideas</p>
               </div>
-              <ArrowRight className="h-5 w-5 text-slate-400" />
+              <ArrowRight className="h-5 w-5 text-ink-muted transition-transform group-hover:translate-x-0.5 group-hover:text-brand-600" />
             </Card>
           </Link>
         ))}

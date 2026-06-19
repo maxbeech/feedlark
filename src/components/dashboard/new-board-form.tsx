@@ -19,7 +19,7 @@ export function NewBoardForm({ workspaceId, canPrivate }: { workspaceId: string;
           <Textarea id="description" name="description" rows={3} placeholder="What kind of feedback goes here?" maxLength={280} />
         </div>
         <label className={`flex items-center gap-2 text-sm ${canPrivate ? "text-ink" : "text-ink-muted"}`}>
-          <input type="checkbox" name="isPrivate" disabled={!canPrivate} className="h-4 w-4 rounded border-slate-300" />
+          <input type="checkbox" name="isPrivate" disabled={!canPrivate} className="h-4 w-4 rounded border-sand-300" />
           Private board {canPrivate ? "" : "(Pro)"}
         </label>
         {state.error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>}

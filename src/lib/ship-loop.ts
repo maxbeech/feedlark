@@ -3,13 +3,15 @@
  * notify + changelog-generation logic is unit-testable in isolation.
  */
 
-/** Normalise + dedupe a list of (possibly null) emails into unique lowercased ones. */
+import { isValidEmail } from "@/lib/utils";
+
+/** Normalise + dedupe a list of (possibly null) emails into unique, valid, lowercased ones. */
 export function dedupeEmails(emails: (string | null | undefined)[]): string[] {
   const seen = new Set<string>();
   for (const raw of emails) {
     if (!raw) continue;
     const e = raw.trim().toLowerCase();
-    if (e.includes("@") && !seen.has(e)) seen.add(e);
+    if (isValidEmail(e) && !seen.has(e)) seen.add(e);
   }
   return [...seen];
 }
@@ -21,9 +23,9 @@ export function shipChangelogTitle(postTitle: string): string {
 
 export function shipChangelogBody(postTitle: string, voterCount: number): string {
   const who = voterCount === 1 ? "1 person" : `${voterCount} people`;
-  return `You asked, we shipped: **${postTitle.trim()}**.\n\nThanks to the ${who} who requested and voted for this — it's now live. 🎉`;
+  return `You asked, we shipped: **${postTitle.trim()}**.\n\nThanks to the ${who} who requested and voted for this. It's now live.`;
 }
 
 export function notifyEmailSubject(workspaceName: string, postTitle: string): string {
-  return `✓ Shipped: ${postTitle.trim()} — ${workspaceName}`;
+  return `Shipped: ${postTitle.trim()} (${workspaceName})`;
 }

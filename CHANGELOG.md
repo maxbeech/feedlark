@@ -1,6 +1,27 @@
 # Changelog
 
-## 0.2.0 — 2026-06-19
+## 0.3.0 - 2026-06-19
+
+A full design and quality pass: a distinctive, premium, human-feeling identity plus a second round of bug fixes.
+
+### Design
+- **New visual identity.** Editorial display serif (Fraunces) paired with Inter, a warm "paper" palette (warm ink, cream, sand) that agrees with the brand orange, a refined lark logo, soft layered shadows, and a blueprint-grid + grain texture replacing the generic dotted background. Single source of truth in `tailwind.config.ts`, `globals.css` and `ui.tsx`.
+- **Interactive, app-accurate mockups.** A reusable mockup library (`components/marketing/mockups/`) that mirrors the real product: a clickable hero board you can actually upvote, a roadmap board, a changelog feed, an embeddable-widget preview, and a signature "ship it" loop demo where one click moves a card to Shipped, writes the changelog and notifies voters.
+- **Marketing rebuilt** around those mockups: new home (hero, growth-tax comparison, loop demo, feature rows), pricing, alternatives, use-cases, blog and about, all with the new system.
+- **App + public boards** brought onto the system: active-state nav tabs, warm dashboard and board chrome, premium auth screens, branded 404 / error / loading states.
+
+### De-AI'd copy
+- Removed every em dash from user-facing copy and rewrote AI-cliché phrasing across pages, content and email/changelog templates. Added a test that fails the build if an em or en dash reappears in the copy files.
+
+### Fixed
+- **Private boards are now actually private.** Posts on private boards no longer leak onto the public roadmap, its JSON-LD, or the public post-detail page.
+- **Password reset no longer falls back to a known dev secret** in production; it shares the single hardened `authSecret()` with sessions.
+- **Status integrity:** "complete" can only be reached through the ship-loop, so a post can never show as "Shipped" without a changelog behind it; shipped posts can be reopened.
+- **Stripe webhook** now verifies the Pro price and a paid status before granting Pro, and handles `subscription.created`.
+- **Custom domains** are enforced unique, so one cannot hijack another workspace's routing.
+- Stronger email validation (no more storing/emailing `a@`), authoritative vote recount on new posts, and consistent ISR revalidation of every public surface on writes/deletes.
+
+## 0.2.0 - 2026-06-19
 
 Critical pre-launch audit pass (independent code review + UX review) — hardening to seed-startup quality.
 

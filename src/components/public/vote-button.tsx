@@ -17,6 +17,7 @@ export function VoteButton({
 }) {
   const [count, setCount] = useState(initialCount);
   const [voted, setVoted] = useState(initialVoted);
+  const [pop, setPop] = useState(false);
   const [pending, start] = useTransition();
 
   function toggle() {
@@ -24,6 +25,10 @@ export function VoteButton({
     const next = !voted;
     setVoted(next);
     setCount((c) => c + (next ? 1 : -1));
+    if (next) {
+      setPop(true);
+      window.setTimeout(() => setPop(false), 350);
+    }
     start(async () => {
       try {
         const res = await fetch(`/api/posts/${postId}/vote`, { method: "POST" });
@@ -50,11 +55,11 @@ export function VoteButton({
       className={cn(
         "flex shrink-0 flex-col items-center justify-center rounded-xl border font-semibold transition-colors",
         size === "sm" ? "h-12 w-11 text-sm" : "h-14 w-12",
-        voted ? "border-brand-500 bg-brand-50 text-brand-700" : "border-slate-200 bg-white text-ink hover:border-brand-300",
+        voted ? "border-brand-400 bg-brand-50 text-brand-700 shadow-sm" : "border-sand-200 bg-white text-ink hover:border-brand-300 hover:bg-brand-50/40",
       )}
     >
-      <ChevronUp className={cn("h-4 w-4", voted ? "text-brand-600" : "text-slate-400")} />
-      {count}
+      <ChevronUp className={cn("h-4 w-4 transition-transform", voted ? "-translate-y-0.5 text-brand-600" : "text-ink-muted")} />
+      <span className={cn("tabular", pop && "animate-vote-pop")}>{count}</span>
     </button>
   );
 }

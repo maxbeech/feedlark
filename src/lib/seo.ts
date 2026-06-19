@@ -5,7 +5,7 @@ export const SITE = {
   name: "Feedlark",
   tagline: "Free customer feedback boards, public roadmap & changelog",
   description:
-    "Feedlark is the free, modern Canny alternative: feedback boards, a public roadmap and a changelog. Unlimited end-users, posts and votes — no per-user growth tax.",
+    "Feedlark is the free, modern Canny alternative: feedback boards, a public roadmap and a changelog. Unlimited end-users, posts and votes, no growth tax.",
 };
 
 export function pageMetadata(opts: {

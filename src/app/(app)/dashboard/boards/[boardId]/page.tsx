@@ -26,7 +26,7 @@ export default async function BoardManagePage({ params }: { params: Promise<{ bo
       <div className="flex items-center justify-between">
         <div>
           <Link href="/dashboard" className="text-sm text-ink-muted hover:text-ink">← Boards</Link>
-          <h1 className="mt-1 text-2xl font-bold text-ink">{board.name}</h1>
+          <h1 className="mt-1 font-display text-2xl font-semibold tracking-tightest text-ink">{board.name}</h1>
         </div>
         <div className="flex items-center gap-2">
           <LinkButton href={absoluteUrl(`/b/${workspace.slug}/${board.slug}`)} variant="outline" size="sm">View public ↗</LinkButton>
@@ -49,8 +49,8 @@ export default async function BoardManagePage({ params }: { params: Promise<{ bo
       <div className="mt-6 space-y-2">
         {posts.map((p) => (
           <Link key={p.id} href={`/dashboard/posts/${p.id}`}>
-            <Card className="flex items-center gap-4 p-4 transition-shadow hover:shadow-md">
-              <div className="flex w-12 shrink-0 flex-col items-center rounded-lg bg-slate-50 py-1.5 text-ink">
+            <Card className="flex items-center gap-4 p-4 transition-shadow hover:shadow-lift">
+              <div className="flex w-12 shrink-0 flex-col items-center rounded-lg bg-cream py-1.5 text-ink">
                 <ChevronUp className="h-4 w-4 text-brand-500" />
                 <span className="text-sm font-semibold">{p.voteCount}</span>
               </div>

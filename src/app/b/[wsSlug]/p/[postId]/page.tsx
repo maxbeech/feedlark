@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Rocket } from "lucide-react";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { getWorkspaceBySlug } from "@/lib/data/workspace";
@@ -18,6 +19,9 @@ async function load(wsSlug: string, postId: string) {
   if (!ws) return null;
   const post = (await db.select().from(schema.posts).where(eq(schema.posts.id, postId)).limit(1))[0];
   if (!post || post.workspaceId !== ws.id) return null;
+  // A post on a private board is not publicly viewable.
+  const board = (await db.select({ isPrivate: schema.boards.isPrivate }).from(schema.boards).where(eq(schema.boards.id, post.boardId)).limit(1))[0];
+  if (!board || board.isPrivate) return null;
   return { ws, post };
 }
 
@@ -56,11 +60,11 @@ export default async function PostDetailPage({ params }: { params: Promise<{ wsS
             <StatusBadge status={post.status} label={statusLabel(post.status)} />
             <span className="text-xs text-ink-muted">by {post.authorName} · {timeAgo(post.createdAt)}</span>
           </div>
-          <h1 className="mt-2 text-xl font-bold text-ink">{post.title}</h1>
+          <h1 className="mt-2 font-display text-2xl font-semibold tracking-tightest text-ink">{post.title}</h1>
           {post.body && <p className="mt-3 whitespace-pre-wrap text-ink-soft">{post.body}</p>}
           {changelog ? (
-            <Link href={`/b/${ws.slug}/changelog#${changelog.slug}`} className="mt-4 block rounded-xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
-              ✓ You asked → We shipped this. Read the changelog →
+            <Link href={`/b/${ws.slug}/changelog#${changelog.slug}`} className="mt-4 flex items-center gap-2 rounded-xl bg-spruce-50 px-4 py-3 text-sm font-medium text-spruce-700 ring-1 ring-inset ring-spruce-100 transition-colors hover:bg-spruce-100">
+              <Rocket className="h-4 w-4" /> You asked, we shipped this. Read the changelog.
             </Link>
           ) : (
             <NotifyMe postId={post.id} />

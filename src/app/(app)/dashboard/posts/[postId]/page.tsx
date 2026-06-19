@@ -32,14 +32,14 @@ export default async function PostManagePage({ params }: { params: Promise<{ pos
       <Card className="mt-3 p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-ink">{post.title}</h1>
+            <h1 className="font-display text-xl font-semibold tracking-tightest text-ink">{post.title}</h1>
             <p className="mt-1 text-sm text-ink-muted">{post.voteCount} votes · by {post.authorName} · {timeAgo(post.createdAt)}</p>
           </div>
           <StatusBadge status={post.status} label={statusLabel(post.status)} />
         </div>
         {post.body && <p className="mt-4 whitespace-pre-wrap text-ink-soft">{post.body}</p>}
 
-        <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
+        <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-sand-200 pt-4">
           <StatusControl postId={post.id} status={post.status} />
           <form action={togglePinAction}>
             <input type="hidden" name="postId" value={post.id} />
@@ -56,8 +56,8 @@ export default async function PostManagePage({ params }: { params: Promise<{ pos
         </div>
 
         {shipped && (
-          <div className="mt-4 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
-            ✓ Shipped — changelog published.{" "}
+          <div className="mt-4 rounded-xl bg-spruce-50 p-4 text-sm text-spruce-700">
+            ✓ Shipped. Changelog published.{" "}
             {notifs.length > 0
               ? `${notifs.length} ${notifs.length === 1 ? "person" : "people"} who asked were notified (${notifs.filter((n) => n.status === "sent").length} emailed${notifs.some((n) => n.status === "logged") ? ", rest queued" : ""}).`
               : "No voters left an email to notify."}

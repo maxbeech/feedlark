@@ -6,28 +6,23 @@ import { SignJWT, jwtVerify } from "jose";
 import { z } from "zod";
 import { db, schema } from "@/lib/db";
 import { hashPassword } from "@/lib/auth/password";
-import { setSessionCookie } from "@/lib/auth/session";
+import { setSessionCookie, authSecret } from "@/lib/auth/session";
 import { sendEmail, emailConfigured } from "@/lib/email";
-import { absoluteUrl } from "@/lib/utils";
-
-function secret(): Uint8Array {
-  const s = process.env.AUTH_SECRET || "dev-insecure-secret-change-me-please-32x";
-  return new TextEncoder().encode(s);
-}
+import { absoluteUrl, isValidEmail } from "@/lib/utils";
 
 async function signResetToken(uid: string): Promise<string> {
   return new SignJWT({ uid, purpose: "pw-reset" })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("30m")
-    .sign(secret());
+    .sign(authSecret());
 }
 
 export type ForgotResult = { ok?: boolean; emailUnconfigured?: boolean; error?: string };
 
 export async function forgotPasswordAction(_prev: ForgotResult, formData: FormData): Promise<ForgotResult> {
   const email = String(formData.get("email") || "").toLowerCase().trim();
-  if (!email.includes("@")) return { error: "Enter a valid email." };
+  if (!isValidEmail(email)) return { error: "Enter a valid email." };
 
   const user = (await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1))[0];
   // Always behave the same way regardless of whether the account exists (no enumeration).
@@ -50,7 +45,7 @@ export async function resetPasswordAction(_prev: { error?: string }, formData: F
 
   let uid: string;
   try {
-    const { payload } = await jwtVerify(parsed.data.token, secret());
+    const { payload } = await jwtVerify(parsed.data.token, authSecret());
     if (payload.purpose !== "pw-reset" || !payload.uid) return { error: "This reset link is invalid or has expired." };
     uid = payload.uid as string;
   } catch {

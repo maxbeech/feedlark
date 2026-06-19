@@ -21,7 +21,7 @@ export default async function DashboardHome() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Boards</h1>
+          <h1 className="font-display text-2xl font-semibold tracking-tightest text-ink">Boards</h1>
           <p className="mt-1 text-sm text-ink-muted">
             Public at <span className="font-mono text-ink-soft">{absoluteUrl(`/b/${workspace.slug}`)}</span>
           </p>
@@ -32,10 +32,10 @@ export default async function DashboardHome() {
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {boards.map((b) => (
           <Link key={b.id} href={`/dashboard/boards/${b.id}`}>
-            <Card className="h-full p-5 transition-shadow hover:shadow-md">
+            <Card className="h-full p-5 transition-shadow hover:shadow-lift">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-ink">{b.name}</h2>
-                {b.isPrivate && <Badge className="bg-slate-100 text-slate-600"><Lock className="mr-1 h-3 w-3" /> Private</Badge>}
+                {b.isPrivate && <Badge className="bg-cream text-ink-soft"><Lock className="mr-1 h-3 w-3" /> Private</Badge>}
               </div>
               <p className="mt-1 line-clamp-2 text-sm text-ink-muted">{b.description || "No description"}</p>
               <div className="mt-4 flex items-center gap-1 text-sm text-ink-soft">

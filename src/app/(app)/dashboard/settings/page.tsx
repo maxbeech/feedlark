@@ -10,10 +10,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="text-2xl font-bold text-ink">Settings</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tightest text-ink">Settings</h1>
       {upgraded && (
-        <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
-          🎉 Welcome to Pro! Custom domains, branding removal and more are now unlocked.
+        <div className="mt-4 rounded-xl border border-spruce-100 bg-spruce-50 px-4 py-3 text-sm font-medium text-spruce-700">
+          🎉 Welcome to Pro. Custom domains, branding removal and more are now unlocked.
         </div>
       )}
       <div className="mt-6 grid gap-6 md:grid-cols-2">

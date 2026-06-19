@@ -39,7 +39,7 @@ export default async function RoadmapPage({ params }: { params: Promise<{ wsSlug
         "@type": "ListItem",
         position: i + 1,
         name: p.title,
-        description: `${c.label} — ${p.voteCount} votes`,
+        description: `${c.label}: ${p.voteCount} votes`,
       })),
     ),
   };
@@ -47,27 +47,27 @@ export default async function RoadmapPage({ params }: { params: Promise<{ wsSlug
   return (
     <div>
       <JsonLd data={itemList} />
-      <h1 className="text-2xl font-bold text-ink">Roadmap</h1>
-      <p className="mt-1 text-ink-muted">See what we&apos;re planning, building and have shipped.</p>
+      <h1 className="font-display text-3xl font-semibold tracking-tightest text-ink">Roadmap</h1>
+      <p className="mt-1 text-ink-muted">What we&apos;re planning, building and have already shipped.</p>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
+      <div className="mt-8 grid gap-4 md:grid-cols-3">
         {ROADMAP_COLUMNS.map((c) => {
           const items = cols[c.status as keyof typeof cols];
           return (
-            <div key={c.status}>
-              <h2 className="mb-3 flex items-center justify-between text-sm font-semibold uppercase tracking-wide text-ink-soft">
-                {c.label} <span className="rounded-full bg-slate-200 px-2 text-xs text-ink-muted">{items.length}</span>
+            <div key={c.status} className="rounded-2xl bg-cream/50 p-3">
+              <h2 className="mb-3 flex items-center justify-between px-1 text-xs font-semibold uppercase tracking-wide text-ink-soft">
+                {c.label} <span className="rounded-full bg-white px-2 text-xs text-ink-muted ring-1 ring-sand-200 tabular">{items.length}</span>
               </h2>
               <div className="space-y-2">
                 {items.map((p) => (
-                  <Link key={p.id} href={`/b/${ws.slug}/p/${p.id}`}>
-                    <Card className="p-4 transition-shadow hover:shadow-md">
+                  <Link key={p.id} href={`/b/${ws.slug}/p/${p.id}`} className="block">
+                    <Card className="p-4 transition-all hover:-translate-y-0.5 hover:shadow-lift">
                       <p className="font-medium text-ink">{p.title}</p>
-                      <p className="mt-2 flex items-center gap-1 text-xs text-ink-muted"><ChevronUp className="h-3.5 w-3.5 text-brand-500" /> {p.voteCount}</p>
+                      <p className="mt-2 flex items-center gap-1 text-xs text-ink-muted"><ChevronUp className="h-3.5 w-3.5 text-brand-500" /> <span className="tabular">{p.voteCount}</span></p>
                     </Card>
                   </Link>
                 ))}
-                {items.length === 0 && <p className="rounded-xl border border-dashed border-slate-200 p-4 text-center text-sm text-ink-muted">Nothing here yet</p>}
+                {items.length === 0 && <p className="rounded-xl border border-dashed border-sand-300 p-4 text-center text-sm text-ink-muted">Nothing here yet</p>}
               </div>
             </div>
           );

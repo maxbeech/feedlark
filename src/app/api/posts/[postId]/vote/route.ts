@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { and, eq, sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 import { ensureVoterKey } from "@/lib/voter";
 import { newId } from "@/lib/ids";
-import { revalidatePath } from "next/cache";
+import { isValidEmail } from "@/lib/utils";
+import { revalidatePublicWorkspace } from "@/lib/revalidate";
 
 /**
  * Toggle a vote (or attach a notify-email). The vote count is recomputed
@@ -23,7 +25,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ postId:
   let email: string | undefined;
   try {
     const body = await req.json();
-    if (typeof body?.email === "string" && body.email.includes("@")) email = body.email.toLowerCase().trim();
+    if (typeof body?.email === "string" && isValidEmail(body.email)) email = body.email.toLowerCase().trim();
   } catch {
     /* no body is fine */
   }
@@ -68,12 +70,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ postId:
   await db.update(schema.posts).set({ voteCount: count }).where(eq(schema.posts.id, postId));
 
   // Refresh ISR-cached public surfaces that show this post's count.
-  if (post) {
-    const ws = (await db.select({ slug: schema.workspaces.slug }).from(schema.workspaces).where(eq(schema.workspaces.id, post.workspaceId)).limit(1))[0];
-    if (ws) {
-      revalidatePath(`/b/${ws.slug}/roadmap`);
-      revalidatePath(`/b/${ws.slug}/p/${postId}`);
-    }
+  const ws = (await db.select({ slug: schema.workspaces.slug }).from(schema.workspaces).where(eq(schema.workspaces.id, post.workspaceId)).limit(1))[0];
+  if (ws) {
+    revalidatePublicWorkspace(ws.slug);
+    revalidatePath(`/b/${ws.slug}/p/${postId}`);
   }
 
   return NextResponse.json({ count, voted });

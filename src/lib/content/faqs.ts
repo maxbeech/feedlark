@@ -5,11 +5,11 @@ export const HOME_FAQS = [
   },
   {
     q: "How is Feedlark different from Canny?",
-    a: "Canny's free plan caps at 25 tracked users and bills per tracked user, so engagement increases your bill — a 'growth tax'. Feedlark gives you unlimited end-users for free and only ever charges per admin seat. The core feedback board, roadmap and changelog are free no matter how popular you get.",
+    a: "Canny's free plan caps at 25 tracked users and bills per tracked user, so engagement increases your bill (the so-called 'growth tax'). Feedlark gives you unlimited end-users for free and only ever charges per admin seat. The core feedback board, roadmap and changelog are free no matter how popular you get.",
   },
   {
     q: "Do my users need to create an account to vote?",
-    a: "No. Voting is one click — no login required, which removes the friction that suppresses feedback on login-walled tools. Users can optionally add their email to be notified when their request ships.",
+    a: "No. Voting is one click, with no login required, which removes the friction that suppresses feedback on login-walled tools. Users can optionally add their email to be notified when their request ships.",
   },
   {
     q: "What is the 'You asked → We shipped' loop?",

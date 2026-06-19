@@ -4,34 +4,114 @@
 
 :root {
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: Georgia, "Times New Roman", ui-serif, serif;
 }
 
 html {
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  @apply bg-white text-ink antialiased;
+  @apply bg-paper text-ink antialiased;
+  font-feature-settings: "cv11", "ss01";
 }
 
-/* Subtle dotted hero background used on marketing pages. */
-.bg-dotted {
-  background-image: radial-gradient(theme("colors.slate.200") 1px, transparent 1px);
-  background-size: 22px 22px;
+::selection {
+  background-color: theme("colors.brand.200");
+  color: theme("colors.ink.DEFAULT");
 }
 
+/* Display headings get the editorial serif + tight optical tracking. */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Headline wrapping: keep ragged lines balanced like a typeset page. */
+.text-balance {
+  text-wrap: balance;
+}
+.text-pretty {
+  text-wrap: pretty;
+}
+
+/* Tabular figures for vote counts / metrics so digits don't jitter. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Distinctive backdrops (replace the generic radial-dot pattern) --- */
+
+/* Fine warm "blueprint" grid, faded toward the centre via a radial mask. */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(120, 100, 80, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(120, 100, 80, 0.07) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+.bg-grid-fade {
+  -webkit-mask-image: radial-gradient(ellipse 75% 60% at 50% 40%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse 75% 60% at 50% 40%, #000 55%, transparent 100%);
+}
+
+/* Warm sunrise glow for hero sections. */
+.glow-brand {
+  background: radial-gradient(60% 50% at 70% 0%, rgba(242, 106, 24, 0.16), transparent 70%);
+}
+
+/* Tactile film grain overlay — adds premium texture. Apply to a relative parent. */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+}
+
+/* --- Editorial long-form prose (blog, legal, docs) --- */
+.prose-feedlark {
+  @apply text-ink-soft;
+}
 .prose-feedlark h2 {
-  @apply mt-10 mb-3 text-2xl font-semibold tracking-tight text-ink;
+  @apply font-display mt-12 mb-3 text-3xl font-semibold tracking-tightest text-ink;
 }
 .prose-feedlark h3 {
-  @apply mt-6 mb-2 text-lg font-semibold text-ink;
+  @apply mt-8 mb-2 text-xl font-semibold text-ink;
 }
 .prose-feedlark p {
-  @apply my-4 leading-7 text-ink-soft;
+  @apply my-4 leading-[1.75] text-ink-soft;
 }
 .prose-feedlark ul {
-  @apply my-4 list-disc space-y-1 pl-6 text-ink-soft;
+  @apply my-4 list-disc space-y-1.5 pl-6 text-ink-soft marker:text-brand-400;
+}
+.prose-feedlark ol {
+  @apply my-4 list-decimal space-y-1.5 pl-6 text-ink-soft marker:text-ink-muted;
+}
+.prose-feedlark blockquote {
+  @apply my-6 border-l-2 border-brand-300 pl-5 font-display text-xl italic text-ink;
 }
 .prose-feedlark a {
-  @apply font-medium text-brand-600 underline underline-offset-2;
+  @apply font-medium text-brand-700 underline decoration-brand-300 underline-offset-2 hover:decoration-brand-600;
+}
+.prose-feedlark strong {
+  @apply font-semibold text-ink;
+}
+.prose-feedlark code {
+  @apply rounded-md bg-cream px-1.5 py-0.5 text-[0.85em] text-ink;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

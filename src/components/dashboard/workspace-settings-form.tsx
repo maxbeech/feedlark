@@ -25,10 +25,10 @@ export function WorkspaceSettingsForm({
         </div>
         <div>
           <Label htmlFor="accentColor">Accent colour</Label>
-          <input id="accentColor" name="accentColor" type="color" defaultValue={accentColor} className="h-10 w-16 cursor-pointer rounded-lg border border-slate-300" />
+          <input id="accentColor" name="accentColor" type="color" defaultValue={accentColor} className="h-10 w-16 cursor-pointer rounded-lg border border-sand-300" />
         </div>
         {state.error && <p className="text-sm text-red-700">{state.error}</p>}
-        {state.ok && <p className="text-sm text-emerald-700">Saved.</p>}
+        {state.ok && <p className="text-sm text-spruce-700">Saved.</p>}
         <Button type="submit" disabled={pending}>{pending ? "Saving…" : "Save changes"}</Button>
       </form>
     </Card>

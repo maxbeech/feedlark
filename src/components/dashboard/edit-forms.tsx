@@ -11,7 +11,7 @@ export function EditPostForm({ postId, title, body }: { postId: string; title: s
 
   if (!open) return <Button variant="outline" size="sm" onClick={() => setOpen(true)}>Edit</Button>;
   return (
-    <form action={action} className="mt-4 space-y-3 rounded-xl border border-slate-200 p-4">
+    <form action={action} className="mt-4 space-y-3 rounded-xl border border-sand-200 p-4">
       <input type="hidden" name="postId" value={postId} />
       <div><Label htmlFor="ep-title">Title</Label><Input id="ep-title" name="title" defaultValue={title} required maxLength={140} /></div>
       <div><Label htmlFor="ep-body">Details</Label><Textarea id="ep-body" name="body" defaultValue={body} rows={3} maxLength={4000} /></div>
@@ -31,7 +31,7 @@ export function EditBoardForm({ boardId, name, description }: { boardId: string;
 
   if (!open) return <Button variant="outline" size="sm" onClick={() => setOpen(true)}>Edit board</Button>;
   return (
-    <form action={action} className="mt-4 space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+    <form action={action} className="mt-4 space-y-3 rounded-xl border border-sand-200 bg-white p-4">
       <input type="hidden" name="boardId" value={boardId} />
       <div><Label htmlFor="eb-name">Board name</Label><Input id="eb-name" name="name" defaultValue={name} required maxLength={60} /></div>
       <div><Label htmlFor="eb-desc">Description</Label><Textarea id="eb-desc" name="description" defaultValue={description} rows={2} maxLength={280} /></div>

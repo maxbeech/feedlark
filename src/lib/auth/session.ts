@@ -7,11 +7,16 @@ import { db, schema } from "@/lib/db";
 const COOKIE = "fl_session";
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
-function secret(): Uint8Array {
+/**
+ * The single signing key for every JWT we issue (sessions, password resets).
+ * Refuses to fall back to a known dev secret in production so a misconfigured
+ * deploy fails loudly instead of issuing forgeable tokens.
+ */
+export function authSecret(): Uint8Array {
   const s = process.env.AUTH_SECRET;
   if (!s) {
     if (process.env.NODE_ENV === "production") {
-      throw new Error("AUTH_SECRET is not set — refusing to sign sessions with a known dev secret.");
+      throw new Error("AUTH_SECRET is not set. Refusing to sign tokens with a known dev secret.");
     }
     return new TextEncoder().encode("dev-insecure-secret-change-me-please-32x");
   }
@@ -23,7 +28,7 @@ export async function createSession(userId: string): Promise<string> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${MAX_AGE}s`)
-    .sign(secret());
+    .sign(authSecret());
 }
 
 export async function setSessionCookie(userId: string): Promise<void> {
@@ -45,7 +50,7 @@ export async function getSessionUserId(): Promise<string | null> {
   const token = (await cookies()).get(COOKIE)?.value;
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, secret());
+    const { payload } = await jwtVerify(token, authSecret());
     return (payload.uid as string) || null;
   } catch {
     return null;

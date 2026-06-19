@@ -2,7 +2,13 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import type Stripe from "stripe";
 import { db, schema } from "@/lib/db";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, PRICE_PRO } from "@/lib/stripe";
+
+/** True if a subscription actually carries our Pro price (not just any product). */
+function hasProPrice(sub: Stripe.Subscription): boolean {
+  if (!PRICE_PRO) return true; // no price configured ⇒ single-product mode
+  return sub.items?.data?.some((it) => it.price?.id === PRICE_PRO) ?? false;
+}
 
 async function setPlan(opts: {
   customerId?: string | null;
@@ -40,17 +46,23 @@ export async function POST(req: Request) {
   switch (event.type) {
     case "checkout.session.completed": {
       const s = event.data.object as Stripe.Checkout.Session;
-      await setPlan({
-        workspaceId: s.client_reference_id,
-        customerId: typeof s.customer === "string" ? s.customer : s.customer?.id,
-        subscriptionId: typeof s.subscription === "string" ? s.subscription : s.subscription?.id,
-        plan: "pro",
-      });
+      // Only grant on a genuinely paid subscription checkout.
+      const paid = s.payment_status === "paid" || s.payment_status === "no_payment_required";
+      if (s.mode === "subscription" && paid) {
+        await setPlan({
+          workspaceId: s.client_reference_id,
+          customerId: typeof s.customer === "string" ? s.customer : s.customer?.id,
+          subscriptionId: typeof s.subscription === "string" ? s.subscription : s.subscription?.id,
+          plan: "pro",
+        });
+      }
       break;
     }
+    case "customer.subscription.created":
     case "customer.subscription.updated": {
       const sub = event.data.object as Stripe.Subscription;
-      const active = sub.status === "active" || sub.status === "trialing";
+      // Pro only when the subscription is live AND carries our Pro price.
+      const active = (sub.status === "active" || sub.status === "trialing") && hasProPrice(sub);
       await setPlan({ customerId: typeof sub.customer === "string" ? sub.customer : sub.customer.id, subscriptionId: sub.id, plan: active ? "pro" : "free" });
       break;
     }

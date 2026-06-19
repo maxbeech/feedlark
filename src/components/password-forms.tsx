@@ -10,12 +10,12 @@ export function ForgotForm() {
   if (state.ok) {
     return (
       <div className="space-y-3 text-sm">
-        <p className="rounded-lg bg-emerald-50 px-3 py-2 text-emerald-800">
+        <p className="rounded-lg bg-spruce-50 px-3 py-2 text-spruce-700">
           If an account exists for that email, we&apos;ve sent a reset link.
         </p>
         {state.emailUnconfigured && (
           <p className="rounded-lg bg-amber-50 px-3 py-2 text-amber-800">
-            Note: email delivery isn&apos;t configured on this deployment yet, so the link couldn&apos;t be sent — contact support to reset your password.
+            Note: email delivery isn&apos;t configured on this deployment yet, so the link could not be sent. Contact support to reset your password.
           </p>
         )}
         <Link href="/login" className="block text-center font-medium text-brand-600">Back to log in</Link>

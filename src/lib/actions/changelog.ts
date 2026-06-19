@@ -10,6 +10,7 @@ import { slugify } from "@/lib/utils";
 import { assertMembership } from "@/lib/auth/guard";
 import { sendEmail } from "@/lib/email";
 import { absoluteUrl } from "@/lib/utils";
+import { revalidatePublicWorkspace } from "@/lib/revalidate";
 import {
   dedupeEmails,
   shipChangelogBody,
@@ -127,7 +128,7 @@ export async function shipPostAction(formData: FormData) {
   revalidatePath(`/dashboard/posts/${postId}`);
   revalidatePath("/dashboard/changelog");
   if (ws) {
-    revalidatePath(`/b/${ws.slug}/changelog`);
-    revalidatePath(`/b/${ws.slug}/roadmap`);
+    revalidatePath(`/b/${ws.slug}/p/${postId}`);
+    revalidatePublicWorkspace(ws.slug);
   }
 }

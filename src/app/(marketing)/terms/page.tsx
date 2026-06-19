@@ -11,7 +11,7 @@ export const metadata: Metadata = pageMetadata({
 export default function TermsPage() {
   return (
     <section className="mx-auto max-w-2xl px-4 py-16">
-      <h1 className="text-3xl font-bold text-ink">Terms of Service</h1>
+      <h1 className="font-display text-3xl font-semibold tracking-tightest text-ink md:text-4xl">Terms of Service</h1>
       <div className="prose-feedlark mt-6">
         <p>Last updated: June 18, 2026. By using Feedlark you agree to these terms.</p>
         <h2>Using Feedlark</h2>
@@ -24,7 +24,7 @@ export default function TermsPage() {
         <p>Don&apos;t use Feedlark for unlawful content, spam, or to infringe others&apos; rights. We may suspend accounts that violate these terms.</p>
         <h2>Disclaimer</h2>
         <p>Feedlark is provided &quot;as is&quot; without warranties. To the extent permitted by law, we are not liable for indirect or consequential damages.</p>
-        <p className="text-sm text-ink-muted">This is a standard template — operators should have it reviewed by a lawyer before commercial launch.</p>
+        <p className="text-sm text-ink-muted">This is a standard template. Operators should have it reviewed by a lawyer before commercial launch.</p>
       </div>
     </section>
   );

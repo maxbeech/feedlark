@@ -25,7 +25,7 @@ export function softwareAppJsonLd() {
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description:
-      "Free customer feedback boards, public roadmap and changelog. Unlimited end-users — no per-user growth tax.",
+      "Free customer feedback boards, public roadmap and changelog. Unlimited end-users, no per-user growth tax.",
     offers: [
       { "@type": "Offer", price: "0", priceCurrency: "USD", name: "Free" },
       { "@type": "Offer", price: "19", priceCurrency: "USD", name: "Pro (per seat / mo)" },

@@ -2,11 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/lib/db";
 import { newId } from "@/lib/ids";
 import { slugify } from "@/lib/utils";
+import { revalidatePublicWorkspace } from "@/lib/revalidate";
 import { POST_STATUSES } from "@/lib/db/schema";
 import { assertMembership } from "@/lib/auth/guard";
 import { limitsFor } from "@/lib/plans";
@@ -62,14 +63,23 @@ export async function setPostStatusAction(formData: FormData) {
   const postId = String(formData.get("postId"));
   const status = String(formData.get("status"));
   if (!POST_STATUSES.includes(status as never)) return;
+  // "complete" is reserved for the ship-loop (the "Ship it" button), which also
+  // writes the changelog + shippedChangelogId. Setting it directly here would
+  // show a post as "Shipped" with no changelog behind it, so we forbid it.
+  if (status === "complete") return;
   const post = (await db.select().from(schema.posts).where(eq(schema.posts.id, postId)).limit(1))[0];
   if (!post) return;
   await assertMembership(post.workspaceId);
-  await db.update(schema.posts).set({ status }).where(eq(schema.posts.id, postId));
+  // Re-opening a shipped post: drop the changelog link so the loop can run again.
+  const reopening = post.status === "complete" && post.shippedChangelogId;
+  await db
+    .update(schema.posts)
+    .set(reopening ? { status, shippedChangelogId: null } : { status })
+    .where(eq(schema.posts.id, postId));
   revalidatePath(`/dashboard/posts/${postId}`);
   revalidatePath("/dashboard");
   const ws = (await db.select({ slug: schema.workspaces.slug }).from(schema.workspaces).where(eq(schema.workspaces.id, post.workspaceId)).limit(1))[0];
-  if (ws) revalidatePath(`/b/${ws.slug}/roadmap`);
+  if (ws) revalidatePublicWorkspace(ws.slug);
 }
 
 export async function togglePinAction(formData: FormData) {
@@ -138,6 +148,15 @@ export async function updateCustomDomainAction(_prev: { error?: string; ok?: boo
 
   const domain = (parsed.data.customDomain || "").toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "").trim();
   if (domain && !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(domain)) return { error: "Enter a valid domain like feedback.yourcompany.com" };
+  if (domain) {
+    // A domain can only route to one workspace — refuse to hijack another's.
+    const clash = (await db
+      .select({ id: schema.workspaces.id })
+      .from(schema.workspaces)
+      .where(and(eq(schema.workspaces.customDomain, domain), ne(schema.workspaces.id, ws.id)))
+      .limit(1))[0];
+    if (clash) return { error: "That domain is already connected to another Feedlark workspace." };
+  }
   await db.update(schema.workspaces).set({ customDomain: domain || null }).where(eq(schema.workspaces.id, ws.id));
   revalidatePath("/dashboard/settings");
   return { ok: true };

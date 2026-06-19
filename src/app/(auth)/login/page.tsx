@@ -16,7 +16,7 @@ export default async function LoginPage() {
   if (await getSessionUserId()) redirect("/dashboard");
   return (
     <>
-      <h1 className="mb-1 text-xl font-bold text-ink">Welcome back</h1>
+      <h1 className="mb-1 font-display text-2xl font-semibold tracking-tightest text-ink">Welcome back</h1>
       <p className="mb-5 text-sm text-ink-muted">Log in to manage your feedback.</p>
       <AuthForm mode="login" action={loginAction} />
     </>

@@ -1,6 +1,6 @@
 /**
  * Plan gating. The whole point of Feedlark vs Canny: the FREE plan is
- * genuinely generous — unlimited end-users, posts, votes, comments, boards,
+ * genuinely generous, with unlimited end-users, posts, votes, comments, boards,
  * roadmap, changelog and widget. We only ever gate "team/brand" niceties,
  * never the core product or the number of voters ("no growth tax").
  */
@@ -23,7 +23,7 @@ export interface PlanLimits {
 
 export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
   free: {
-    maxBoards: null, // unlimited — deliberately, unlike Canny
+    maxBoards: null, // unlimited, deliberately, unlike Canny
     seats: 1,
     canRemoveBranding: false,
     canPrivateBoards: false,
@@ -40,7 +40,7 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
   },
 };
 
-export const PRO_PRICE_MONTHLY = 19; // USD per admin seat / mo — flat, never per voter
+export const PRO_PRICE_MONTHLY = 19; // USD per admin seat / mo, flat, never per voter
 
 export function limitsFor(plan: string): PlanLimits {
   return PLAN_LIMITS[(plan as Plan)] ?? PLAN_LIMITS.free;

@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/lib/db";
 import { assertMembership } from "@/lib/auth/guard";
+import { revalidatePublicWorkspace } from "@/lib/revalidate";
 
 /** Manual child cleanup (libSQL doesn't enforce FK cascades by default). */
 async function purgePost(postId: string) {
@@ -20,9 +21,10 @@ export async function deletePostAction(formData: FormData) {
   const post = (await db.select().from(schema.posts).where(eq(schema.posts.id, postId)).limit(1))[0];
   if (!post) return;
   await assertMembership(post.workspaceId);
+  const board = (await db.select({ slug: schema.boards.slug }).from(schema.boards).where(eq(schema.boards.id, post.boardId)).limit(1))[0];
   await purgePost(postId);
   const ws = (await db.select({ slug: schema.workspaces.slug }).from(schema.workspaces).where(eq(schema.workspaces.id, post.workspaceId)).limit(1))[0];
-  if (ws) revalidatePath(`/b/${ws.slug}/roadmap`);
+  if (ws) revalidatePublicWorkspace(ws.slug, board?.slug);
   redirect(`/dashboard/boards/${post.boardId}`);
 }
 
@@ -71,6 +73,8 @@ export async function deleteBoardAction(formData: FormData) {
   const posts = await db.select({ id: schema.posts.id }).from(schema.posts).where(eq(schema.posts.boardId, boardId));
   for (const p of posts) await purgePost(p.id);
   await db.delete(schema.boards).where(eq(schema.boards.id, boardId));
+  const ws = (await db.select({ slug: schema.workspaces.slug }).from(schema.workspaces).where(eq(schema.workspaces.id, board.workspaceId)).limit(1))[0];
+  if (ws) revalidatePublicWorkspace(ws.slug, board.slug);
   revalidatePath("/dashboard");
   redirect("/dashboard");
 }

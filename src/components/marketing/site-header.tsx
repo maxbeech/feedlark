@@ -13,12 +13,16 @@ const nav = [
 
 export function SiteHeader({ isAuthed }: { isAuthed?: boolean }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-sand-200/80 bg-paper/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Logo />
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-1 md:flex">
           {nav.map((n) => (
-            <Link key={n.href} href={n.href} className="text-sm font-medium text-ink-soft hover:text-ink">
+            <Link
+              key={n.href}
+              href={n.href}
+              className="rounded-lg px-3 py-2 text-sm font-medium text-ink-soft transition-colors hover:bg-cream hover:text-ink"
+            >
               {n.label}
             </Link>
           ))}

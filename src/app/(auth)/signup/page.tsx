@@ -7,7 +7,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Start free",
-  description: "Create a free Feedlark account — unlimited feedback, voters and boards. No credit card.",
+  description: "Create a free Feedlark account with unlimited feedback, voters and boards. No credit card.",
   path: "/signup",
   noIndex: true,
 });
@@ -16,7 +16,7 @@ export default async function SignupPage() {
   if (await getSessionUserId()) redirect("/dashboard");
   return (
     <>
-      <h1 className="mb-1 text-xl font-bold text-ink">Create your free board</h1>
+      <h1 className="mb-1 font-display text-2xl font-semibold tracking-tightest text-ink">Create your free board</h1>
       <p className="mb-5 text-sm text-ink-muted">Unlimited users and votes. No card required.</p>
       <AuthForm mode="signup" action={signupAction} />
     </>

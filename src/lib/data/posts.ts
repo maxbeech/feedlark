@@ -44,21 +44,28 @@ export async function votedPostIds(voterKey: string, postIds: string[]): Promise
   return new Set(rows.map((r) => r.postId));
 }
 
-/** Posts grouped for the public roadmap (planned / in_progress / complete). */
+/**
+ * Posts grouped for the PUBLIC roadmap (planned / in_progress / complete).
+ * Joins boards and excludes private boards so private-board content never leaks
+ * onto the public roadmap or its JSON-LD.
+ */
 export async function roadmapPosts(workspaceId: string) {
   const rows = await db
     .select()
     .from(schema.posts)
+    .innerJoin(schema.boards, eq(schema.posts.boardId, schema.boards.id))
     .where(
       and(
         eq(schema.posts.workspaceId, workspaceId),
+        eq(schema.boards.isPrivate, false),
         inArray(schema.posts.status, ["planned", "in_progress", "complete"]),
       ),
     )
     .orderBy(desc(schema.posts.voteCount), desc(schema.posts.createdAt));
+  const posts = rows.map((r) => r.posts);
   return {
-    planned: rows.filter((p) => p.status === "planned"),
-    in_progress: rows.filter((p) => p.status === "in_progress"),
-    complete: rows.filter((p) => p.status === "complete"),
+    planned: posts.filter((p) => p.status === "planned"),
+    in_progress: posts.filter((p) => p.status === "in_progress"),
+    complete: posts.filter((p) => p.status === "complete"),
   };
 }

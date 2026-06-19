@@ -17,7 +17,7 @@ export function NewChangelogForm({ workspaceId }: { workspaceId: string }) {
         </div>
         <div>
           <Label htmlFor="category">Type</Label>
-          <select id="category" name="category" className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm">
+          <select id="category" name="category" className="h-11 w-full rounded-xl border border-sand-300 bg-white px-3 text-sm text-ink shadow-sm focus:border-brand-400 focus:outline-none focus:ring-4 focus:ring-brand-100">
             <option value="new">New</option>
             <option value="improved">Improved</option>
             <option value="fixed">Fixed</option>

@@ -50,7 +50,7 @@ export default async function BoardPage({ params }: { params: Promise<{ wsSlug: 
   return (
     <div>
       <Link href={`/b/${ws.slug}`} className="text-sm text-ink-muted hover:text-ink">← All boards</Link>
-      <h1 className="mt-1 text-2xl font-bold text-ink">{board.name}</h1>
+      <h1 className="mt-1 font-display text-3xl font-semibold tracking-tightest text-ink">{board.name}</h1>
       {board.description && <p className="mt-1 text-ink-muted">{board.description}</p>}
 
       <div className="mt-5">

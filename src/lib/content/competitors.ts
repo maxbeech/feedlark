@@ -19,7 +19,7 @@ export const COMPETITORS: Competitor[] = [
     name: "Canny",
     keyword: "canny alternative",
     positioning:
-      "Canny is the category-defining customer feedback tool — boards, roadmap, changelog and a widget, with deep integrations.",
+      "Canny is the category-defining customer feedback tool: boards, roadmap, changelog and a widget, with deep integrations.",
     pricing:
       "Canny's free plan caps at 25 tracked users and it bills per tracked user, so every voter and commenter adds to your bill. Paid plans start around $79/mo (billed yearly) and scale steeply with your user count.",
     mainGripe:
@@ -33,9 +33,9 @@ export const COMPETITORS: Competitor[] = [
       ["Auto-notify voters on ship", "Manual", "Automatic ('You asked → We shipped')"],
     ],
     faqs: [
-      { q: "Is there a free Canny alternative?", a: "Yes — Feedlark's free plan includes unlimited end-users, posts, votes, boards, a public roadmap, changelog and widget. Canny's free plan caps at 25 tracked users." },
+      { q: "Is there a free Canny alternative?", a: "Yes. Feedlark's free plan includes unlimited end-users, posts, votes, boards, a public roadmap, changelog and widget. Canny's free plan caps at 25 tracked users." },
       { q: "Why is Canny so expensive?", a: "Canny bills per tracked user, so cost rises with engagement. Feedlark charges only per admin seat, so your bill never grows just because more people give feedback." },
-      { q: "Can I migrate from Canny?", a: "Feedlark covers the same core workflow — boards, voting, roadmap and changelog — so you can recreate your setup and point your feedback link or widget at Feedlark." },
+      { q: "Can I migrate from Canny?", a: "Feedlark covers the same core workflow (boards, voting, roadmap and changelog), so you can recreate your setup and point your feedback link or widget at Feedlark." },
     ],
   },
   {
@@ -56,7 +56,7 @@ export const COMPETITORS: Competitor[] = [
       ["Simplicity", "Broad support suite", "Focused on feedback → roadmap → changelog"],
     ],
     faqs: [
-      { q: "Feedlark vs Featurebase — what's the difference?", a: "Both give unlimited end-users on free. Feedlark is more focused (feedback, roadmap, changelog) and a little cheaper at $19/seat, and it auto-closes the loop by notifying everyone who voted when an item ships." },
+      { q: "Feedlark vs Featurebase: what's the difference?", a: "Both give unlimited end-users on free. Feedlark is more focused (feedback, roadmap, changelog) and a little cheaper at $19/seat, and it auto-closes the loop by notifying everyone who voted when an item ships." },
       { q: "Is Feedlark cheaper than Featurebase?", a: "Feedlark's paid plan starts at $19 per admin seat vs Featurebase's $29, and Feedlark doesn't meter AI as a per-resolution add-on." },
     ],
   },
@@ -67,7 +67,7 @@ export const COMPETITORS: Competitor[] = [
     positioning:
       "Productboard is an enterprise product-management platform (insights, prioritisation, strategy and roadmaps).",
     pricing:
-      "Productboard is priced per maker (around $19/maker/mo monthly) with AI on a credit system — powerful but heavy and costly for small teams that just want a feedback board.",
+      "Productboard is priced per maker (around $19/maker/mo monthly) with AI on a credit system. It's powerful, but heavy and costly for small teams that just want a feedback board.",
     mainGripe:
       "It's built for big product orgs. For collecting feature requests and showing a public roadmap, it's overkill and expensive.",
     rows: [
@@ -77,7 +77,7 @@ export const COMPETITORS: Competitor[] = [
       ["Public board + voting", "Add-on / portal", "Core, included free"],
     ],
     faqs: [
-      { q: "Is there a simpler Productboard alternative?", a: "Yes — if you mainly need a public feedback board, voting, a roadmap and a changelog, Feedlark does exactly that for free, without the enterprise complexity." },
+      { q: "Is there a simpler Productboard alternative?", a: "Yes. If you mainly need a public feedback board, voting, a roadmap and a changelog, Feedlark does exactly that for free, without the enterprise complexity." },
     ],
   },
   {
@@ -94,7 +94,7 @@ export const COMPETITORS: Competitor[] = [
       ["Roadmap", "Yes", "Yes"],
     ],
     faqs: [
-      { q: "Is there a free Nolt alternative?", a: "Yes — Feedlark offers unlimited boards and users free, plus a changelog and roadmap Nolt charges extra for." },
+      { q: "Is there a free Nolt alternative?", a: "Yes. Feedlark offers unlimited boards and users free, plus a changelog and roadmap Nolt charges extra for." },
     ],
   },
   {
@@ -111,7 +111,7 @@ export const COMPETITORS: Competitor[] = [
       ["Auto-notify voters on ship", "Manual announcements", "Automatic 'You asked → We shipped'"],
     ],
     faqs: [
-      { q: "Is Feedlark a good Frill alternative?", a: "Yes — Feedlark covers ideas, roadmap and changelog like Frill, but is free for unlimited users and auto-notifies voters when their request ships." },
+      { q: "Is Feedlark a good Frill alternative?", a: "Yes. Feedlark covers ideas, roadmap and changelog like Frill, but it's free for unlimited users and auto-notifies voters when their request ships." },
     ],
   },
 ];

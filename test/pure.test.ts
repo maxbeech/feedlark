@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { slugify, isReservedSlug, statusLabel, ROADMAP_COLUMNS } from "@/lib/utils";
+import { slugify, isReservedSlug, statusLabel, ROADMAP_COLUMNS, isValidEmail } from "@/lib/utils";
 import { limitsFor, PLAN_LIMITS } from "@/lib/plans";
 import { dedupeEmails, shipChangelogTitle, shipChangelogBody } from "@/lib/ship-loop";
 import { tokenize, similarity, clusterDuplicates } from "@/lib/dedupe";
@@ -48,9 +48,21 @@ describe("plan limits — the 'no growth tax' guarantee", () => {
   });
 });
 
+describe("isValidEmail", () => {
+  it("accepts real addresses", () => {
+    expect(isValidEmail("a@b.com")).toBe(true);
+    expect(isValidEmail("  First.Last@sub.domain.io  ")).toBe(true);
+  });
+  it("rejects the junk a bare includes('@') would let through", () => {
+    for (const bad of ["@", "a@", "@b", "a@b", "no-at.com", "a @b.com", ""]) {
+      expect(isValidEmail(bad), bad).toBe(false);
+    }
+  });
+});
+
 describe("ship-loop notify helpers", () => {
-  it("dedupes + lowercases emails, dropping invalids", () => {
-    expect(dedupeEmails(["A@x.com", "a@x.com", null, "b@y.com", "nope", undefined])).toEqual(["a@x.com", "b@y.com"]);
+  it("dedupes + lowercases emails, dropping invalids (incl. 'a@')", () => {
+    expect(dedupeEmails(["A@x.com", "a@x.com", null, "b@y.com", "nope", "junk@", undefined])).toEqual(["a@x.com", "b@y.com"]);
   });
   it("builds changelog title/body", () => {
     expect(shipChangelogTitle("Dark mode")).toBe("Dark mode");

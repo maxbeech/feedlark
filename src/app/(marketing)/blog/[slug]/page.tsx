@@ -38,8 +38,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     <article className="mx-auto max-w-2xl px-4 py-16">
       <JsonLd data={articleLd} />
       <Link href="/blog" className="text-sm text-ink-muted hover:text-ink">← All posts</Link>
-      <p className="mt-4 text-xs text-ink-muted">{post.date} · {post.readMins} min read</p>
-      <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-ink md:text-4xl">{post.title}</h1>
+      <p className="mt-5 text-xs font-medium uppercase tracking-wide text-brand-600">{post.date} · {post.readMins} min read</p>
+      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tightest text-ink md:text-[2.75rem] md:leading-[1.08]">{post.title}</h1>
 
       <div className="prose-feedlark mt-8">
         {post.blocks.map((b, i) => (
@@ -51,10 +51,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         ))}
       </div>
 
-      <div className="mt-12 rounded-2xl bg-brand-50 p-6 text-center">
-        <p className="font-semibold text-ink">Collect feedback like this, for free</p>
-        <p className="mt-1 text-sm text-ink-soft">Unlimited users. No growth tax.</p>
-        <div className="mt-4"><LinkButton href="/signup">Start free</LinkButton></div>
+      <div className="mt-12 rounded-2xl border border-brand-200 bg-gradient-to-b from-brand-50/70 to-white p-7 text-center shadow-soft">
+        <p className="font-display text-xl font-semibold text-ink">Collect feedback like this, for free</p>
+        <p className="mt-1.5 text-sm text-ink-soft">Unlimited users. No growth tax.</p>
+        <div className="mt-5"><LinkButton href="/signup">Start free</LinkButton></div>
       </div>
     </article>
   );

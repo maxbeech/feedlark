@@ -22,7 +22,7 @@ export default async function ResetPage({ searchParams }: { searchParams: Promis
   }
   return (
     <>
-      <h1 className="mb-1 text-xl font-bold text-ink">Set a new password</h1>
+      <h1 className="mb-1 font-display text-2xl font-semibold tracking-tightest text-ink">Set a new password</h1>
       <p className="mb-5 text-sm text-ink-muted">Choose a new password for your account.</p>
       <ResetForm token={token} />
     </>

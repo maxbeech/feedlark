@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "nodejs";
-export const alt = "Feedlark — free customer feedback boards, roadmap & changelog";
+export const alt = "Feedlark: free customer feedback boards, roadmap and changelog";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -16,22 +16,22 @@ export default function OgImage() {
           flexDirection: "column",
           justifyContent: "center",
           padding: "80px",
-          background: "linear-gradient(135deg, #fff7ed 0%, #ffffff 60%)",
-          fontFamily: "sans-serif",
+          background: "linear-gradient(135deg, #fcfaf6 0%, #ffffff 55%)",
+          fontFamily: "serif",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ width: 56, height: 56, borderRadius: 16, background: "#f97316", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 34, fontWeight: 800 }}>
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: "#df520c", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 34, fontWeight: 700 }}>
             F
           </div>
-          <div style={{ fontSize: 36, fontWeight: 800, color: "#0f1729" }}>Feedlark</div>
+          <div style={{ fontSize: 36, fontWeight: 700, color: "#1c1714" }}>Feedlark</div>
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", fontSize: 64, fontWeight: 800, color: "#0f1729", marginTop: 40, lineHeight: 1.1, maxWidth: 1000 }}>
-          <span>Customer feedback that doesn&apos;t&nbsp;</span>
-          <span style={{ color: "#ea580c" }}>tax your growth</span>
+        <div style={{ display: "flex", flexWrap: "wrap", fontSize: 62, fontWeight: 700, color: "#1c1714", marginTop: 40, lineHeight: 1.08, maxWidth: 1040 }}>
+          <span>A roadmap your customers can&nbsp;</span>
+          <span style={{ color: "#df520c" }}>watch you ship</span>
         </div>
-        <div style={{ fontSize: 30, color: "#475569", marginTop: 28 }}>
-          Free feedback boards, public roadmap & changelog. Unlimited users — no growth tax.
+        <div style={{ display: "flex", fontSize: 29, color: "#4a423c", marginTop: 28, fontFamily: "sans-serif" }}>
+          Feedback boards, public roadmap and changelog. Unlimited users, no growth tax.
         </div>
       </div>
     ),

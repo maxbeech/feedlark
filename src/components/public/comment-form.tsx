@@ -23,7 +23,7 @@ export function CommentForm({ postId }: { postId: string }) {
           <Input name="authorEmail" type="email" placeholder="Email (optional)" />
         </div>
         {state.error && <p className="text-sm text-red-700">{state.error}</p>}
-        {state.ok && <p className="text-sm text-emerald-700">Comment added.</p>}
+        {state.ok && <p className="text-sm font-medium text-spruce-700">Comment added.</p>}
         <Button type="submit" size="sm" disabled={pending}>{pending ? "Posting…" : "Comment"}</Button>
       </form>
     </Card>

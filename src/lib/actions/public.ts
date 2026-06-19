@@ -1,11 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/lib/db";
 import { newId } from "@/lib/ids";
 import { ensureVoterKey } from "@/lib/voter";
+import { revalidatePublicWorkspace } from "@/lib/revalidate";
 
 const postSchema = z.object({
   boardId: z.string().min(1),
@@ -47,16 +48,20 @@ export async function submitPostAction(_prev: PublicResult, formData: FormData):
     body: parsed.data.body ?? "",
     authorName: parsed.data.authorName || "Anonymous",
     authorEmail: email,
-    voteCount: 1,
+    voteCount: 0,
   });
-  // The submitter implicitly upvotes their own idea.
-  await db.insert(schema.votes).values({ id: newId("vote"), postId, voterKey, voterEmail: email });
+  // The submitter implicitly upvotes their own idea; recount authoritatively so
+  // voteCount can never drift from COUNT(votes) even if the insert is retried.
+  try {
+    await db.insert(schema.votes).values({ id: newId("vote"), postId, voterKey, voterEmail: email });
+  } catch {
+    /* unique race: this voter already voted */
+  }
+  const counted = await db.select({ c: sql<number>`count(*)` }).from(schema.votes).where(eq(schema.votes.postId, postId));
+  await db.update(schema.posts).set({ voteCount: Number(counted[0]?.c ?? 0) }).where(eq(schema.posts.id, postId));
 
   const ws = (await db.select({ slug: schema.workspaces.slug }).from(schema.workspaces).where(eq(schema.workspaces.id, board.workspaceId)).limit(1))[0];
-  if (ws) {
-    revalidatePath(`/b/${ws.slug}/${board.slug}`);
-    revalidatePath(`/b/${ws.slug}`); // workspace home shows per-board post counts
-  }
+  if (ws) revalidatePublicWorkspace(ws.slug, board.slug);
   return { ok: true };
 }
 
