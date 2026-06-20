@@ -7,13 +7,27 @@ import type { ActionResult } from "@/lib/actions/auth";
 
 type Action = (prev: ActionResult, fd: FormData) => Promise<ActionResult>;
 
-export function AuthForm({ mode, action }: { mode: "login" | "signup"; action: Action }) {
+export function AuthForm({
+  mode,
+  action,
+  defaultEmail,
+  hiddenFields,
+  joining = false,
+}: {
+  mode: "login" | "signup";
+  action: Action;
+  defaultEmail?: string;
+  hiddenFields?: Record<string, string>;
+  joining?: boolean;
+}) {
   const [state, formAction, pending] = useActionState(action, {});
   const isSignup = mode === "signup";
 
   return (
     <form action={formAction} className="space-y-4">
-      {isSignup && (
+      {hiddenFields &&
+        Object.entries(hiddenFields).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
+      {isSignup && !joining && (
         <div>
           <Label htmlFor="company">Company / product name</Label>
           <Input id="company" name="company" placeholder="Acme" autoComplete="organization" />
@@ -21,7 +35,7 @@ export function AuthForm({ mode, action }: { mode: "login" | "signup"; action: A
       )}
       <div>
         <Label htmlFor="email">Work email</Label>
-        <Input id="email" name="email" type="email" required placeholder="you@company.com" autoComplete="email" />
+        <Input id="email" name="email" type="email" required placeholder="you@company.com" autoComplete="email" defaultValue={defaultEmail} readOnly={Boolean(defaultEmail)} />
       </div>
       <div>
         <Label htmlFor="password">Password</Label>
@@ -48,16 +62,18 @@ export function AuthForm({ mode, action }: { mode: "login" | "signup"; action: A
       )}
 
       <Button type="submit" size="lg" className="w-full" disabled={pending}>
-        {pending ? "Please wait…" : isSignup ? "Create free account" : "Log in"}
+        {pending ? "Please wait…" : isSignup ? (joining ? "Create account & join" : "Create free account") : "Log in"}
       </Button>
 
-      <p className="text-center text-sm text-ink-muted">
-        {isSignup ? (
-          <>Already have an account? <Link href="/login" className="font-medium text-brand-600">Log in</Link></>
-        ) : (
-          <>New to Feedlark? <Link href="/signup" className="font-medium text-brand-600">Start free</Link></>
-        )}
-      </p>
+      {!joining && (
+        <p className="text-center text-sm text-ink-muted">
+          {isSignup ? (
+            <>Already have an account? <Link href="/login" className="font-medium text-brand-600">Log in</Link></>
+          ) : (
+            <>New to Feedlark? <Link href="/signup" className="font-medium text-brand-600">Start free</Link></>
+          )}
+        </p>
+      )}
     </form>
   );
 }

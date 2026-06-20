@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
-import { Rocket, Pin } from "lucide-react";
+import { Rocket, Pin, Lock } from "lucide-react";
 import { db, schema } from "@/lib/db";
 import { requireWorkspaceContext } from "@/lib/auth/guard";
 import { listComments } from "@/lib/data/posts";
-import { Card, Button, Textarea, StatusBadge } from "@/components/ui";
+import { Card, Button, Textarea, StatusBadge, LinkButton } from "@/components/ui";
 import { StatusControl } from "@/components/dashboard/status-control";
 import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
 import { EditPostForm } from "@/components/dashboard/edit-forms";
-import { togglePinAction, adminReplyAction } from "@/lib/actions/admin";
+import { togglePinAction, adminReplyAction, addInternalNoteAction } from "@/lib/actions/admin";
 import { shipPostAction as shipAction } from "@/lib/actions/changelog";
 import { deletePostAction, deleteCommentAction } from "@/lib/actions/moderation";
 import { statusLabel, timeAgo } from "@/lib/utils";
@@ -21,9 +21,12 @@ export default async function PostManagePage({ params }: { params: Promise<{ pos
   if (!post || post.workspaceId !== workspace.id) notFound();
 
   const board = (await db.select().from(schema.boards).where(eq(schema.boards.id, post.boardId)).limit(1))[0];
-  const comments = await listComments(postId);
+  const allComments = await listComments(postId, { includeInternal: true });
+  const comments = allComments.filter((c) => !c.isInternal);
+  const notes = allComments.filter((c) => c.isInternal);
   const notifs = await db.select().from(schema.shipNotifications).where(eq(schema.shipNotifications.postId, postId));
   const shipped = post.status === "complete" && post.shippedChangelogId;
+  const isPro = workspace.plan === "pro";
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -57,7 +60,7 @@ export default async function PostManagePage({ params }: { params: Promise<{ pos
 
         {shipped && (
           <div className="mt-4 rounded-xl bg-spruce-50 p-4 text-sm text-spruce-700">
-            ✓ Shipped. Changelog published.{" "}
+            <span className="font-medium">Shipped. Changelog published.</span>{" "}
             {notifs.length > 0
               ? `${notifs.length} ${notifs.length === 1 ? "person" : "people"} who asked were notified (${notifs.filter((n) => n.status === "sent").length} emailed${notifs.some((n) => n.status === "logged") ? ", rest queued" : ""}).`
               : "No voters left an email to notify."}
@@ -85,6 +88,33 @@ export default async function PostManagePage({ params }: { params: Promise<{ pos
           <Button type="submit" size="sm">Post reply</Button>
         </form>
       </Card>
+
+      <div className="mt-8 rounded-2xl border border-sand-200 bg-cream/40 p-5">
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-ink"><Lock className="h-4 w-4 text-ink-muted" /> Internal notes</h2>
+        <p className="mt-1 text-xs text-ink-muted">Private to your team. Never shown to customers.</p>
+        {notes.length > 0 && (
+          <div className="mt-3 space-y-2">
+            {notes.map((n) => (
+              <div key={n.id} className="rounded-xl border border-amber-200 bg-amber-50/60 p-3">
+                <p className="text-xs font-medium text-amber-900">{n.authorName} · {timeAgo(n.createdAt)}</p>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-ink-soft">{n.body}</p>
+              </div>
+            ))}
+          </div>
+        )}
+        {isPro ? (
+          <form action={addInternalNoteAction} className="mt-3 space-y-2">
+            <input type="hidden" name="postId" value={post.id} />
+            <Textarea name="body" rows={2} placeholder="Add a private note for your team…" required />
+            <Button type="submit" size="sm" variant="outline">Add note</Button>
+          </form>
+        ) : (
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-brand-200 bg-brand-50/60 p-3">
+            <p className="text-sm text-ink-soft">Internal notes are a Pro feature.</p>
+            <LinkButton href="/dashboard/settings" size="sm">Upgrade</LinkButton>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

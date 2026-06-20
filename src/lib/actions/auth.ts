@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -8,6 +9,25 @@ import { newId } from "@/lib/ids";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { setSessionCookie, clearSessionCookie } from "@/lib/auth/session";
 import { createWorkspaceForUser } from "@/lib/data/workspace";
+import { ACTIVE_WS_COOKIE, seatUsage } from "@/lib/data/team";
+import { syncSeatQuantity } from "@/lib/stripe-seats";
+import { limitsFor } from "@/lib/plans";
+
+/**
+ * If signup carries a valid invite token for this email, join that workspace as
+ * an admin instead of creating a personal one. Returns true if joined.
+ */
+async function joinViaInvite(userId: string, email: string, token: string): Promise<boolean> {
+  const inv = (await db.select().from(schema.invitations).where(eq(schema.invitations.token, token)).limit(1))[0];
+  if (!inv || inv.expiresAt < Math.floor(Date.now() / 1000) || inv.email.toLowerCase() !== email) return false;
+  const ws = (await db.select().from(schema.workspaces).where(eq(schema.workspaces.id, inv.workspaceId)).limit(1))[0];
+  if (!ws || (await seatUsage(ws.id)).members >= limitsFor(ws.plan).seats) return false;
+  await db.insert(schema.workspaceMembers).values({ id: newId("mem"), workspaceId: ws.id, userId, role: "admin" });
+  await db.delete(schema.invitations).where(eq(schema.invitations.id, inv.id));
+  try { await syncSeatQuantity(ws.stripeSubscriptionId, (await seatUsage(ws.id)).members); } catch { /* reconciles later */ }
+  (await cookies()).set(ACTIVE_WS_COOKIE, ws.id, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 365 });
+  return true;
+}
 
 const signupSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -39,8 +59,13 @@ export async function signupAction(_prev: ActionResult, formData: FormData): Pro
     name: parsed.data.name ?? "",
   });
 
-  const wsName = parsed.data.company || parsed.data.name || email.split("@")[0];
-  await createWorkspaceForUser(userId, wsName, wsName);
+  // Joining a team via an invite skips creating a personal workspace.
+  const inviteToken = String(formData.get("inviteToken") || "").trim();
+  const joined = inviteToken ? await joinViaInvite(userId, email, inviteToken) : false;
+  if (!joined) {
+    const wsName = parsed.data.company || parsed.data.name || email.split("@")[0];
+    await createWorkspaceForUser(userId, wsName, wsName);
+  }
   await setSessionCookie(userId);
   redirect("/dashboard");
 }
@@ -61,7 +86,9 @@ export async function loginAction(_prev: ActionResult, formData: FormData): Prom
     return { error: "Invalid email or password." };
   }
   await setSessionCookie(user.id);
-  redirect("/dashboard");
+  // Honour a safe same-site redirect (e.g. back to an invite link).
+  const next = String(formData.get("next") || "");
+  redirect(/^\/[^/].*/.test(next) ? next : "/dashboard");
 }
 
 export async function logoutAction(): Promise<void> {

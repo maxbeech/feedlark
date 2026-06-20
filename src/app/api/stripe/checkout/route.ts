@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getWorkspaceForUser } from "@/lib/data/workspace";
+import { getActiveWorkspaceForUser, seatUsage } from "@/lib/data/team";
 import { getStripe, stripeEnabled, PRICE_PRO } from "@/lib/stripe";
 import { absoluteUrl } from "@/lib/utils";
 
@@ -13,7 +13,7 @@ export async function POST() {
   }
   const user = await getCurrentUser();
   if (!user) return NextResponse.redirect(absoluteUrl("/login"), 303);
-  const ws = await getWorkspaceForUser(user.id);
+  const ws = await getActiveWorkspaceForUser(user.id);
   if (!ws) return NextResponse.redirect(absoluteUrl("/login"), 303);
 
   let customerId = ws.stripeCustomerId;
@@ -23,10 +23,13 @@ export async function POST() {
     await db.update(schema.workspaces).set({ stripeCustomerId: customerId }).where(eq(schema.workspaces.id, ws.id));
   }
 
+  // Bill per seat: start at the current admin count (at least one).
+  const seats = Math.max(1, (await seatUsage(ws.id)).members);
+
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer: customerId,
-    line_items: [{ price: PRICE_PRO, quantity: 1 }],
+    line_items: [{ price: PRICE_PRO, quantity: seats }],
     client_reference_id: ws.id,
     allow_promotion_codes: true,
     success_url: absoluteUrl("/dashboard/settings?upgraded=1"),

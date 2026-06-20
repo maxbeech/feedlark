@@ -40,7 +40,7 @@ export default async function PublicWorkspaceLayout({
 
       {!ws.brandingRemoved && (
         <footer className="py-10 text-center">
-          <a href="https://feedlark.vercel.app?ref=badge" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-sand-200 bg-white px-3 py-1.5 text-xs font-medium text-ink-muted shadow-sm transition-colors hover:text-ink">
+          <a href="https://feedlark.com?ref=badge" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-sand-200 bg-white px-3 py-1.5 text-xs font-medium text-ink-muted shadow-sm transition-colors hover:text-ink">
             <LarkMark className="h-4 w-4" /> Powered by Feedlark
           </a>
         </footer>

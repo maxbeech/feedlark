@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.0 - 2026-06-20
+
+A complete, compelling Pro tier and the production billing/email wiring for launch.
+
+### Added (Pro)
+- **Team & seats**: invite teammates by email, a pending-invites list, remove members, and a 7-day tokenised accept flow. New teammates sign up through the invite link and join the workspace directly (no stray personal workspace). Owner-only management; Free stays single-seat.
+- **Per-seat billing**: checkout starts at the current admin count, and adding or removing a teammate syncs the Stripe subscription quantity (prorated). Honestly "$19 per admin seat, never per voter."
+- **Workspace switcher**: users who belong to more than one workspace can switch the active one from the dashboard header; every dashboard query and billing action follows the active workspace.
+- **Duplicate merge**: the smart-duplicate detector now has a one-click "merge" that moves votes (deduped per voter) and comments into the top post and deletes the rest.
+- **Internal notes**: private team notes on any post, never shown on public pages.
+- **CSV export**: download a board's feedback as CSV.
+- Plan features are now a single source of truth (`PRO_FEATURES`) shared by the pricing page and the in-app billing card.
+
+### Launch configuration
+- Stripe product, $19/mo price and webhook endpoint created via the Stripe CLI; `STRIPE_SECRET_KEY`, `STRIPE_PRICE_PRO_MONTHLY` and `STRIPE_WEBHOOK_SECRET` wired into production.
+- Resend wired (`RESEND_API_KEY`, `EMAIL_FROM=noreply@mail.feedlark.com`); transactional + notification email activates once the sending domain's DNS verifies.
+- Domain references made consistent and env-driven (`feedlark.com`); the embeddable widget de-emojified and rebranded.
+
 ## 0.3.0 - 2026-06-19
 
 A full design and quality pass: a distinctive, premium, human-feeling identity plus a second round of bug fixes.

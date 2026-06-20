@@ -43,7 +43,7 @@ export default async function BoardPage({ params }: { params: Promise<{ wsSlug: 
   const commentRows = await db
     .select({ postId: schema.comments.postId, n: sql<number>`count(*)` })
     .from(schema.comments)
-    .where(inArray(schema.comments.postId, posts.length ? posts.map((p) => p.id) : ["__none__"]))
+    .where(and(inArray(schema.comments.postId, posts.length ? posts.map((p) => p.id) : ["__none__"]), eq(schema.comments.isInternal, false)))
     .groupBy(schema.comments.postId);
   const commentCounts: Record<string, number> = Object.fromEntries(commentRows.map((r) => [r.postId, Number(r.n)]));
 

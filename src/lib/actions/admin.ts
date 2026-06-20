@@ -107,6 +107,30 @@ export async function adminReplyAction(formData: FormData) {
     isAdmin: true,
   });
   revalidatePath(`/dashboard/posts/${postId}`);
+  const ws = (await db.select({ slug: schema.workspaces.slug }).from(schema.workspaces).where(eq(schema.workspaces.id, post.workspaceId)).limit(1))[0];
+  if (ws) revalidatePath(`/b/${ws.slug}/p/${postId}`);
+}
+
+/** Add a private team note to a post (Pro). Never shown on public pages. */
+export async function addInternalNoteAction(formData: FormData) {
+  const postId = String(formData.get("postId"));
+  const body = String(formData.get("body") || "").trim();
+  if (!body) return;
+  const post = (await db.select().from(schema.posts).where(eq(schema.posts.id, postId)).limit(1))[0];
+  if (!post) return;
+  const user = await assertMembership(post.workspaceId);
+  const ws = (await db.select({ plan: schema.workspaces.plan }).from(schema.workspaces).where(eq(schema.workspaces.id, post.workspaceId)).limit(1))[0];
+  if (ws?.plan !== "pro") return; // Pro feature
+  await db.insert(schema.comments).values({
+    id: newId("cmt"),
+    postId,
+    body,
+    authorName: user.name || "Team",
+    authorEmail: user.email,
+    isAdmin: true,
+    isInternal: true,
+  });
+  revalidatePath(`/dashboard/posts/${postId}`);
 }
 
 const settingsSchema = z.object({

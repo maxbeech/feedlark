@@ -72,6 +72,6 @@ export function timeAgo(epochSeconds: number): string {
 }
 
 export function absoluteUrl(path = ""): string {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://feedlark.vercel.app";
+  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://feedlark.com";
   return `${base.replace(/\/$/, "")}${path}`;
 }

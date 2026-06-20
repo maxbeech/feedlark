@@ -50,6 +50,21 @@ export const workspaceMembers = sqliteTable("workspace_members", {
   uniq: uniqueIndex("members_ws_user_idx").on(t.workspaceId, t.userId),
 }));
 
+/** Pending team invitations (a teammate accepts via a tokenised link). */
+export const invitations = sqliteTable("invitations", {
+  id: text("id").primaryKey(),
+  workspaceId: text("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
+  email: text("email").notNull(),
+  role: text("role").notNull().default("admin"), // admin (owner is never invited)
+  token: text("token").notNull(),
+  invitedByUserId: text("invited_by_user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: integer("created_at").notNull().default(now),
+  expiresAt: integer("expires_at").notNull(),
+}, (t) => ({
+  tokenIdx: uniqueIndex("invitations_token_idx").on(t.token),
+  wsEmailIdx: uniqueIndex("invitations_ws_email_idx").on(t.workspaceId, t.email),
+}));
+
 /** A feedback board within a workspace (unlimited on every plan). */
 export const boards = sqliteTable("boards", {
   id: text("id").primaryKey(),
@@ -112,6 +127,8 @@ export const comments = sqliteTable("comments", {
   authorName: text("author_name").notNull().default("Anonymous"),
   authorEmail: text("author_email"),
   isAdmin: integer("is_admin", { mode: "boolean" }).notNull().default(false),
+  // Internal team notes (Pro): visible only in the dashboard, never on public pages.
+  isInternal: integer("is_internal", { mode: "boolean" }).notNull().default(false),
   createdAt: integer("created_at").notNull().default(now),
 }, (t) => ({
   postIdx: index("comments_post_idx").on(t.postId),
@@ -155,3 +172,5 @@ export type Board = typeof boards.$inferSelect;
 export type Post = typeof posts.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
 export type ChangelogEntry = typeof changelogEntries.$inferSelect;
+export type WorkspaceMember = typeof workspaceMembers.$inferSelect;
+export type Invitation = typeof invitations.$inferSelect;

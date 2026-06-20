@@ -30,8 +30,10 @@ export async function getPost(postId: string) {
   return rows[0] ?? null;
 }
 
-export async function listComments(postId: string) {
-  return db.select().from(schema.comments).where(eq(schema.comments.postId, postId)).orderBy(schema.comments.createdAt);
+/** Comments for a post. Internal team notes are excluded unless asked for. */
+export async function listComments(postId: string, opts?: { includeInternal?: boolean }) {
+  const rows = await db.select().from(schema.comments).where(eq(schema.comments.postId, postId)).orderBy(schema.comments.createdAt);
+  return opts?.includeInternal ? rows : rows.filter((c) => !c.isInternal);
 }
 
 /** Which of the given posts the voter (by key) has already upvoted. */

@@ -6,7 +6,7 @@ export const config = {
   matcher: ["/((?!_next/|api/|.*\\.).*)"],
 };
 
-const CANONICAL = new Set(["feedlark.vercel.app", "localhost", "127.0.0.1"]);
+const CANONICAL = new Set(["feedlark.com", "www.feedlark.com", "feedlark.vercel.app", "localhost", "127.0.0.1"]);
 
 /**
  * Custom-domain routing: when a request arrives on a workspace's mapped domain,

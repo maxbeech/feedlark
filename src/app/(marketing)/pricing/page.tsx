@@ -3,7 +3,7 @@ import { Check, ArrowRight } from "lucide-react";
 import { LinkButton } from "@/components/ui";
 import { pageMetadata } from "@/lib/seo";
 import { JsonLd, faqJsonLd } from "@/components/json-ld";
-import { PRO_PRICE_MONTHLY } from "@/lib/plans";
+import { PRO_PRICE_MONTHLY, PRO_FEATURES } from "@/lib/plans";
 
 export const metadata: Metadata = pageMetadata({
   title: "Pricing: free forever, no growth tax",
@@ -12,7 +12,7 @@ export const metadata: Metadata = pageMetadata({
 });
 
 const free = ["Unlimited end users (voters)", "Unlimited posts, votes and comments", "Unlimited boards", "Public roadmap", "Changelog, RSS feed and widget", "Automatic notify-on-ship"];
-const pro = ["Everything in Free", "Remove Feedlark branding", "Custom domain", "Private boards", "Smart duplicate detection", "Up to 10 admin seats"];
+const pro = ["Everything in Free", ...PRO_FEATURES];
 
 const faqs = [
   { q: "Is the free plan really unlimited?", a: "Yes. Unlimited end users, posts, votes, comments and boards on the free plan, forever. We never charge per voter." },

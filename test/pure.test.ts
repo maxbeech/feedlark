@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { slugify, isReservedSlug, statusLabel, ROADMAP_COLUMNS, isValidEmail } from "@/lib/utils";
-import { limitsFor, PLAN_LIMITS } from "@/lib/plans";
+import { limitsFor, PLAN_LIMITS, seatsRemaining, PRO_FEATURES } from "@/lib/plans";
+import { csvCell, toCsv } from "@/lib/csv";
 import { dedupeEmails, shipChangelogTitle, shipChangelogBody } from "@/lib/ship-loop";
 import { tokenize, similarity, clusterDuplicates } from "@/lib/dedupe";
 import { xmlEscape, buildRssFeed } from "@/lib/feeds";
@@ -45,6 +46,32 @@ describe("plan limits — the 'no growth tax' guarantee", () => {
   });
   it("unknown plan falls back to free", () => {
     expect(limitsFor("enterprise").canUseAI).toBe(false);
+  });
+  it("Pro adds team seats over Free's single seat", () => {
+    expect(PLAN_LIMITS.free.seats).toBe(1);
+    expect(PLAN_LIMITS.pro.seats).toBe(10);
+    expect(PRO_FEATURES.length).toBeGreaterThanOrEqual(5);
+  });
+});
+
+describe("seat math", () => {
+  it("counts remaining seats and never goes negative", () => {
+    expect(seatsRemaining("free", 1)).toBe(0); // Free owner uses the only seat
+    expect(seatsRemaining("pro", 3)).toBe(7);
+    expect(seatsRemaining("pro", 12)).toBe(0);
+  });
+});
+
+describe("CSV export", () => {
+  it("quotes cells with commas, quotes or newlines (RFC 4180)", () => {
+    expect(csvCell("plain")).toBe("plain");
+    expect(csvCell("a,b")).toBe('"a,b"');
+    expect(csvCell('he said "hi"')).toBe('"he said ""hi"""');
+    expect(csvCell(42)).toBe("42");
+    expect(csvCell(null)).toBe("");
+  });
+  it("builds a row grid", () => {
+    expect(toCsv([["Title", "Votes"], ["Dark mode, please", 5]])).toBe('Title,Votes\n"Dark mode, please",5');
   });
 });
 

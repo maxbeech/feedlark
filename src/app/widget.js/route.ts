@@ -1,7 +1,7 @@
 import { absoluteUrl } from "@/lib/utils";
 
-// Served at /widget.js — a tiny, dependency-free embed. Usage:
-//   <script src="https://feedlark.vercel.app/widget.js" data-feedlark="your-slug" defer></script>
+// Served at /widget.js, a tiny dependency-free embed. Usage:
+//   <script src="https://feedlark.com/widget.js" data-feedlark="your-slug" defer></script>
 export async function GET() {
   const origin = absoluteUrl();
   const js = `(function(){
@@ -10,10 +10,10 @@ export async function GET() {
   if(!slug){ console.warn('[Feedlark] missing data-feedlark slug'); return; }
   var origin = ${JSON.stringify(origin)};
   var label = (s && s.getAttribute('data-label')) || 'Feedback';
-  var color = (s && s.getAttribute('data-color')) || '#f97316';
+  var color = (s && s.getAttribute('data-color')) || '#f26a18';
 
   var btn = document.createElement('button');
-  btn.textContent = '💡 ' + label;
+  btn.textContent = label;
   btn.setAttribute('aria-label','Open feedback board');
   btn.style.cssText='position:fixed;bottom:20px;right:20px;z-index:2147483000;background:'+color+';color:#fff;border:none;border-radius:9999px;padding:12px 18px;font:600 14px system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.18);cursor:pointer;';
 

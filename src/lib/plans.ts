@@ -40,10 +40,15 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
   },
 };
 
-export const PRO_PRICE_MONTHLY = 19; // USD per admin seat / mo, flat, never per voter
+export const PRO_PRICE_MONTHLY = 19; // USD per admin seat / mo, never per voter
 
 export function limitsFor(plan: string): PlanLimits {
   return PLAN_LIMITS[(plan as Plan)] ?? PLAN_LIMITS.free;
+}
+
+/** Seats a plan has left given how many are already used (members + invites). */
+export function seatsRemaining(plan: string, used: number): number {
+  return Math.max(0, limitsFor(plan).seats - used);
 }
 
 /** Things that are ALWAYS free (used in marketing copy + as a guard list). */
@@ -54,4 +59,15 @@ export const ALWAYS_FREE = [
   "Public roadmap",
   "Changelog + 'what's new' widget",
   "Embeddable feedback widget",
+] as const;
+
+/** What Pro adds on top. Single source of truth for billing + pricing UI. */
+export const PRO_FEATURES = [
+  "Invite your team (up to 10 admin seats)",
+  "Private boards",
+  "Custom domain",
+  "Remove Feedlark branding",
+  "Smart duplicate detection & one-click merge",
+  "Internal team notes on any post",
+  "CSV export of all feedback",
 ] as const;

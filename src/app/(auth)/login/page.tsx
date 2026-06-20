@@ -12,13 +12,15 @@ export const metadata: Metadata = pageMetadata({
   noIndex: true,
 });
 
-export default async function LoginPage() {
-  if (await getSessionUserId()) redirect("/dashboard");
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+  const { next } = await searchParams;
+  const safeNext = next && /^\/[^/]/.test(next) ? next : undefined;
+  if (await getSessionUserId()) redirect(safeNext ?? "/dashboard");
   return (
     <>
       <h1 className="mb-1 font-display text-2xl font-semibold tracking-tightest text-ink">Welcome back</h1>
       <p className="mb-5 text-sm text-ink-muted">Log in to manage your feedback.</p>
-      <AuthForm mode="login" action={loginAction} />
+      <AuthForm mode="login" action={loginAction} hiddenFields={safeNext ? { next: safeNext } : undefined} />
     </>
   );
 }
