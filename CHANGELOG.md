@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.5.0 - 2026-06-25
+
+Production-readiness hardening for real paying customers (billing correctness, abuse protection, reliable email, legal + observability).
+
+### Billing correctness
+- Cancellation now cleans up paid resources: clears the custom domain and prunes extra admin seats + pending invites back to the single free seat (previously left orphaned and free).
+- `past_due`/`unpaid`/`incomplete` are a grace state that keeps Pro (Stripe Smart Retries recover most); only a real cancel/delete downgrades.
+- Webhook idempotency ledger (`stripe_events`) so Stripe's at-least-once retries don't re-run side-effects.
+- Checkout redirects existing live subscribers to the Billing Portal instead of creating a second subscription; collects billing address; `automatic_tax`/`tax_id_collection` gated behind `STRIPE_TAX_ENABLED`.
+- Pinned Stripe API version.
+
+### Abuse & security
+- Rate limiting (Upstash, fail-open until provisioned) on login, signup, password reset, verification resend, post, comment and vote (plus a per-IP vote cap).
+- Email verification on signup (only enforced when email is configured; invited users and password reset auto-verify). New `/check-email` page + resend; `/api/auth/verify`.
+- Stateless session revocation via `users.session_epoch` embedded in the JWT, bumped on password reset (which also makes reset links single-use).
+- Timing-safe login (constant-work bcrypt compare; no user enumeration); bcrypt cost 10 → 12.
+- Security headers globally (HSTS, nosniff, Referrer-Policy, Permissions-Policy) and clickjacking protection on dashboard + auth surfaces (public `/b/*` left frameable for the widget).
+
+### Email closed-loop
+- Ship notifications are queued (no recipient cap — the old 500 silent drop is gone) and drained in the background via `after()`, with a daily cron backstop and retries.
+- Resend Batch API with `List-Unsubscribe` one-click headers (Gmail/Yahoo bulk compliance); `/api/unsubscribe` and a Svix-verified `/api/resend/webhook` that auto-suppresses bounces/complaints.
+
+### Legal & observability
+- Substantive Terms, Privacy (named subprocessors, UK/EU GDPR rights, retention, contact) and a Cookie notice; footer link.
+- Sentry error monitoring (server via instrumentation; client dynamically imported to stay out of the first-load bundle); Vercel Analytics; `/api/health` DB readiness probe.
+
+### Schema
+- Added `stripe_events`, `email_suppressions`; `ship_notifications` queue columns; `users.email_verified` / `users.session_epoch` (existing users backfilled to verified). Applied to production Turso.
+
 ## 0.4.1 - 2026-06-25
 
 Go-live: real payments and the custom domain.
