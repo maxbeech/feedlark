@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.1 - 2026-06-25
+
+Go-live: real payments and the custom domain.
+
+### Fixed
+- **Authed dashboard 500**: every `/dashboard/*` route server-errored because the dashboard layout passed Lucide icon *components* (functions) to the `"use client"` `NavTabs`, which React Server Components cannot serialise across the server/client boundary. Now passes pre-rendered icon elements (`ReactNode`). Verified end-to-end: Boards, Changelog, Team and Settings all render.
+
+### Launch configuration
+- **Stripe live**: created the live "Feedlark Pro" product, a $19/mo per-seat price and a live webhook (`https://www.feedlark.com/api/stripe/webhook`) on a dedicated Feedlark Stripe account; swapped `STRIPE_SECRET_KEY`, `STRIPE_PRICE_PRO_MONTHLY` and `STRIPE_WEBHOOK_SECRET` to live. The upgrade flow creates a real `cs_live_…` Checkout session showing Feedlark Pro at US$19.00/month.
+- **Custom domain live**: `feedlark.com` resolves; apex 308-redirects to `www`. Flipped `NEXT_PUBLIC_SITE_URL` to `https://www.feedlark.com` (canonical, non-redirecting host) so canonical/OG tags, Stripe success/cancel URLs and email links all avoid a redirect hop.
+
 ## 0.4.0 - 2026-06-20
 
 A complete, compelling Pro tier and the production billing/email wiring for launch.
