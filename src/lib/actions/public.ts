@@ -7,6 +7,7 @@ import { db, schema } from "@/lib/db";
 import { newId } from "@/lib/ids";
 import { ensureVoterKey } from "@/lib/voter";
 import { revalidatePublicWorkspace } from "@/lib/revalidate";
+import { checkRateLimit, clientIp } from "@/lib/ratelimit";
 
 const postSchema = z.object({
   boardId: z.string().min(1),
@@ -25,6 +26,9 @@ function isBot(formData: FormData): boolean {
 
 export async function submitPostAction(_prev: PublicResult, formData: FormData): Promise<PublicResult> {
   if (isBot(formData)) return { ok: true };
+  if (!(await checkRateLimit("post", await clientIp()))) {
+    return { error: "You're posting too quickly. Please wait a moment and try again." };
+  }
   const parsed = postSchema.safeParse({
     boardId: formData.get("boardId"),
     title: formData.get("title"),
@@ -74,6 +78,9 @@ const commentSchema = z.object({
 
 export async function addCommentAction(_prev: PublicResult, formData: FormData): Promise<PublicResult> {
   if (isBot(formData)) return { ok: true };
+  if (!(await checkRateLimit("comment", await clientIp()))) {
+    return { error: "You're commenting too quickly. Please wait a moment and try again." };
+  }
   const parsed = commentSchema.safeParse({
     postId: formData.get("postId"),
     body: formData.get("body"),

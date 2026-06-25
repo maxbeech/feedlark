@@ -6,6 +6,7 @@ import { ensureVoterKey } from "@/lib/voter";
 import { newId } from "@/lib/ids";
 import { isValidEmail } from "@/lib/utils";
 import { revalidatePublicWorkspace } from "@/lib/revalidate";
+import { checkRateLimit, clientIp } from "@/lib/ratelimit";
 
 /**
  * Toggle a vote (or attach a notify-email). The vote count is recomputed
@@ -16,6 +17,10 @@ import { revalidatePublicWorkspace } from "@/lib/revalidate";
  */
 export async function POST(req: Request, { params }: { params: Promise<{ postId: string }> }) {
   const { postId } = await params;
+  // Per-IP cap blunts vote-stuffing by cookie-clearing/scripting.
+  if (!(await checkRateLimit("vote", await clientIp()))) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
   const voterKey = await ensureVoterKey();
 
   const postRows = await db.select().from(schema.posts).where(eq(schema.posts.id, postId)).limit(1);

@@ -3,15 +3,36 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
+import { SignJWT } from "jose";
 import { z } from "zod";
 import { db, schema } from "@/lib/db";
 import { newId } from "@/lib/ids";
-import { hashPassword, verifyPassword } from "@/lib/auth/password";
-import { setSessionCookie, clearSessionCookie } from "@/lib/auth/session";
+import { hashPassword, verifyAgainst } from "@/lib/auth/password";
+import { setSessionCookie, clearSessionCookie, authSecret } from "@/lib/auth/session";
 import { createWorkspaceForUser } from "@/lib/data/workspace";
 import { ACTIVE_WS_COOKIE, seatUsage } from "@/lib/data/team";
 import { syncSeatQuantity } from "@/lib/stripe-seats";
 import { limitsFor } from "@/lib/plans";
+import { sendEmail, emailConfigured } from "@/lib/email";
+import { absoluteUrl } from "@/lib/utils";
+import { checkRateLimit, clientIp } from "@/lib/ratelimit";
+
+// Only require email confirmation when email actually works, so a missing
+// RESEND key can never lock everyone out of signing in.
+const verificationRequired = emailConfigured;
+
+async function sendVerificationEmail(userId: string, email: string): Promise<void> {
+  const token = await new SignJWT({ uid: userId, purpose: "verify" })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("24h")
+    .sign(authSecret());
+  await sendEmail({
+    to: email,
+    subject: "Confirm your email for Feedlark",
+    text: `Welcome to Feedlark. Confirm your email to finish setting up your account (link valid 24 hours):\n\n${absoluteUrl(`/api/auth/verify?token=${token}`)}\n\nIf you didn't sign up, ignore this email.`,
+  });
+}
 
 /**
  * If signup carries a valid invite token for this email, join that workspace as
@@ -39,6 +60,9 @@ const signupSchema = z.object({
 export type ActionResult = { error?: string };
 
 export async function signupAction(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
+  if (!(await checkRateLimit("signup", await clientIp()))) {
+    return { error: "Too many signups from your network. Please try again later." };
+  }
   const parsed = signupSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
@@ -51,23 +75,34 @@ export async function signupAction(_prev: ActionResult, formData: FormData): Pro
   const existing = await db.select({ id: schema.users.id }).from(schema.users).where(eq(schema.users.email, email)).limit(1);
   if (existing.length) return { error: "An account with that email already exists. Try logging in." };
 
+  const inviteToken = String(formData.get("inviteToken") || "").trim();
+  // An invite link already proves the person controls this inbox, so invited
+  // users skip verification; everyone else must confirm (when email is on).
+  const willJoinInvite = Boolean(inviteToken);
+  const verified = willJoinInvite || !verificationRequired;
+
   const userId = newId("usr");
   await db.insert(schema.users).values({
     id: userId,
     email,
     passwordHash: await hashPassword(parsed.data.password),
     name: parsed.data.name ?? "",
+    emailVerified: verified,
   });
 
-  // Joining a team via an invite skips creating a personal workspace.
-  const inviteToken = String(formData.get("inviteToken") || "").trim();
   const joined = inviteToken ? await joinViaInvite(userId, email, inviteToken) : false;
   if (!joined) {
     const wsName = parsed.data.company || parsed.data.name || email.split("@")[0];
     await createWorkspaceForUser(userId, wsName, wsName);
   }
-  await setSessionCookie(userId);
-  redirect("/dashboard");
+
+  if (verified) {
+    await setSessionCookie(userId);
+    redirect("/dashboard");
+  }
+  // Unverified: send the confirmation email and ask them to check their inbox.
+  await sendVerificationEmail(userId, email);
+  redirect(`/check-email?email=${encodeURIComponent(email)}`);
 }
 
 const loginSchema = z.object({
@@ -75,20 +110,43 @@ const loginSchema = z.object({
   password: z.string().min(1, "Enter your password"),
 });
 
-export async function loginAction(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
+export type LoginResult = { error?: string; needsVerification?: boolean };
+
+export async function loginAction(_prev: LoginResult, formData: FormData): Promise<LoginResult> {
   const parsed = loginSchema.safeParse({ email: formData.get("email"), password: formData.get("password") });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
   const email = parsed.data.email.toLowerCase();
-  const rows = await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
-  const user = rows[0];
-  if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
-    return { error: "Invalid email or password." };
+  if (!(await checkRateLimit("login", `${await clientIp()}:${email}`))) {
+    return { error: "Too many attempts. Please wait a few minutes and try again." };
   }
+
+  const user = (await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1))[0];
+  // Constant-work compare whether or not the account exists (no enumeration).
+  const ok = await verifyAgainst(parsed.data.password, user?.passwordHash);
+  if (!user || !ok) return { error: "Invalid email or password." };
+
+  if (verificationRequired && !user.emailVerified) {
+    return { error: "Please confirm your email first. Check your inbox for the link.", needsVerification: true };
+  }
+
   await setSessionCookie(user.id);
-  // Honour a safe same-site redirect (e.g. back to an invite link).
   const next = String(formData.get("next") || "");
   redirect(/^\/[^/].*/.test(next) ? next : "/dashboard");
+}
+
+export type ResendResult = { ok?: boolean; error?: string };
+
+export async function resendVerificationAction(_prev: ResendResult, formData: FormData): Promise<ResendResult> {
+  const email = String(formData.get("email") || "").toLowerCase().trim();
+  if (!email) return { error: "Enter your email." };
+  if (!(await checkRateLimit("verifyResend", `${await clientIp()}:${email}`))) {
+    return { error: "Too many requests. Please try again later." };
+  }
+  const user = (await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1))[0];
+  // Same response regardless of existence; only actually send if needed.
+  if (user && !user.emailVerified && emailConfigured) await sendVerificationEmail(user.id, email);
+  return { ok: true };
 }
 
 export async function logoutAction(): Promise<void> {
