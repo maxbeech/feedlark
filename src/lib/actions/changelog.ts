@@ -2,13 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/lib/db";
 import { newId } from "@/lib/ids";
 import { slugify } from "@/lib/utils";
 import { assertMembership } from "@/lib/auth/guard";
-import { sendEmail } from "@/lib/email";
+import { drainShipNotifications } from "@/lib/ship-drain";
 import { absoluteUrl } from "@/lib/utils";
 import { revalidatePublicWorkspace } from "@/lib/revalidate";
 import {
@@ -59,12 +60,15 @@ export async function createChangelogAction(_prev: { error?: string }, formData:
   redirect("/dashboard/changelog");
 }
 
-const MAX_SHIP_NOTIFY = 500;
+/** SQLite caps bound params per statement; insert notification rows in chunks. */
+const ENQUEUE_CHUNK = 100;
 
 /**
  * THE LOOP. Mark a post Shipped: set status=complete, auto-create a published
- * changelog entry linked to the post, and notify every voter/commenter who
- * left an email. Returns how many were notified (vs only logged).
+ * changelog entry linked to the post, and ENQUEUE a notification for every
+ * voter/commenter who left an email. The queue is drained in the background
+ * (after the response) and by a cron backstop, so the admin's click returns
+ * instantly and no recipient is ever silently dropped.
  */
 export async function shipPostAction(formData: FormData) {
   const postId = String(formData.get("postId"));
@@ -98,31 +102,32 @@ export async function shipPostAction(formData: FormData) {
     return;
   }
 
-  // Gather notify list from real votes + comments + the author (capped).
+  // Gather the full notify list from real votes + comments + the author (no cap).
   const voteEmails = await db.select({ e: schema.votes.voterEmail }).from(schema.votes).where(eq(schema.votes.postId, postId));
   const commentEmails = await db.select({ e: schema.comments.authorEmail }).from(schema.comments).where(eq(schema.comments.postId, postId));
-  const recipients = dedupeEmails([post.authorEmail, ...voteEmails.map((v) => v.e), ...commentEmails.map((c) => c.e)]).slice(0, MAX_SHIP_NOTIFY);
+  const recipients = dedupeEmails([post.authorEmail, ...voteEmails.map((v) => v.e), ...commentEmails.map((c) => c.e)]);
 
   if (recipients.length) {
     const link = ws ? absoluteUrl(`/b/${ws.slug}/changelog`) : absoluteUrl("/");
     const subject = notifyEmailSubject(ws?.name ?? "We", post.title);
-    // Send in parallel (don't block the request on serial round-trips).
-    const results = await Promise.allSettled(
-      recipients.map((email) =>
-        sendEmail({ to: email, subject, text: `Good news — something you asked for just shipped:\n\n${post.title}\n\nSee what's new: ${link}` }),
-      ),
-    );
-    // One batched insert for all notification records.
-    await db.insert(schema.shipNotifications).values(
-      recipients.map((email, i) => ({
-        id: newId("ntf"),
-        workspaceId: post.workspaceId,
-        postId,
-        changelogId,
-        recipientEmail: email,
-        status: results[i].status === "fulfilled" && (results[i] as PromiseFulfilledResult<{ sent: boolean }>).value.sent ? "sent" : "logged",
-      })),
-    );
+    const body = `Good news, something you asked for just shipped:\n\n${post.title}\n\nSee what's new: ${link}`;
+    const queueRows = recipients.map((email) => ({
+      id: newId("ntf"),
+      workspaceId: post.workspaceId,
+      postId,
+      changelogId,
+      recipientEmail: email,
+      subject,
+      body,
+      status: "pending" as const,
+    }));
+    for (let i = 0; i < queueRows.length; i += ENQUEUE_CHUNK) {
+      await db.insert(schema.shipNotifications).values(queueRows.slice(i, i + ENQUEUE_CHUNK));
+    }
+    // Drain after the response is sent so the admin's click returns immediately.
+    after(async () => {
+      try { await drainShipNotifications(); } catch { /* cron backstop retries */ }
+    });
   }
 
   revalidatePath(`/dashboard/posts/${postId}`);
