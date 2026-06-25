@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 /** Liveness + DB-readiness probe for uptime monitoring. */
 export async function GET() {
   try {
-    await db.run(sql`select 1`);
+    await db.execute(sql`select 1`);
     return NextResponse.json({ ok: true, db: "up" });
   } catch {
     return NextResponse.json({ ok: false, db: "down" }, { status: 503 });

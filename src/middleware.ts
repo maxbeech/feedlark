@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient } from "@libsql/client/web";
 
 // Run on page requests only (skip _next, api, files with an extension).
 export const config = {
@@ -10,20 +9,26 @@ const CANONICAL = new Set(["feedlark.com", "www.feedlark.com", "feedlark.vercel.
 
 /**
  * Custom-domain routing: when a request arrives on a workspace's mapped domain,
- * transparently serve that workspace's public board. Uses the edge-safe libSQL
- * web client + a raw lookup (no drizzle in the edge bundle). Fail-open.
+ * transparently serve that workspace's public board. Uses Supabase's REST API
+ * (edge-safe fetch) with the service-role key (server-only env, bypasses RLS) so
+ * no DB driver is bundled into the edge runtime. Fail-open on any error.
  */
 export async function middleware(req: NextRequest) {
   const host = req.headers.get("host")?.split(":")[0]?.toLowerCase();
   if (!host || host.endsWith(".vercel.app") || CANONICAL.has(host)) return NextResponse.next();
 
-  const url = process.env.TURSO_DATABASE_URL;
-  if (!url) return NextResponse.next();
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) return NextResponse.next();
 
   try {
-    const client = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN });
-    const res = await client.execute({ sql: "select slug from workspaces where custom_domain = ? limit 1", args: [host] });
-    const slug = res.rows[0]?.slug as string | undefined;
+    const endpoint = `${supabaseUrl}/rest/v1/workspaces?custom_domain=eq.${encodeURIComponent(host)}&select=slug&limit=1`;
+    const res = await fetch(endpoint, {
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+    });
+    if (!res.ok) return NextResponse.next();
+    const rows = (await res.json()) as { slug?: string }[];
+    const slug = rows[0]?.slug;
     if (slug) {
       const next = req.nextUrl.clone();
       if (!next.pathname.startsWith("/b/")) {

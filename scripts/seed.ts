@@ -1,7 +1,7 @@
 /**
  * Seeds the dogfood "feedlark" workspace so /feedback is a live demo board.
  * Idempotent: does nothing if the workspace already exists. Run with:
- *   tsx scripts/seed.ts   (env: TURSO_DATABASE_URL, TURSO_AUTH_TOKEN)
+ *   tsx scripts/seed.ts   (env: DATABASE_URL)
  */
 import { eq } from "drizzle-orm";
 import { db, schema } from "../src/lib/db";

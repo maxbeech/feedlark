@@ -68,8 +68,8 @@ export async function POST(req: Request) {
   // Idempotency: Stripe delivers at least once. Record the event id first; if we
   // already processed it, acknowledge without re-running side-effects.
   try {
-    const ins = await db.insert(schema.stripeEvents).values({ id: event.id, type: event.type }).onConflictDoNothing();
-    if (!ins.rowsAffected) return NextResponse.json({ received: true, duplicate: true });
+    const ins = await db.insert(schema.stripeEvents).values({ id: event.id, type: event.type }).onConflictDoNothing().returning({ id: schema.stripeEvents.id });
+    if (ins.length === 0) return NextResponse.json({ received: true, duplicate: true });
   } catch {
     // Ledger insert failed (e.g. race) — treat as duplicate to stay safe.
     return NextResponse.json({ received: true, duplicate: true });

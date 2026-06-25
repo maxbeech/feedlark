@@ -1,16 +1,20 @@
-import { drizzle } from "drizzle-orm/libsql";
-import { createClient } from "@libsql/client";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import * as schema from "./schema";
 
-const url = process.env.TURSO_DATABASE_URL || "file:local.db";
-const authToken = process.env.TURSO_AUTH_TOKEN;
+// Supabase Postgres via the transaction pooler (serverless-friendly). The pooler
+// runs in transaction mode, which doesn't support prepared statements, so we
+// disable them. A module-level singleton is reused across function invocations.
+const connectionString = process.env.DATABASE_URL ?? "";
 
-// A single shared libSQL client. The HTTP driver is serverless-friendly, so a
-// module-level singleton is reused safely across Vercel function invocations.
-const client = createClient({ url, authToken });
+const client = postgres(connectionString, {
+  prepare: false,
+  // Keep the per-instance pool small; many serverless instances share the pooler.
+  max: 1,
+});
 
 export const db = drizzle(client, { schema });
 export { schema, client };
 
-/** True when a real database is configured (not the local dev fallback). */
-export const dbConfigured = Boolean(process.env.TURSO_DATABASE_URL);
+/** True when a real database connection string is configured. */
+export const dbConfigured = Boolean(process.env.DATABASE_URL);

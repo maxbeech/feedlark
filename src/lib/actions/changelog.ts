@@ -96,8 +96,9 @@ export async function shipPostAction(formData: FormData) {
   const claim = await db
     .update(schema.posts)
     .set({ status: "complete", shippedChangelogId: changelogId })
-    .where(and(eq(schema.posts.id, postId), isNull(schema.posts.shippedChangelogId)));
-  if (!claim.rowsAffected) {
+    .where(and(eq(schema.posts.id, postId), isNull(schema.posts.shippedChangelogId)))
+    .returning({ id: schema.posts.id });
+  if (claim.length === 0) {
     await db.delete(schema.changelogEntries).where(eq(schema.changelogEntries.id, changelogId));
     return;
   }
