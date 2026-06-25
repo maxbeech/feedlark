@@ -9,10 +9,10 @@ import { absoluteUrl } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 const links = [
-  { href: "/dashboard", label: "Boards", icon: LayoutGrid },
-  { href: "/dashboard/changelog", label: "Changelog", icon: Megaphone },
-  { href: "/dashboard/team", label: "Team", icon: Users },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+  { href: "/dashboard", label: "Boards", icon: <LayoutGrid className="h-4 w-4" /> },
+  { href: "/dashboard/changelog", label: "Changelog", icon: <Megaphone className="h-4 w-4" /> },
+  { href: "/dashboard/team", label: "Team", icon: <Users className="h-4 w-4" /> },
+  { href: "/dashboard/settings", label: "Settings", icon: <Settings className="h-4 w-4" /> },
 ];
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {

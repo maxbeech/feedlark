@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export type NavTab = { href: string; label: string; icon?: LucideIcon };
+// `icon` is a pre-rendered element (e.g. <Settings />), not a component
+// reference: functions can't cross the server/client boundary, elements can.
+export type NavTab = { href: string; label: string; icon?: ReactNode };
 
 /**
  * Underlined tab navigation with an active indicator, shared by the dashboard
@@ -29,7 +31,7 @@ export function NavTabs({ tabs, exactFirst = true }: { tabs: NavTab[]; exactFirs
                 : "border-transparent text-ink-soft hover:border-sand-300 hover:text-ink",
             )}
           >
-            {t.icon && <t.icon className="h-4 w-4" />} {t.label}
+            {t.icon} {t.label}
           </Link>
         );
       })}
