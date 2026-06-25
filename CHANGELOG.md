@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.6.0 - 2026-06-26
+
+Database migrated from Turso (libSQL/SQLite) to Supabase (Postgres).
+
+### Changed
+- **Drizzle dialect**: `sqlite-core` → `pg-core`. Booleans are real `boolean` columns; timestamps stay Unix-epoch `bigint` so all date handling is unchanged.
+- **Driver**: `@libsql/client` → `postgres-js` against the Supabase transaction pooler (`prepare:false`, serverless-friendly). `@libsql/client` removed.
+- **Edge middleware**: custom-domain lookup now uses the Supabase REST API (service-role, edge-safe) instead of an edge libSQL client — middleware bundle shrank ~35%.
+- Driver-specific fixes: `db.execute` for raw SQL; `.returning().length` instead of `.rowsAffected` (webhook idempotency, ship-claim).
+- `DATABASE_URL` / `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` replace `TURSO_*` in Vercel + `.env.example`.
+
+### Data & security
+- All existing data migrated and verified (2 users, 2 workspaces, 2 boards, 7 posts, 141 votes, 2 changelog entries) — the dogfood `/b/feedlark` roadmap is intact.
+- RLS enabled (deny-all) on all 12 tables; the app uses the direct Postgres role (bypasses RLS), so the public Data API exposes nothing. Locked down a pre-existing `anon`-executable `SECURITY DEFINER` function. Supabase MCP wired into the project.
+- Verified on production: `/api/health` db:up, board reads, vote write+recount (42→43→42), signup write + verification gate.
+
 ## 0.5.0 - 2026-06-25
 
 Production-readiness hardening for real paying customers (billing correctness, abuse protection, reliable email, legal + observability).

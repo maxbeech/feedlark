@@ -24,7 +24,7 @@ posts and votes on the free plan**. We never charge per voter; optional Pro is a
 |---|---|
 | Framework | Next.js 15 (App Router, TypeScript) on Vercel (ISR) |
 | Styling | Tailwind CSS 3 + hand-rolled UI primitives |
-| Database | Turso (libSQL) + Drizzle ORM |
+| Database | Supabase (Postgres) + Drizzle ORM (`postgres-js`, transaction pooler) |
 | Auth | Custom email + password (bcrypt + `jose` JWT in an httpOnly cookie) |
 | Billing | Stripe (env-gated — degrades to Free-only with no 500s) |
 | Email | Resend (optional — ship notifications are recorded either way) |
@@ -33,8 +33,8 @@ posts and votes on the free plan**. We never charge per voter; optional Pro is a
 
 ```bash
 npm install
-cp .env.example .env.local   # add TURSO_* + AUTH_SECRET (file:local.db works for dev)
-npm run db:push              # apply schema
+cp .env.example .env.local   # add DATABASE_URL (Supabase pooler) + AUTH_SECRET
+npm run db:push              # apply schema (or use the Supabase MCP)
 npm run db:seed              # seed the /feedback demo workspace
 npm run dev
 npm test                     # vitest (pure logic + SEO content constraints)
