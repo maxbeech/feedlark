@@ -1,7 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
+import { captureClientError } from "@/lib/client-monitoring";
+
 // Catches errors in the root layout itself. Must render its own <html>/<body>.
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  useEffect(() => {
+    captureClientError(error);
+  }, [error]);
   return (
     <html lang="en">
       <body style={{ fontFamily: "system-ui, sans-serif", background: "#fcfaf6", display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "1rem" }}>

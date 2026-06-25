@@ -36,6 +36,7 @@ const cols: { title: string; links: { href: string; label: string }[] }[] = [
       { href: "/about", label: "About" },
       { href: "/terms", label: "Terms" },
       { href: "/privacy", label: "Privacy" },
+      { href: "/cookies", label: "Cookies" },
     ],
   },
 ];

@@ -3,11 +3,13 @@
 import { useEffect } from "react";
 import { Logo } from "@/components/logo";
 import { Button, LinkButton } from "@/components/ui";
+import { captureClientError } from "@/lib/client-monitoring";
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
-    // Surface to the console (and any attached monitoring) — never swallow.
+    // Surface to the console and to Sentry (when configured) — never swallow.
     console.error(error);
+    captureClientError(error);
   }, [error]);
 
   return (
