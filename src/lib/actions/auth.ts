@@ -76,18 +76,16 @@ export async function signupAction(_prev: ActionResult, formData: FormData): Pro
   if (existing.length) return { error: "An account with that email already exists. Try logging in." };
 
   const inviteToken = String(formData.get("inviteToken") || "").trim();
-  // An invite link already proves the person controls this inbox, so invited
-  // users skip verification; everyone else must confirm (when email is on).
-  const willJoinInvite = Boolean(inviteToken);
-  const verified = willJoinInvite || !verificationRequired;
-
   const userId = newId("usr");
+  // Always start unverified; only a SUCCESSFULLY validated invite (token valid
+  // AND issued for this email) or email being disabled may flip this — never the
+  // mere presence of an attacker-supplied token.
   await db.insert(schema.users).values({
     id: userId,
     email,
     passwordHash: await hashPassword(parsed.data.password),
     name: parsed.data.name ?? "",
-    emailVerified: verified,
+    emailVerified: false,
   });
 
   const joined = inviteToken ? await joinViaInvite(userId, email, inviteToken) : false;
@@ -96,7 +94,11 @@ export async function signupAction(_prev: ActionResult, formData: FormData): Pro
     await createWorkspaceForUser(userId, wsName, wsName);
   }
 
+  // A real invite proves inbox control; otherwise verification is only skipped
+  // when email isn't configured at all.
+  const verified = joined || !verificationRequired;
   if (verified) {
+    await db.update(schema.users).set({ emailVerified: true }).where(eq(schema.users.id, userId));
     await setSessionCookie(userId);
     redirect("/dashboard");
   }
