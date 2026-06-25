@@ -9,7 +9,9 @@ let cached: Stripe | null = null;
 
 export function getStripe(): Stripe | null {
   if (!process.env.STRIPE_SECRET_KEY) return null;
-  if (!cached) cached = new Stripe(process.env.STRIPE_SECRET_KEY);
+  // Pin the API version so a future SDK bump can't silently change webhook
+  // payload shapes underneath us.
+  if (!cached) cached = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-02-24.acacia" });
   return cached;
 }
 

@@ -23,15 +23,40 @@ export async function POST() {
     await db.update(schema.workspaces).set({ stripeCustomerId: customerId }).where(eq(schema.workspaces.id, ws.id));
   }
 
+  // Never create a second subscription. If the customer already has a live
+  // (active/trialing/past_due) subscription, send them to manage it instead of
+  // checking out again — prevents accidental double billing during webhook lag.
+  const existing = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 10 });
+  const live = existing.data.find((s) => ["active", "trialing", "past_due", "unpaid"].includes(s.status));
+  if (live) {
+    try {
+      const portal = await stripe.billingPortal.sessions.create({ customer: customerId, return_url: absoluteUrl("/dashboard/settings") });
+      return NextResponse.redirect(portal.url, 303);
+    } catch {
+      return NextResponse.redirect(absoluteUrl("/dashboard/settings?already=1"), 303);
+    }
+  }
+
   // Bill per seat: start at the current admin count (at least one).
   const seats = Math.max(1, (await seatUsage(ws.id)).members);
 
+  // Stripe Tax must be activated in the dashboard before automatic_tax works,
+  // otherwise session creation throws. Gate it behind a flag flipped post-setup.
+  const taxEnabled = process.env.STRIPE_TAX_ENABLED === "true";
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer: customerId,
     line_items: [{ price: PRICE_PRO, quantity: seats }],
     client_reference_id: ws.id,
     allow_promotion_codes: true,
+    billing_address_collection: "required",
+    ...(taxEnabled
+      ? {
+          automatic_tax: { enabled: true },
+          tax_id_collection: { enabled: true },
+          customer_update: { address: "auto", name: "auto" },
+        }
+      : {}),
     success_url: absoluteUrl("/dashboard/settings?upgraded=1"),
     cancel_url: absoluteUrl("/dashboard/settings"),
   });

@@ -15,6 +15,12 @@ export const users = sqliteTable("users", {
   email: text("email").notNull(),
   passwordHash: text("password_hash").notNull(),
   name: text("name").notNull().default(""),
+  // New signups start unverified and must confirm their email before logging in.
+  // Existing rows are backfilled to verified at migration time so nobody is locked out.
+  emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
+  // Bumped on password reset / "log out everywhere"; embedded in every session
+  // JWT so older tokens stop validating (stateless session revocation).
+  sessionEpoch: integer("session_epoch").notNull().default(0),
   createdAt: integer("created_at").notNull().default(now),
 }, (t) => ({
   emailIdx: uniqueIndex("users_email_idx").on(t.email),
@@ -160,11 +166,36 @@ export const shipNotifications = sqliteTable("ship_notifications", {
   postId: text("post_id").notNull(),
   changelogId: text("changelog_id").notNull(),
   recipientEmail: text("recipient_email").notNull(),
-  status: text("status").notNull().default("logged"), // logged | sent | failed
+  // This row is a work item, not just an audit log: enqueued as `pending`, drained
+  // by a background drainer (after() + cron) into sent/failed with retries.
+  status: text("status").notNull().default("pending"), // pending | sent | failed | suppressed
+  subject: text("subject").notNull().default(""),
+  body: text("body").notNull().default(""),
+  attempts: integer("attempts").notNull().default(0),
+  lastError: text("last_error"),
+  sentAt: integer("sent_at"),
   createdAt: integer("created_at").notNull().default(now),
 }, (t) => ({
   postIdx: index("ship_notif_post_idx").on(t.postId),
+  statusIdx: index("ship_notif_status_idx").on(t.status),
 }));
+
+/** Webhook idempotency ledger: a Stripe event.id is processed at most once. */
+export const stripeEvents = sqliteTable("stripe_events", {
+  id: text("id").primaryKey(), // Stripe event.id
+  type: text("type").notNull(),
+  createdAt: integer("created_at").notNull().default(now),
+});
+
+/**
+ * Emails that opted out (or hard-bounced/complained). The notification drainer
+ * skips any recipient listed here, satisfying one-click unsubscribe + reputation.
+ */
+export const emailSuppressions = sqliteTable("email_suppressions", {
+  email: text("email").primaryKey(),
+  reason: text("reason").notNull().default("unsubscribe"), // unsubscribe | bounce | complaint
+  createdAt: integer("created_at").notNull().default(now),
+});
 
 export type User = typeof users.$inferSelect;
 export type Workspace = typeof workspaces.$inferSelect;
@@ -174,3 +205,4 @@ export type Comment = typeof comments.$inferSelect;
 export type ChangelogEntry = typeof changelogEntries.$inferSelect;
 export type WorkspaceMember = typeof workspaceMembers.$inferSelect;
 export type Invitation = typeof invitations.$inferSelect;
+export type ShipNotification = typeof shipNotifications.$inferSelect;
