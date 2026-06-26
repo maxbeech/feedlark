@@ -200,6 +200,30 @@ export const emailSuppressions = pgTable("email_suppressions", {
   createdAt: epoch("created_at").notNull().default(now),
 });
 
+/**
+ * Fixed-window rate limiting on Postgres (no external Redis). One row per
+ * (action, identifier, time-window); `count` is bumped atomically per request.
+ * Expired rows are swept by the cron.
+ */
+export const rateLimits = pgTable("rate_limits", {
+  bucket: text("bucket").primaryKey(), // `${name}:${identifier}:${windowIndex}`
+  count: integer("count").notNull().default(0),
+  expiresAt: epoch("expires_at").notNull(),
+});
+
+/** Lightweight error log (self-hosted in Postgres; queryable via the Supabase MCP). */
+export const errorEvents = pgTable("error_events", {
+  id: text("id").primaryKey(),
+  source: text("source").notNull(), // server | client
+  message: text("message").notNull(),
+  stack: text("stack"),
+  digest: text("digest"),
+  url: text("url"),
+  createdAt: epoch("created_at").notNull().default(now),
+}, (t) => ({
+  createdIdx: index("error_events_created_idx").on(t.createdAt),
+}));
+
 export type User = typeof users.$inferSelect;
 export type Workspace = typeof workspaces.$inferSelect;
 export type Board = typeof boards.$inferSelect;

@@ -1,18 +1,29 @@
-import * as Sentry from "@sentry/nextjs";
-
-const dsn = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
-
 /**
- * Server/edge error monitoring. No-ops entirely when no DSN is configured, so
- * the app runs identically before Sentry is set up.
+ * Server error monitoring into our own Postgres error log (no external service).
+ * onRequestError fires for errors in Server Components, route handlers and server
+ * actions — exactly the class of silent 500 we want captured.
  */
 export async function register() {
-  if (!dsn) return;
-  if (process.env.NEXT_RUNTIME === "nodejs" || process.env.NEXT_RUNTIME === "edge") {
-    Sentry.init({ dsn, tracesSampleRate: 0.1, enabled: true });
-  }
+  /* no global setup needed */
 }
 
-// Captures errors thrown in Server Components, route handlers and server actions
-// (exactly the class of silent 500 we want surfaced).
-export const onRequestError = Sentry.captureRequestError;
+export async function onRequestError(
+  err: unknown,
+  request: { path?: string; method?: string },
+): Promise<void> {
+  // postgres-js only runs on the Node.js runtime; skip edge.
+  if (process.env.NEXT_RUNTIME !== "nodejs") return;
+  try {
+    const { logErrorEvent } = await import("@/lib/error-log");
+    const e = err as { message?: string; stack?: string; digest?: string };
+    await logErrorEvent({
+      source: "server",
+      message: e?.message ?? String(err),
+      stack: e?.stack ?? null,
+      digest: e?.digest ?? null,
+      url: request?.path ?? null,
+    });
+  } catch {
+    /* never throw from the error handler */
+  }
+}

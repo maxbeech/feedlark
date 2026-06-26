@@ -44,8 +44,6 @@ export default function PrivacyPage() {
           <li><strong>Turso</strong> — database hosting.</li>
           <li><strong>Stripe</strong> — payment processing.</li>
           <li><strong>Resend</strong> — transactional and notification email.</li>
-          <li><strong>Upstash</strong> — rate-limiting infrastructure.</li>
-          <li><strong>Sentry</strong> — error monitoring (EU region).</li>
         </ul>
         <p>Some providers process data outside the UK/EEA; where they do, transfers are covered by appropriate safeguards such as Standard Contractual Clauses. Public board, roadmap and changelog content is publicly visible by design.</p>
 

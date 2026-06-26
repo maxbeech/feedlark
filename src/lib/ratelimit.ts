@@ -1,45 +1,44 @@
 import "server-only";
 import { headers } from "next/headers";
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
+import { sql } from "drizzle-orm";
+import { db, schema } from "@/lib/db";
 
 /**
- * Distributed rate limiting via Upstash Redis. If the Upstash env vars aren't
- * present (e.g. before the integration is added) we FAIL OPEN — the app keeps
- * working, just without limits — so a missing integration never takes the site
- * down. `rateLimitConfigured` lets us surface that state.
+ * Fixed-window rate limiting backed by our own Postgres (Supabase) — no external
+ * Redis/service. Each request atomically bumps a per-(action, id, window) counter
+ * and is denied once the count exceeds the limit. FAILS OPEN on any DB error so a
+ * limiter hiccup never takes the site down.
  */
-const url = process.env.UPSTASH_REDIS_REST_URL;
-const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-export const rateLimitConfigured = Boolean(url && token);
-
-const redis = rateLimitConfigured ? new Redis({ url: url!, token: token! }) : null;
-
-const make = (limiter: ReturnType<typeof Ratelimit.slidingWindow>) =>
-  redis ? new Ratelimit({ redis, limiter, prefix: "fl_rl", analytics: false }) : null;
-
-// Tuned per action: tight on auth/abuse vectors, generous on normal engagement.
-const limiters = {
-  login: make(Ratelimit.slidingWindow(10, "10 m")),
-  signup: make(Ratelimit.slidingWindow(5, "1 h")),
-  passwordReset: make(Ratelimit.slidingWindow(5, "1 h")),
-  verifyResend: make(Ratelimit.slidingWindow(5, "1 h")),
-  post: make(Ratelimit.slidingWindow(8, "10 m")),
-  comment: make(Ratelimit.slidingWindow(15, "10 m")),
-  vote: make(Ratelimit.slidingWindow(40, "10 m")),
+const LIMITS = {
+  login: { limit: 10, windowSec: 600 },
+  signup: { limit: 5, windowSec: 3600 },
+  passwordReset: { limit: 5, windowSec: 3600 },
+  verifyResend: { limit: 5, windowSec: 3600 },
+  clientError: { limit: 30, windowSec: 600 },
+  post: { limit: 8, windowSec: 600 },
+  comment: { limit: 15, windowSec: 600 },
+  vote: { limit: 40, windowSec: 600 },
 } as const;
 
-export type RateLimitName = keyof typeof limiters;
+export type RateLimitName = keyof typeof LIMITS;
 
-/** Returns true if the action is allowed. Fail-open if Upstash isn't configured. */
+/** Returns true if the action is allowed. Fail-open if the DB is unreachable. */
 export async function checkRateLimit(name: RateLimitName, identifier: string): Promise<boolean> {
-  const rl = limiters[name];
-  if (!rl) return true;
+  const cfg = LIMITS[name];
+  const nowSec = Math.floor(Date.now() / 1000);
+  const windowIndex = Math.floor(nowSec / cfg.windowSec);
+  const bucket = `${name}:${identifier}:${windowIndex}`;
+  const expiresAt = (windowIndex + 1) * cfg.windowSec;
   try {
-    const { success } = await rl.limit(`${name}:${identifier}`);
-    return success;
+    const rows = await db
+      .insert(schema.rateLimits)
+      .values({ bucket, count: 1, expiresAt })
+      .onConflictDoUpdate({ target: schema.rateLimits.bucket, set: { count: sql`${schema.rateLimits.count} + 1` } })
+      .returning({ count: schema.rateLimits.count });
+    const count = rows[0]?.count ?? 1;
+    return count <= cfg.limit;
   } catch {
-    return true; // never block users on a rate-limiter outage
+    return true; // never block users on a limiter outage
   }
 }
 

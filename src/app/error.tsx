@@ -7,7 +7,7 @@ import { captureClientError } from "@/lib/client-monitoring";
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
-    // Surface to the console and to Sentry (when configured) — never swallow.
+    // Surface to the console and our Postgres error log — never swallow.
     console.error(error);
     captureClientError(error);
   }, [error]);

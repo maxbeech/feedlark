@@ -1,13 +1,21 @@
 /**
- * Report a client-side error to Sentry WITHOUT pulling the SDK into the shared
- * bundle: the import is dynamic and only runs when a DSN is configured, so the
- * ~80kB SDK becomes a lazily-fetched chunk instead of first-load weight.
+ * Report a client-side error to our own error log via a tiny POST — no SDK in
+ * the bundle, no third-party service. Best-effort and silent on failure.
  */
 export async function captureClientError(error: unknown): Promise<void> {
-  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return;
   try {
-    const Sentry = await import("@sentry/nextjs");
-    Sentry.captureException(error);
+    const e = error as { message?: string; stack?: string; digest?: string };
+    await fetch("/api/client-error", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: e?.message ?? String(error),
+        stack: e?.stack,
+        digest: e?.digest,
+        url: typeof location !== "undefined" ? location.href : undefined,
+      }),
+      keepalive: true,
+    });
   } catch {
     /* monitoring must never break the error UI */
   }
