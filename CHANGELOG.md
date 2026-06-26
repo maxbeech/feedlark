@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.1 - 2026-06-26
+
+Finish-list infrastructure, done with the Supabase Postgres we already have (no new paid services).
+
+### Added / Changed
+- **Rate limiting on Postgres** (replaces Upstash): a fixed-window counter in a `rate_limits` table behind the same `checkRateLimit()` API; same limits on login/signup/reset/verify/post/comment/vote (+ client-error). Removed `@upstash/ratelimit` and `@upstash/redis`. Verified on prod (30 allowed, then 429).
+- **Error monitoring on Postgres** (replaces Sentry): server errors via `instrumentation.onRequestError` and client errors via `/api/client-error` write to an `error_events` table (queryable through the Supabase MCP). Removed `@sentry/nextjs`. Verified on prod.
+- **Stripe Tax enabled**: confirmed Tax is active on the account and set `STRIPE_TAX_ENABLED=true`; checkout now collects VAT + tax IDs (verified a live `automatic_tax` session).
+- **Stripe Billing Portal** activated earlier (live config) so customers can cancel / update cards.
+- Daily cron now also sweeps expired rate-limit buckets and error events older than 30 days.
+- Privacy subprocessor list trimmed to Vercel / Supabase / Stripe / Resend.
+- **Removed the unused Turso database** (deprovisioned the Vercel integration resource).
+
 ## 0.6.0 - 2026-06-26
 
 Database migrated from Turso (libSQL/SQLite) to Supabase (Postgres).
