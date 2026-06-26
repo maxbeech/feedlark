@@ -8,7 +8,7 @@ export const metadata: Metadata = pageMetadata({
   noIndex: true,
 });
 
-const CONTACT = "privacy@feedlark.com";
+const CONTACT = "hello@feedlark.com";
 
 export default function PrivacyPage() {
   return (

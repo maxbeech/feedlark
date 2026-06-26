@@ -8,7 +8,7 @@ export const metadata: Metadata = pageMetadata({
   noIndex: true,
 });
 
-const CONTACT = "support@feedlark.com";
+const CONTACT = "hello@feedlark.com";
 
 export default function TermsPage() {
   return (
