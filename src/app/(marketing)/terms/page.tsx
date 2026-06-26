@@ -18,7 +18,7 @@ export default function TermsPage() {
         <p>Last updated: 25 June 2026. These terms form a binding agreement between you and Feedlark. By creating an account or using the service you agree to them.</p>
 
         <h2>1. Who we are</h2>
-        <p>Feedlark (&quot;we&quot;, &quot;us&quot;) provides customer-feedback boards, a public roadmap and a changelog. Feedlark is operated by its founder as a sole trader based in the United Kingdom. You can reach us at <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
+        <p>Feedlark (&quot;we&quot;, &quot;us&quot;) provides customer-feedback boards, a public roadmap and a changelog. Feedlark is operated by Maxedlabs Ltd, a company registered in England and Wales. You can reach us at <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
 
         <h2>2. Accounts</h2>
         <p>You must be at least 16 and provide accurate information. You are responsible for keeping your credentials secure and for all activity under your account. Tell us promptly if you suspect unauthorised access.</p>

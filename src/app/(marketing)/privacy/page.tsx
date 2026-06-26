@@ -18,7 +18,7 @@ export default function PrivacyPage() {
         <p>Last updated: 25 June 2026. This policy explains what we collect, why, and your rights under the UK GDPR and EU GDPR.</p>
 
         <h2>Who is the data controller</h2>
-        <p>Feedlark, operated by its founder as a sole trader based in the United Kingdom, is the controller of personal data described here. Contact: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
+        <p>Maxedlabs Ltd (trading as Feedlark), a company registered in England and Wales, is the controller of personal data described here. Contact: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
 
         <h2>What we collect</h2>
         <ul>
