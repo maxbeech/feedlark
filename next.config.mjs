@@ -2,6 +2,12 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "plus.unsplash.com" },
+    ],
+  },
   // Allow building even if a stray lint/type warning appears in CI; we run
   // `tsc --noEmit` + vitest separately and gate on those.
   eslint: { ignoreDuringBuilds: true },

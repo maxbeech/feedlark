@@ -13,8 +13,10 @@ export function pageMetadata(opts: {
   description: string;
   path?: string;
   noIndex?: boolean;
+  image?: string;
 }): Metadata {
   const url = absoluteUrl(opts.path ?? "/");
+  const images = opts.image ? [{ url: opts.image }] : undefined;
   return {
     title: opts.title,
     description: opts.description,
@@ -26,11 +28,13 @@ export function pageMetadata(opts: {
       url,
       siteName: SITE.name,
       type: "website",
+      images,
     },
     twitter: {
       card: "summary_large_image",
       title: opts.title,
       description: opts.description,
+      images,
     },
   };
 }

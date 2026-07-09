@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { ArrowUpRight } from "lucide-react";
 import { BLOG_POSTS } from "@/lib/content/blog";
+import { DEFAULT_CATEGORY } from "@/lib/content/blog-types";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -19,9 +21,20 @@ export default function BlogIndex() {
       <p className="mt-4 text-lg text-ink-soft">Practical notes on feedback, roadmaps and shipping in public.</p>
       <div className="mt-10 divide-y divide-sand-200 border-t border-sand-200">
         {posts.map((p) => (
-          <Link key={p.slug} href={`/blog/${p.slug}`} className="group flex items-start justify-between gap-6 py-6">
-            <div>
-              <p className="text-xs text-ink-muted">{p.date} · {p.readMins} min read</p>
+          <Link key={p.slug} href={`/blog/${p.slug}`} className="group flex items-start gap-5 py-6">
+            {p.image && (
+              <div className="hidden shrink-0 overflow-hidden rounded-xl sm:block">
+                <Image
+                  src={p.image}
+                  alt={p.imageAlt ?? p.title}
+                  width={160}
+                  height={100}
+                  className="h-[100px] w-[160px] object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-ink-muted">{p.category ?? DEFAULT_CATEGORY} · {p.date} · {p.readMins} min read</p>
               <h2 className="mt-1.5 font-display text-xl font-semibold text-ink transition-colors group-hover:text-brand-700">{p.title}</h2>
               <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{p.description}</p>
             </div>
