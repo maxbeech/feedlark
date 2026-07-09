@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "deploy": "vercel pull --yes --environment=production && vercel build --prod && vercel deploy --prebuilt --prod"
   },
   "dependencies": {
     "@vercel/analytics": "^1.6.1",
