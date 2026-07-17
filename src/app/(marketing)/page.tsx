@@ -1,6 +1,6 @@
 import { ArrowRight, Check, X, Infinity as InfinityIcon } from "lucide-react";
 import { LinkButton } from "@/components/ui";
-import { JsonLd, faqJsonLd, softwareAppJsonLd } from "@/components/json-ld";
+import { JsonLd, faqJsonLd, softwareAppJsonLd, organizationJsonLd, websiteJsonLd } from "@/components/json-ld";
 import { BrowserFrame, BoardMockup, RoadmapMockup, ChangelogMockup, WidgetMockup, LoopDemo } from "@/components/marketing/mockups";
 import { FeatureRow } from "@/components/marketing/home/feature-row";
 import { HOME_FAQS } from "@/lib/content/faqs";
@@ -8,7 +8,7 @@ import { HOME_FAQS } from "@/lib/content/faqs";
 export default function HomePage() {
   return (
     <>
-      <JsonLd data={[softwareAppJsonLd(), faqJsonLd(HOME_FAQS)]} />
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd(), softwareAppJsonLd(), faqJsonLd(HOME_FAQS)]} />
 
       {/* Hero */}
       <section className="grain relative overflow-hidden border-b border-sand-200 bg-paper">

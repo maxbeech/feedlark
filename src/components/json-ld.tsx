@@ -1,6 +1,12 @@
 import { jsonLdString } from "@/lib/structured-data";
 
-export { faqJsonLd, softwareAppJsonLd, jsonLdString } from "@/lib/structured-data";
+export {
+  faqJsonLd,
+  softwareAppJsonLd,
+  organizationJsonLd,
+  websiteJsonLd,
+  jsonLdString,
+} from "@/lib/structured-data";
 
 /**
  * Renders a JSON-LD script tag for SEO/GEO (AI assistants parse these).

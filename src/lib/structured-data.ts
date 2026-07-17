@@ -17,6 +17,25 @@ export function faqJsonLd(faqs: { q: string; a: string }[]) {
   };
 }
 
+export function organizationJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Feedlark",
+    url: "https://feedlark.com",
+    logo: "https://feedlark.com/icon.svg",
+  };
+}
+
+export function websiteJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Feedlark",
+    url: "https://feedlark.com",
+  };
+}
+
 export function softwareAppJsonLd() {
   return {
     "@context": "https://schema.org",
