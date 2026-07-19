@@ -11,6 +11,10 @@ import { BLOG_FEEDBACK_ANALYSIS } from "./blog-feedback-analysis";
 import { BLOG_REVIEWS } from "./blog-reviews";
 import { BLOG_REVIEWS_BEST_OF } from "./blog-reviews-best-of";
 import { BLOG_NEWS } from "./blog-news";
+import { BLOG_ROADMAP_EXTRA } from "./blog-roadmap-extra";
+import { BLOG_FEEDBACK_EXTRA } from "./blog-feedback-extra";
+import { BLOG_REVIEWS_EXTRA } from "./blog-reviews-extra";
+import { BLOG_NEWS_EXTRA } from "./blog-news-extra";
 
 export const BLOG_POSTS: BlogPost[] = [
   ...BLOG_FEEDBACK_BASICS,
@@ -21,6 +25,10 @@ export const BLOG_POSTS: BlogPost[] = [
   ...BLOG_REVIEWS,
   ...BLOG_REVIEWS_BEST_OF,
   ...BLOG_NEWS,
+  ...BLOG_ROADMAP_EXTRA,
+  ...BLOG_FEEDBACK_EXTRA,
+  ...BLOG_REVIEWS_EXTRA,
+  ...BLOG_NEWS_EXTRA,
 ];
 
 export function getPost(slug: string): BlogPost | undefined {
