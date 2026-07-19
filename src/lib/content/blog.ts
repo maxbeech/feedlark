@@ -15,6 +15,7 @@ import { BLOG_ROADMAP_EXTRA } from "./blog-roadmap-extra";
 import { BLOG_FEEDBACK_EXTRA } from "./blog-feedback-extra";
 import { BLOG_REVIEWS_EXTRA } from "./blog-reviews-extra";
 import { BLOG_NEWS_EXTRA } from "./blog-news-extra";
+import { BLOG_CLIENT_FEEDBACK } from "./blog-client-feedback";
 
 export const BLOG_POSTS: BlogPost[] = [
   ...BLOG_FEEDBACK_BASICS,
@@ -29,6 +30,7 @@ export const BLOG_POSTS: BlogPost[] = [
   ...BLOG_FEEDBACK_EXTRA,
   ...BLOG_REVIEWS_EXTRA,
   ...BLOG_NEWS_EXTRA,
+  ...BLOG_CLIENT_FEEDBACK,
 ];
 
 export function getPost(slug: string): BlogPost | undefined {
