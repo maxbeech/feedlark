@@ -19,6 +19,7 @@ import { BLOG_CLIENT_FEEDBACK } from "./blog-client-feedback";
 import { BLOG_CONTENT_GAP_FILLERS } from "./blog-content-gap-fillers";
 import { BLOG_CHANGELOG_MANAGEMENT } from "./blog-changelog-management";
 import { BLOG_BENCHMARKS } from "./blog-benchmarks";
+import { BLOG_WORKFLOW_GUIDES } from "./blog-workflow-guides";
 
 export const BLOG_POSTS: BlogPost[] = [
   ...BLOG_FEEDBACK_BASICS,
@@ -37,6 +38,7 @@ export const BLOG_POSTS: BlogPost[] = [
   ...BLOG_CONTENT_GAP_FILLERS,
   ...BLOG_CHANGELOG_MANAGEMENT,
   ...BLOG_BENCHMARKS,
+  ...BLOG_WORKFLOW_GUIDES,
 ];
 
 export function getPost(slug: string): BlogPost | undefined {
