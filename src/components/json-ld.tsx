@@ -5,6 +5,7 @@ export {
   softwareAppJsonLd,
   organizationJsonLd,
   websiteJsonLd,
+  breadcrumbJsonLd,
   jsonLdString,
 } from "@/lib/structured-data";
 

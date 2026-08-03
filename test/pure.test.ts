@@ -5,7 +5,7 @@ import { csvCell, toCsv } from "@/lib/csv";
 import { dedupeEmails, shipChangelogTitle, shipChangelogBody } from "@/lib/ship-loop";
 import { tokenize, similarity, clusterDuplicates } from "@/lib/dedupe";
 import { xmlEscape, buildRssFeed } from "@/lib/feeds";
-import { jsonLdString, faqJsonLd } from "@/lib/structured-data";
+import { jsonLdString, faqJsonLd, breadcrumbJsonLd } from "@/lib/structured-data";
 
 describe("slugify", () => {
   it("makes url-safe slugs", () => {
@@ -145,5 +145,17 @@ describe("JSON-LD", () => {
     const ld = faqJsonLd([{ q: "Q?", a: "A." }]) as Record<string, any>;
     expect(ld["@type"]).toBe("FAQPage");
     expect(ld.mainEntity[0].acceptedAnswer.text).toBe("A.");
+  });
+  it("breadcrumbJsonLd produces an ordered, absolute-URL BreadcrumbList", () => {
+    const ld = breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "Blog", path: "/blog" },
+      { name: "A post", path: "/blog/a-post" },
+    ]) as Record<string, any>;
+    expect(ld["@type"]).toBe("BreadcrumbList");
+    expect(ld.itemListElement).toHaveLength(3);
+    expect(ld.itemListElement[0]).toEqual({ "@type": "ListItem", position: 1, name: "Home", item: "https://feedlark.com/" });
+    expect(ld.itemListElement[2].item).toBe("https://feedlark.com/blog/a-post");
+    expect(ld.itemListElement[2].position).toBe(3);
   });
 });

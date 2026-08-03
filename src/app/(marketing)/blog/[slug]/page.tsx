@@ -6,7 +6,7 @@ import { BLOG_POSTS, getPost } from "@/lib/content/blog";
 import { DEFAULT_AUTHOR, DEFAULT_CATEGORY } from "@/lib/content/blog-types";
 import { LinkButton } from "@/components/ui";
 import { pageMetadata, SITE } from "@/lib/seo";
-import { JsonLd, faqJsonLd } from "@/components/json-ld";
+import { JsonLd, faqJsonLd, breadcrumbJsonLd } from "@/components/json-ld";
 import { renderRich } from "@/components/rich-text";
 import { absoluteUrl } from "@/lib/utils";
 
@@ -49,9 +49,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       : {}),
   };
 
+  const breadcrumbLd = breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Blog", path: "/blog" },
+    { name: post.title, path: `/blog/${post.slug}` },
+  ]);
+
   return (
     <article className="mx-auto max-w-2xl px-4 py-16">
       <JsonLd data={articleLd} />
+      <JsonLd data={breadcrumbLd} />
       {post.faqs && post.faqs.length > 0 && <JsonLd data={faqJsonLd(post.faqs)} />}
       <Link href="/blog" className="text-sm text-ink-muted hover:text-ink">← All posts</Link>
       <p className="mt-5 text-xs font-medium uppercase tracking-wide text-brand-600">

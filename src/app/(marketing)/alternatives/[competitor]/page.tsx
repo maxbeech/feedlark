@@ -4,7 +4,7 @@ import { Check, X, ArrowRight } from "lucide-react";
 import { COMPETITORS, getCompetitor } from "@/lib/content/competitors";
 import { LinkButton } from "@/components/ui";
 import { pageMetadata } from "@/lib/seo";
-import { JsonLd, faqJsonLd } from "@/components/json-ld";
+import { JsonLd, faqJsonLd, breadcrumbJsonLd } from "@/components/json-ld";
 import { BrowserFrame, BoardMockup } from "@/components/marketing/mockups";
 
 export function generateStaticParams() {
@@ -27,9 +27,15 @@ export default async function AlternativePage({ params }: { params: Promise<{ co
   const c = getCompetitor(competitor);
   if (!c) notFound();
 
+  const breadcrumbLd = breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: `${c.name} alternative`, path: `/alternatives/${c.slug}` },
+  ]);
+
   return (
     <>
       <JsonLd data={faqJsonLd(c.faqs)} />
+      <JsonLd data={breadcrumbLd} />
       <section className="grain relative overflow-hidden border-b border-sand-200 bg-paper">
         <div className="absolute inset-0 bg-grid bg-grid-fade" aria-hidden="true" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 lg:grid-cols-2 lg:py-20">

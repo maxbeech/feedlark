@@ -5,6 +5,7 @@ import { USE_CASES, getUseCase } from "@/lib/content/use-cases";
 import { LinkButton } from "@/components/ui";
 import { pageMetadata } from "@/lib/seo";
 import { RoadmapMockup } from "@/components/marketing/mockups";
+import { JsonLd, breadcrumbJsonLd } from "@/components/json-ld";
 
 export function generateStaticParams() {
   return USE_CASES.map((u) => ({ slug: u.slug }));
@@ -22,8 +23,14 @@ export default async function UseCasePage({ params }: { params: Promise<{ slug: 
   const u = getUseCase(slug);
   if (!u) notFound();
 
+  const breadcrumbLd = breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: u.title, path: `/use-cases/${u.slug}` },
+  ]);
+
   return (
     <>
+      <JsonLd data={breadcrumbLd} />
       <section className="grain relative overflow-hidden border-b border-sand-200 bg-paper">
         <div className="absolute inset-0 bg-grid bg-grid-fade" aria-hidden="true" />
         <div className="relative mx-auto max-w-3xl px-4 py-16 text-center">
