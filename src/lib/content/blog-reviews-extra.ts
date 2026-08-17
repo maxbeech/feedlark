@@ -2,6 +2,61 @@ import type { BlogPost } from "./blog-types";
 
 export const BLOG_REVIEWS_EXTRA: BlogPost[] = [
   {
+    slug: "featurebase-alternatives",
+    title: "The best Featurebase alternatives in 2026",
+    description:
+      "Featurebase bundles feedback, roadmap and a help centre, but AI is metered and seats climb fast. Compare five alternatives, pricing and what each trades off.",
+    date: "2026-08-17",
+    keyword: "featurebase alternative",
+    category: "Reviews",
+    author: "Priya Shah, Head of Product at Feedlark",
+    authorBio: "Priya leads product at Feedlark and spends a surprising amount of her week reading other companies' pricing pages.",
+    image: "https://images.unsplash.com/photo-1516910817563-4df1c1b69058?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080",
+    imageAlt: "Support agent working at a desk with a laptop, representing a combined feedback and help desk tool",
+    readMins: 6,
+    blocks: [
+      { p: "Featurebase earned its popularity honestly: a feedback board, public roadmap, changelog and a help centre module in one product, with a free plan that does not cap end-users. The catch shows up once you actually turn features on. AI is metered as a paid add-on rather than included, and seats scale from $29 to $99 a month as you add languages and automation. This guide compares five alternatives, what each costs once the free plan runs out, and where Featurebase still wins for teams that specifically want a combined support and feedback hub." },
+      { h2: "Why teams look for a Featurebase alternative", ul: [
+        "AI features, including auto-tagging and suggested replies, sit behind a metered add-on rather than a flat seat price",
+        "Seat pricing climbs from $29 to $99 a month across tiers, which adds up fast for a growing support team",
+        "The broader support-suite scope means more menus and settings than teams that only want a feedback board actually need",
+        "Some teams only ever use the board, roadmap and changelog, and end up paying for a help centre module they never touch",
+        "Onboarding takes longer than a single-purpose feedback tool because there is simply more to configure",
+      ] },
+      { h2: "Feedlark", p: "Feedlark is the closest swap for teams that use Featurebase for its feedback board, roadmap and changelog but not its help centre. The free plan covers all three with no cap on end-users, and the Pro plan is [$19 per admin seat](/pricing), ten dollars cheaper than Featurebase's entry tier, with no metered AI add-on to budget around separately. Ship an item and the changelog entry publishes itself, with every voter notified automatically, so the 'you asked, we shipped' loop closes without a support agent doing it by hand. Setup takes under ten minutes, and teams can [try it free](/signup) before adding paid seats." },
+      { h2: "Canny", p: "Canny is the more established name in this space, with wider integrations and a longer track record. It bills per tracked user rather than per seat, though, and our [breakdown of Canny's 2026 pricing](/blog/canny-pricing-explained) shows how that adds up once a board gets real traffic. The free plan caps at 25 tracked users, which a single popular post can exceed on its own. Worth comparing if deep integrations matter more to you than predictable billing." },
+      { h2: "Productboard", p: "Productboard sits a level up in scope: discovery, prioritisation frameworks and strategy tooling built for larger product organisations, not just a feedback board with a help desk attached. Our [Productboard alternatives guide](/blog/productboard-alternatives) covers this in more depth, but the short version is that it solves a different problem than Featurebase does, and it costs more to solve it. Consider it only if your team genuinely runs a formal discovery process today." },
+      { h2: "Nolt", p: "Nolt trades Featurebase's breadth for simplicity: a clean feedback board with flat per-board pricing around $29 a month, no per-seat scaling and no metered add-ons. Our [look at Nolt alternatives](/blog/nolt-alternatives) has the full picture, but Nolt has no AI deduplication and no help centre module at all, so it suits a very early product more than a team already using Featurebase's fuller feature set." },
+      { h2: "Frill", p: "Frill covers the same core ground as Feedlark, ideas, roadmap and changelog, with pricing starting around $25 a month and scaling to tiers with white-labelling. It does not include a help centre module, so teams switching from Featurebase specifically for that reason should look elsewhere. For teams that only ever used Featurebase's board and roadmap, Frill is a reasonable, similarly priced option." },
+      { h2: "How to choose", p: "If the help centre module is genuinely part of your daily workflow, Featurebase remains the most complete option and switching away means losing real functionality. If you have only ever used the feedback board, roadmap and changelog, Feedlark or Frill deliver the same day-to-day workflow for less, without a metered AI bill to watch. Canny is worth a look if wide integrations matter more than predictable per-seat pricing. Closing the loop with customers matters more than any single feature list: [Zendesk's 2026 CX Trends report](https://cxtrends.zendesk.com/) found 63% of people say demand for transparency from companies has risen, and a public roadmap with a connected changelog is one of the more direct ways to answer that." },
+      { h2: "What migration actually looks like", p: "Moving off Featurebase is a lighter job than it looks. Export existing posts, votes and roadmap items, most alternatives accept a CSV import or a quick manual copy for a small board, and rebuild your status categories and board structure in the new tool. The larger task is communication: point existing voters and any embedded widget to the new location, and keep a note on the old board for a few weeks so returning visitors do not land on a dead page. Most teams complete the switch inside a few days, since the tool setup itself is quick and the rest of the time goes into making sure nothing important gets lost." },
+      { table: {
+        caption: "Featurebase alternatives at a glance",
+        head: ["Tool", "Entry paid price", "Free tier", "AI features", "Best for"],
+        rows: [
+          ["Feedlark", "$19/seat", "Unlimited end-users, roadmap and changelog", "Included, not metered", "Teams that skip the help centre and want lower cost"],
+          ["Canny", "From $79/mo", "25 tracked users", "Included on paid plans", "Established teams needing wide integrations"],
+          ["Productboard", "~$19/maker", "Limited / trial", "Credit-based", "Larger teams running a formal discovery process"],
+          ["Nolt", "~$29/mo per board", "Trial only", "None", "Very small teams wanting one simple board"],
+          ["Frill", "From $25/mo", "Trial only", "None", "Teams replacing only the board, roadmap and changelog"],
+          ["Featurebase", "From $29/seat", "Unlimited end-users (AI excluded)", "Metered add-on", "Teams that actively use the help centre module"],
+        ],
+      } },
+    ],
+    takeaways: [
+      "Featurebase's free plan excludes AI, and paid seats scale from $29 to $99 a month with AI metered separately.",
+      "Feedlark and Frill cover the same board, roadmap and changelog workflow for less, without a metered AI add-on.",
+      "Canny and Productboard solve different problems: wider integrations, or full product discovery and strategy.",
+      "Keep Featurebase if the help centre module is part of your daily workflow; switch if you only ever use the board.",
+    ],
+    faqs: [
+      { q: "Is there a free Featurebase alternative?", a: "Yes. Feedlark's free plan covers a feedback board, public roadmap and changelog with no cap on end-users, similar to Featurebase's free tier, but without AI features gated behind a metered add-on." },
+      { q: "Why does Featurebase get expensive as teams grow?", a: "Seats scale from $29 to $99 a month across tiers, and AI features such as auto-tagging and suggested replies are billed separately as a metered add-on rather than included in the seat price." },
+      { q: "Do I need the help centre module Featurebase includes?", a: "Only if you use it. Teams that solely collect feedback, publish a roadmap and post a changelog typically never touch the help centre, and a focused tool like Feedlark covers that core workflow for less." },
+      { q: "How long does it take to switch away from Featurebase?", a: "Exporting posts, votes and roadmap items typically takes an afternoon for a small board. Most teams complete the full switch, including pointing existing voters to the new location, within a few days." },
+    ],
+  },
+  {
     slug: "online-roadmap-tools-compared",
     title: "6 online roadmap tools compared for 2026",
     description:
