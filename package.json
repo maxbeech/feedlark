@@ -19,6 +19,7 @@
     "deploy": "vercel pull --yes --environment=production && vercel build --prod && vercel deploy --prebuilt --prod"
   },
   "dependencies": {
+    "@sentry/nextjs": "^10.71.0",
     "@vercel/analytics": "^1.6.1",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
