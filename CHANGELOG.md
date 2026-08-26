@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- **Billing recovery:** Stripe webhook events are recorded only after the
+  matching entitlement write succeeds, so a transient database failure remains
+  retryable instead of stranding a paid workspace on Free. A signed-in return
+  from Checkout now independently verifies the paid session and repairs a
+  delayed/missed upgrade for its owning workspace.
+
 ## 0.6.1 - 2026-06-26
 
 Finish-list infrastructure, done with the Supabase Postgres we already have (no new paid services).

@@ -57,7 +57,9 @@ export async function POST() {
           customer_update: { address: "auto", name: "auto" },
         }
       : {}),
-    success_url: absoluteUrl("/dashboard/settings?upgraded=1"),
+    // The signed-in return verifies the Checkout Session against Stripe, which
+    // repairs a delayed/missed webhook without trusting query parameters.
+    success_url: absoluteUrl("/dashboard/settings?upgraded=1&session_id={CHECKOUT_SESSION_ID}"),
     cancel_url: absoluteUrl("/dashboard/settings"),
   });
   return NextResponse.redirect(session.url ?? absoluteUrl("/dashboard/settings"), 303);

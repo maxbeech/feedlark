@@ -44,7 +44,9 @@ npm run typecheck
 ## Key routes
 
 - `/` marketing home · `/pricing` · `/alternatives/{canny,featurebase,productboard,nolt,frill}` · `/use-cases/{slug}` · `/blog`
-- `/dashboard` admin (boards, posts, changelog, settings/billing)
+- `/dashboard` admin (boards, posts, changelog, settings/billing). Stripe's
+  signature-verified webhook is the lifecycle authority; a verified Checkout
+  return independently repairs a delayed/missed Pro upgrade for that workspace.
 - `/b/{workspace}` public board · `/b/{workspace}/roadmap` · `/b/{workspace}/changelog` (+ `/rss`)
 - `/widget.js` embeddable widget · `/llms.txt` · `/sitemap.xml`
 

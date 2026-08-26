@@ -65,52 +65,57 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `invalid_signature: ${String(e)}` }, { status: 400 });
   }
 
-  // Idempotency: Stripe delivers at least once. Record the event id first; if we
-  // already processed it, acknowledge without re-running side-effects.
-  try {
-    const ins = await db.insert(schema.stripeEvents).values({ id: event.id, type: event.type }).onConflictDoNothing().returning({ id: schema.stripeEvents.id });
-    if (ins.length === 0) return NextResponse.json({ received: true, duplicate: true });
-  } catch {
-    // Ledger insert failed (e.g. race) — treat as duplicate to stay safe.
-    return NextResponse.json({ received: true, duplicate: true });
-  }
-
   const customerOf = (sub: Stripe.Subscription) => (typeof sub.customer === "string" ? sub.customer : sub.customer.id);
 
-  switch (event.type) {
-    case "checkout.session.completed": {
-      const s = event.data.object as Stripe.Checkout.Session;
-      const paid = s.payment_status === "paid" || s.payment_status === "no_payment_required";
-      if (s.mode === "subscription" && paid) {
-        await upgradeToPro(
-          { workspaceId: s.client_reference_id, customerId: typeof s.customer === "string" ? s.customer : s.customer?.id },
-          typeof s.subscription === "string" ? s.subscription : s.subscription?.id ?? null,
-        );
+  try {
+    switch (event.type) {
+      case "checkout.session.completed": {
+        const s = event.data.object as Stripe.Checkout.Session;
+        const paid = s.payment_status === "paid" || s.payment_status === "no_payment_required";
+        if (s.mode === "subscription" && paid) {
+          await upgradeToPro(
+            { workspaceId: s.client_reference_id, customerId: typeof s.customer === "string" ? s.customer : s.customer?.id },
+            typeof s.subscription === "string" ? s.subscription : s.subscription?.id ?? null,
+          );
+        }
+        break;
       }
-      break;
-    }
-    case "customer.subscription.created":
-    case "customer.subscription.updated": {
-      const sub = event.data.object as Stripe.Subscription;
-      const target = { customerId: customerOf(sub) };
-      if ((sub.status === "active" || sub.status === "trialing") && hasProPrice(sub)) {
-        await upgradeToPro(target, sub.id);
-      } else if (sub.status === "past_due" || sub.status === "unpaid" || sub.status === "incomplete") {
-        // Grace period: a failed/pending renewal does NOT immediately downgrade.
-        // Stripe Smart Retries will recover most; final failure arrives as
-        // `subscription.deleted`, which downgrades. Keep Pro for now.
-      } else {
-        // canceled / incomplete_expired / paused → revoke + clean up.
-        await downgradeToFree(target);
+      case "customer.subscription.created":
+      case "customer.subscription.updated": {
+        const sub = event.data.object as Stripe.Subscription;
+        const target = { customerId: customerOf(sub) };
+        if ((sub.status === "active" || sub.status === "trialing") && hasProPrice(sub)) {
+          await upgradeToPro(target, sub.id);
+        } else if (sub.status === "past_due" || sub.status === "unpaid" || sub.status === "incomplete") {
+          // Grace period: a failed/pending renewal does NOT immediately downgrade.
+          // Stripe Smart Retries will recover most; final failure arrives as
+          // `subscription.deleted`, which downgrades. Keep Pro for now.
+        } else {
+          // canceled / incomplete_expired / paused → revoke + clean up.
+          await downgradeToFree(target);
+        }
+        break;
       }
-      break;
+      case "customer.subscription.deleted": {
+        const sub = event.data.object as Stripe.Subscription;
+        await downgradeToFree({ customerId: customerOf(sub) });
+        break;
+      }
     }
-    case "customer.subscription.deleted": {
-      const sub = event.data.object as Stripe.Subscription;
-      await downgradeToFree({ customerId: customerOf(sub) });
-      break;
-    }
-  }
 
-  return NextResponse.json({ received: true });
+    // Stripe may redeliver. Mark the event only after the entitlement write and
+    // all local cleanup have completed: recording it first would make a later
+    // retry look like a duplicate after a transient database failure.
+    const inserted = await db
+      .insert(schema.stripeEvents)
+      .values({ id: event.id, type: event.type })
+      .onConflictDoNothing()
+      .returning({ id: schema.stripeEvents.id });
+    return NextResponse.json({ received: true, duplicate: inserted.length === 0 });
+  } catch (error) {
+    console.error("[stripe/webhook] entitlement sync failed", { eventId: event.id, type: event.type, error });
+    // A non-2xx response is Stripe's durable retry mechanism. There is no
+    // completed ledger row yet, so the redelivery re-attempts the state change.
+    return NextResponse.json({ error: "entitlement_sync_failed" }, { status: 500 });
+  }
 }
