@@ -4,6 +4,7 @@ import type Stripe from "stripe";
 import { db, schema } from "@/lib/db";
 import { getStripe, PRICE_PRO } from "@/lib/stripe";
 import { revalidatePublicWorkspace } from "@/lib/revalidate";
+import { guardStripeEvent } from "../../../../lib/gate";
 
 /** True if a subscription actually carries our Pro price (not just any product). */
 function hasProPrice(sub: Stripe.Subscription): boolean {
@@ -63,6 +64,16 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(raw, sig ?? "", secret);
   } catch (e) {
     return NextResponse.json({ error: `invalid_signature: ${String(e)}` }, { status: 400 });
+  }
+
+  // A Stripe webhook endpoint is registered on an ACCOUNT, so on a shared
+  // account this handler is delivered every other product's events too.
+  // Establish that this one is OURS — by price id, never by metadata or
+  // customer — before anything below acts on it. See src/lib/gate.ts.
+  const ownership = await guardStripeEvent(stripe, event);
+  if (!ownership.ok) {
+    console.log(ownership.message);
+    return NextResponse.json({ received: true, ignored: ownership.reason });
   }
 
   const customerOf = (sub: Stripe.Subscription) => (typeof sub.customer === "string" ? sub.customer : sub.customer.id);
