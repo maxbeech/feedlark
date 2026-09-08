@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { SITE } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/utils";
+import { OpenHelmAnalytics } from "../lib/openhelm-analytics";
 
 // Body + UI: a clean, neutral grotesk.
 const sans = Inter({
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <Analytics />
+        <OpenHelmAnalytics />
       </body>
     </html>
   );
