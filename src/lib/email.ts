@@ -2,81 +2,86 @@ import "server-only";
 import { SignJWT, jwtVerify } from "jose";
 import { authSecret } from "@/lib/auth/session";
 import { absoluteUrl } from "@/lib/utils";
+import { sendEmail as sendViaOpenHelm, emailEnabled } from "@/lib/openhelm-mail";
 
 /**
- * Optional transactional email. If RESEND_API_KEY is set we send via Resend;
- * otherwise we no-op and report `sent: false` so callers can still record the
- * notification intent (graceful degradation — never fabricated as "sent").
+ * Transactional email, through OpenHelm Mail.
+ *
+ * WHAT THIS REPLACES. A direct Resend integration: its own API key, its own
+ * `EMAIL_FROM`, and its own idea of what a failure was. Feedlark was the last
+ * product in the portfolio still doing that, and it is the one thing the shared
+ * client exists to stop — a per-product mail provider means per-product
+ * suppression, per-product caps, per-product reputation, and a support address
+ * nobody on the platform can see or answer.
+ *
+ * THE FROM-ADDRESS IS NOT SET HERE ANY MORE, and that is the point. The old
+ * `EMAIL_FROM` asserted `noreply@mail.feedlark.com` whether or not anything had
+ * verified it. OpenHelm Mail binds the inbox to this product server-side and
+ * stamps the address it has actually verified, so the header and the wire can
+ * no longer disagree.
+ *
+ * THE PUBLIC SHAPE IS DELIBERATELY UNCHANGED. `sendEmail`, `sendEmailBatch`,
+ * `emailConfigured` and the unsubscribe helpers keep their signatures, so the
+ * five call sites are untouched by the migration.
  */
-const RESEND_URL = "https://api.resend.com/emails";
-const RESEND_BATCH_URL = "https://api.resend.com/emails/batch";
-
-function fromAddress(): string {
-  return process.env.EMAIL_FROM || "Feedlark <noreply@mail.feedlark.com>";
-}
 
 export type EmailMessage = {
   to: string;
   subject: string;
   text: string;
+  /**
+   * Extra headers. Only List-Unsubscribe is used today; the platform adds its
+   * own one-click unsubscribe to bulk classes, so these are additive.
+   */
   headers?: Record<string, string>;
   replyTo?: string;
+  /**
+   * Idempotency key, and the reason a partial batch failure is now safe to
+   * retry. `sendEmailBatch` reports all-or-nothing, so a retry re-sends every
+   * message in the batch including the ones that already went out; passing a
+   * key that is stable for THIS notification makes the platform return the
+   * original message instead of delivering a second copy.
+   */
+  clientId?: string;
 };
 
 export async function sendEmail(opts: EmailMessage): Promise<{ sent: boolean; error?: string }> {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return { sent: false };
-  try {
-    const res = await fetch(RESEND_URL, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: fromAddress(),
-        to: opts.to,
-        subject: opts.subject,
-        text: opts.text,
-        ...(opts.replyTo ? { reply_to: opts.replyTo } : {}),
-        ...(opts.headers ? { headers: opts.headers } : {}),
-      }),
-    });
-    if (!res.ok) return { sent: false, error: `resend_${res.status}` };
-    return { sent: true };
-  } catch (e) {
-    return { sent: false, error: String(e) };
-  }
+  if (!emailEnabled()) return { sent: false };
+  const res = await sendViaOpenHelm({
+    to: opts.to,
+    subject: opts.subject,
+    text: opts.text,
+    ...(opts.replyTo ? { replyTo: opts.replyTo } : {}),
+    ...(opts.clientId ? { clientId: opts.clientId } : {}),
+  });
+  if (res.sent) return { sent: true };
+  return { sent: false, error: res.reason === "error" ? res.error ?? "send_failed" : res.reason };
 }
 
 /**
- * Send up to 100 emails in one Resend Batch request. Returns whether the batch
- * call itself succeeded; callers treat a non-ok batch as "all failed, retry".
+ * Send a run of notifications.
+ *
+ * OpenHelm Mail has no batch endpoint, and it should not: each of these
+ * carries its own List-Unsubscribe header, so they were never one message in
+ * any case — Resend's batch call was a transport optimisation, not a semantic
+ * one. Sent one at a time, sequentially, so a burst cannot outrun the inbox's
+ * own daily cap in a way the platform then reports as a wall of failures.
+ *
+ * The result stays all-or-nothing because the caller's rows are marked
+ * all-or-nothing; per-message `clientId` is what makes the resulting retry
+ * safe (see EmailMessage above).
  */
 export async function sendEmailBatch(messages: EmailMessage[]): Promise<{ sent: boolean; error?: string }> {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return { sent: false };
+  if (!emailEnabled()) return { sent: false };
   if (messages.length === 0) return { sent: true };
-  try {
-    const res = await fetch(RESEND_BATCH_URL, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify(
-        messages.map((m) => ({
-          from: fromAddress(),
-          to: m.to,
-          subject: m.subject,
-          text: m.text,
-          ...(m.replyTo ? { reply_to: m.replyTo } : {}),
-          ...(m.headers ? { headers: m.headers } : {}),
-        })),
-      ),
-    });
-    if (!res.ok) return { sent: false, error: `resend_${res.status}` };
-    return { sent: true };
-  } catch (e) {
-    return { sent: false, error: String(e) };
+  for (const message of messages) {
+    const res = await sendEmail(message);
+    if (!res.sent) return { sent: false, error: res.error ?? "send_failed" };
   }
+  return { sent: true };
 }
 
-export const emailConfigured = Boolean(process.env.RESEND_API_KEY);
+export const emailConfigured = emailEnabled();
 
 /** A long-lived signed token that lets a recipient one-click unsubscribe. */
 export async function unsubscribeToken(email: string): Promise<string> {

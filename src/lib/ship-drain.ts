@@ -2,10 +2,12 @@ import "server-only";
 import { and, eq, inArray, lt, sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { sendEmailBatch, unsubscribeHeaders, type EmailMessage } from "@/lib/email";
+import { configFromEnv, trackEvent, newClientId } from "@/lib/openhelm-analytics-mp";
+import { EVENTS, shipNotifiedParams } from "@/lib/analytics-events";
 
-const MAX_ATTEMPTS = 4; // give Resend transients (429s) a few retries before giving up
-const RESEND_BATCH = 100; // Resend Batch API caps at 100 messages/request
-const PACE_MS = 600; // stay under Resend's default ~2 req/s
+const MAX_ATTEMPTS = 4; // give provider transients a few retries before giving up
+const SEND_CHUNK = 100; // rows claimed per pass; the sends themselves are sequential
+const PACE_MS = 600; // pause between chunks, so a drain cannot outrun the inbox cap
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -23,7 +25,7 @@ export async function drainShipNotifications(maxRows = 5000): Promise<{ sent: nu
       .select()
       .from(schema.shipNotifications)
       .where(and(eq(schema.shipNotifications.status, "pending"), lt(schema.shipNotifications.attempts, MAX_ATTEMPTS)))
-      .limit(RESEND_BATCH);
+      .limit(SEND_CHUNK);
     if (rows.length === 0) break;
     processed += rows.length;
 
@@ -52,6 +54,9 @@ export async function drainShipNotifications(maxRows = 5000): Promise<{ sent: nu
           subject: r.subject,
           text: r.body,
           headers: await unsubscribeHeaders(r.recipientEmail),
+          // Stable for this notification row, so the all-or-nothing retry below
+          // cannot deliver a second copy to whoever the first pass reached.
+          clientId: `ship-notification:${r.id}`,
         })),
       );
       const res = await sendEmailBatch(messages);
@@ -61,6 +66,16 @@ export async function drainShipNotifications(maxRows = 5000): Promise<{ sent: nu
           .set({ status: "sent", sentAt: Math.floor(Date.now() / 1000) })
           .where(inArray(schema.shipNotifications.id, ids));
         sent += toSend.length;
+        // Step 2 of the "You asked -> we shipped" loop (step 1 is the admin's
+        // Ship-it click, tracked client-side in src/components/dashboard/ship-
+        // button.tsx). This drain runs from after() and from cron — never a
+        // browser — so it reports through the Measurement Protocol; safely a
+        // no-op if GA_API_SECRET is unset (see openhelm-analytics-mp.ts).
+        void trackEvent(
+          { ...configFromEnv(), clientId: newClientId() },
+          EVENTS.SHIP_NOTIFIED,
+          shipNotifiedParams(toSend.length),
+        ).catch(() => {});
       } else {
         // Bump attempts; rows past MAX_ATTEMPTS become `failed` (stop retrying).
         await db.update(schema.shipNotifications)

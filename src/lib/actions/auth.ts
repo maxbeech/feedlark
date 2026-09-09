@@ -18,7 +18,7 @@ import { absoluteUrl } from "@/lib/utils";
 import { checkRateLimit, clientIp } from "@/lib/ratelimit";
 
 // Only require email confirmation when email actually works, so a missing
-// RESEND key can never lock everyone out of signing in.
+// mail provider can never lock everyone out of signing in.
 const verificationRequired = emailConfigured;
 
 async function sendVerificationEmail(userId: string, email: string): Promise<void> {
@@ -100,7 +100,11 @@ export async function signupAction(_prev: ActionResult, formData: FormData): Pro
   if (verified) {
     await db.update(schema.users).set({ emailVerified: true }).where(eq(schema.users.id, userId));
     await setSessionCookie(userId);
-    redirect("/dashboard");
+    // Marks the landing page so it can fire `sign_up` client-side — see
+    // src/components/analytics/signup-tracker.tsx. This redirect() throws
+    // (Next.js server action semantics), so the client can't observe success
+    // any other way.
+    redirect(`/dashboard?welcome=${joined ? "invite" : "email"}`);
   }
   // Unverified: send the confirmation email and ask them to check their inbox.
   await sendVerificationEmail(userId, email);
