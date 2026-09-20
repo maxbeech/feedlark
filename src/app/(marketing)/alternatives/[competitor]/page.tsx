@@ -99,6 +99,15 @@ export default async function AlternativePage({ params }: { params: Promise<{ co
           </div>
         </div>
 
+        <section className="mt-12 rounded-2xl border border-sand-200 bg-paper p-6 md:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-600">A useful way to choose</p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tightest text-ink">Choose the workflow, not the loudest feature list</h2>
+          <p className="mt-4 leading-relaxed text-ink-soft">{c.evaluation}</p>
+          <p className="mt-5 text-sm text-ink-muted">
+            Pricing checked 20 September 2026. Plans change, so confirm the details on <a className="font-medium text-brand-700 underline decoration-brand-200 underline-offset-2 hover:decoration-brand-600" href={c.pricingSource} target="_blank" rel="noreferrer">{c.name}&apos;s pricing page</a> before you buy.
+          </p>
+        </section>
+
         <h2 className="mt-12 font-display text-2xl font-semibold tracking-tightest text-ink">Common questions</h2>
         <dl className="mt-4 divide-y divide-sand-200">
           {c.faqs.map((f) => (

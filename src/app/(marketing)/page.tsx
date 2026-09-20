@@ -4,6 +4,7 @@ import { JsonLd, faqJsonLd, softwareAppJsonLd, organizationJsonLd, websiteJsonLd
 import { BrowserFrame, BoardMockup, RoadmapMockup, ChangelogMockup, WidgetMockup, LoopDemo } from "@/components/marketing/mockups";
 import { FeatureRow } from "@/components/marketing/home/feature-row";
 import { HOME_FAQS } from "@/lib/content/faqs";
+import { PUBLIC_DEMO_PATHS } from "@/lib/utils";
 
 export default function HomePage() {
   return (
@@ -30,7 +31,7 @@ export default function HomePage() {
               <LinkButton href="/signup" size="lg">
                 Start free, no card <ArrowRight className="h-4 w-4" />
               </LinkButton>
-              <LinkButton href="/feedback" variant="outline" size="lg">
+              <LinkButton href={PUBLIC_DEMO_PATHS.board} variant="outline" size="lg">
                 Try a live board
               </LinkButton>
             </div>

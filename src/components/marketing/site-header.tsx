@@ -2,13 +2,14 @@ import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { LinkButton } from "@/components/ui";
 import { MobileNav } from "@/components/marketing/mobile-nav";
+import { PUBLIC_DEMO_PATHS } from "@/lib/utils";
 
 const nav = [
   { href: "/#features", label: "Features" },
   { href: "/pricing", label: "Pricing" },
   { href: "/alternatives/canny", label: "vs Canny" },
   { href: "/blog", label: "Blog" },
-  { href: "/feedback", label: "Roadmap" },
+  { href: PUBLIC_DEMO_PATHS.roadmap, label: "Roadmap" },
 ];
 
 export function SiteHeader({ isAuthed }: { isAuthed?: boolean }) {

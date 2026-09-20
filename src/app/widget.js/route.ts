@@ -1,7 +1,7 @@
 import { absoluteUrl } from "@/lib/utils";
 
 // Served at /widget.js, a tiny dependency-free embed. Usage:
-//   <script src="https://feedlark.com/widget.js" data-feedlark="your-slug" defer></script>
+//   <script src="https://www.feedlark.com/widget.js" data-feedlark="your-slug" defer></script>
 export async function GET() {
   const origin = absoluteUrl();
   const js = `(function(){

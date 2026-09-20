@@ -188,7 +188,7 @@ export const BLOG_WORKFLOW_GUIDES: BlogPost[] = [
     slug: "feedback-triage-workflow",
     title: "Feedback triage: a workflow that scales",
     description:
-      "A repeatable feedback triage process for turning a growing inbox of requests, bugs and comments into a prioritized, actioned backlog without a full-time triager.",
+      "A repeatable feedback triage process for turning requests, bugs and comments into a prioritised, actioned backlog without a full-time triager.",
     date: "2026-07-27",
     keyword: "feedback triage process",
     category: "Academy",

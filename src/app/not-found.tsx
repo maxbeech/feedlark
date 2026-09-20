@@ -1,5 +1,6 @@
 import { Logo } from "@/components/logo";
 import { LinkButton } from "@/components/ui";
+import { PUBLIC_DEMO_PATHS } from "@/lib/utils";
 
 export default function NotFound() {
   return (
@@ -13,7 +14,7 @@ export default function NotFound() {
         <p className="mt-2 max-w-md text-ink-muted">We couldn&apos;t find what you were looking for. It may have moved, or never existed.</p>
         <div className="mt-6 flex gap-3">
           <LinkButton href="/">Back home</LinkButton>
-          <LinkButton href="/feedback" variant="outline">See a live board</LinkButton>
+          <LinkButton href={PUBLIC_DEMO_PATHS.board} variant="outline">See a live board</LinkButton>
         </div>
       </div>
     </div>

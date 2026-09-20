@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
+import { PUBLIC_DEMO_PATHS } from "@/lib/utils";
 
 const cols: { title: string; links: { href: string; label: string }[] }[] = [
   {
@@ -7,8 +8,8 @@ const cols: { title: string; links: { href: string; label: string }[] }[] = [
     links: [
       { href: "/#features", label: "Features" },
       { href: "/pricing", label: "Pricing" },
-      { href: "/feedback", label: "Our roadmap" },
-      { href: "/feedback/changelog", label: "Changelog" },
+      { href: PUBLIC_DEMO_PATHS.roadmap, label: "Our roadmap" },
+      { href: PUBLIC_DEMO_PATHS.changelog, label: "Changelog" },
     ],
   },
   {

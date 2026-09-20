@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-20
+
+- **Search indexing**: made `https://www.feedlark.com` the hard fallback canonical origin across metadata, JSON-LD, feeds and shared public links. The apex remains a 308 redirect to `www`.
+- **Sitemap**: removed the redirect-only `/feedback` alias and now lists the final live board, roadmap and changelog URLs directly. Static search metadata and marketing routes use one-week ISR.
+- **Comparison pages**: expanded the five alternative pages with product-specific evaluation guidance and current official pricing sources, checked on 20 September 2026.
+
 ## Unreleased
 
 - **Billing recovery:** Stripe webhook events are recorded only after the

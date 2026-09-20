@@ -1,5 +1,9 @@
 # Feedlark
 
+## Search canonicalisation
+
+The public search origin is `https://www.feedlark.com`. Keep all new canonical tags, structured data, feeds, sitemap entries and public links on that host by using `absoluteUrl()` and `PUBLIC_DEMO_PATHS` from `src/lib/utils.ts`. `https://feedlark.com` intentionally returns a permanent redirect to `www`; do not add the apex or the legacy `/feedback` redirect aliases to the sitemap.
+
 **Free customer feedback boards, public roadmap & changelog — no growth tax.**
 
 Feedlark is the free, modern [Canny](https://canny.io) / [Featurebase](https://featurebase.app) alternative.

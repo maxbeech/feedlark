@@ -71,7 +71,19 @@ export function timeAgo(epochSeconds: number): string {
   return `${Math.floor(months / 12)}y ago`;
 }
 
+/** The one public origin used in canonical tags, feeds, email and structured data. */
+export const PUBLIC_ORIGIN = "https://www.feedlark.com";
+
+export const PUBLIC_DEMO_PATHS = {
+  board: "/b/feedlark",
+  roadmap: "/b/feedlark/roadmap",
+  changelog: "/b/feedlark/changelog",
+} as const;
+
 export function absoluteUrl(path = ""): string {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://feedlark.com";
+  const configuredBase = process.env.NEXT_PUBLIC_SITE_URL || PUBLIC_ORIGIN;
+  // Keep a mistaken apex setting from putting redirecting URLs in canonical
+  // tags, structured data, email or feeds.
+  const base = configuredBase.replace(/^https:\/\/feedlark\.com(?=\/|$)/, PUBLIC_ORIGIN);
   return `${base.replace(/\/$/, "")}${path}`;
 }

@@ -1,4 +1,5 @@
 /** Pure JSON-LD helpers (no JSX) so they're unit-testable. */
+import { absoluteUrl } from "@/lib/utils";
 
 /** Serialise JSON-LD with `<` escaped to prevent `</script>` breakout (XSS-safe). */
 export function jsonLdString(data: unknown): string {
@@ -22,8 +23,8 @@ export function organizationJsonLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Feedlark",
-    url: "https://feedlark.com",
-    logo: "https://feedlark.com/icon.svg",
+    url: absoluteUrl(),
+    logo: absoluteUrl("/icon.svg"),
   };
 }
 
@@ -32,7 +33,7 @@ export function websiteJsonLd() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Feedlark",
-    url: "https://feedlark.com",
+    url: absoluteUrl(),
   };
 }
 
@@ -45,7 +46,7 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
       "@type": "ListItem",
       position: i + 1,
       name: item.name,
-      item: `https://feedlark.com${item.path}`,
+      item: absoluteUrl(item.path),
     })),
   };
 }

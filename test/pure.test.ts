@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { slugify, isReservedSlug, statusLabel, ROADMAP_COLUMNS, isValidEmail } from "@/lib/utils";
+import { absoluteUrl, slugify, isReservedSlug, statusLabel, ROADMAP_COLUMNS, isValidEmail, PUBLIC_DEMO_PATHS, PUBLIC_ORIGIN } from "@/lib/utils";
 import { limitsFor, PLAN_LIMITS, seatsRemaining, PRO_FEATURES } from "@/lib/plans";
 import { csvCell, toCsv } from "@/lib/csv";
 import { dedupeEmails, shipChangelogTitle, shipChangelogBody } from "@/lib/ship-loop";
 import { tokenize, similarity, clusterDuplicates } from "@/lib/dedupe";
 import { xmlEscape, buildRssFeed } from "@/lib/feeds";
-import { jsonLdString, faqJsonLd, breadcrumbJsonLd } from "@/lib/structured-data";
+import { jsonLdString, faqJsonLd, breadcrumbJsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/structured-data";
 
 describe("slugify", () => {
   it("makes url-safe slugs", () => {
@@ -154,8 +154,14 @@ describe("JSON-LD", () => {
     ]) as Record<string, any>;
     expect(ld["@type"]).toBe("BreadcrumbList");
     expect(ld.itemListElement).toHaveLength(3);
-    expect(ld.itemListElement[0]).toEqual({ "@type": "ListItem", position: 1, name: "Home", item: "https://feedlark.com/" });
-    expect(ld.itemListElement[2].item).toBe("https://feedlark.com/blog/a-post");
+    expect(ld.itemListElement[0]).toEqual({ "@type": "ListItem", position: 1, name: "Home", item: "https://www.feedlark.com/" });
+    expect(ld.itemListElement[2].item).toBe("https://www.feedlark.com/blog/a-post");
     expect(ld.itemListElement[2].position).toBe(3);
+  });
+  it("uses the non-redirecting www origin consistently", () => {
+    expect(PUBLIC_ORIGIN).toBe("https://www.feedlark.com");
+    expect(absoluteUrl(PUBLIC_DEMO_PATHS.board)).toBe("https://www.feedlark.com/b/feedlark");
+    expect(organizationJsonLd().url).toBe(PUBLIC_ORIGIN);
+    expect(websiteJsonLd().url).toBe(PUBLIC_ORIGIN);
   });
 });

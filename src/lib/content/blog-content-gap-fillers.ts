@@ -115,7 +115,7 @@ export const BLOG_CONTENT_GAP_FILLERS: BlogPost[] = [
     slug: "online-feedback-tool-guide",
     title: "Online feedback tools: how to pick one",
     description:
-      "Online feedback tools range from simple polls to full request-tracking boards. Here is how to choose the right type for your team and avoid common setup mistakes.",
+      "Online feedback tools range from polls to request-tracking boards. Learn how to choose the right type for your team and avoid common setup mistakes.",
     date: "2026-07-16",
     keyword: "online feedback tool",
     category: "Academy",

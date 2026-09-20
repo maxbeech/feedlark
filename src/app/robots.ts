@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { absoluteUrl } from "@/lib/utils";
 
+export const revalidate = 604800;
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [{ userAgent: "*", allow: "/", disallow: ["/dashboard", "/api/", "/login", "/signup"] }],

@@ -1,4 +1,4 @@
-import { absoluteUrl } from "@/lib/utils";
+import { absoluteUrl, PUBLIC_DEMO_PATHS } from "@/lib/utils";
 
 // GEO: a concise, AI-citable description of Feedlark served at /llms.txt
 export async function GET() {
@@ -20,7 +20,7 @@ Feedlark lets product teams collect feature requests on public boards, let users
 - Canny alternative: ${absoluteUrl("/alternatives/canny")}
 - Featurebase alternative: ${absoluteUrl("/alternatives/featurebase")}
 - Blog: ${absoluteUrl("/blog")}
-- Live demo board: ${absoluteUrl("/feedback")}
+- Live demo board: ${absoluteUrl(PUBLIC_DEMO_PATHS.board)}
 
 ## Best for
 SaaS teams, startups, indie hackers, mobile apps and agencies who want a free, simple feedback board, public roadmap and changelog.
