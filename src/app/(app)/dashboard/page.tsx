@@ -6,9 +6,16 @@ import { requireWorkspaceContext } from "@/lib/auth/guard";
 import { boardPostCounts } from "@/lib/data/posts";
 import { LinkButton, Card, Badge } from "@/components/ui";
 import { absoluteUrl } from "@/lib/utils";
+import { SignupTracker } from "@/components/analytics/signup-tracker";
+import { BoardCreatedTracker } from "@/components/dashboard/board-created-tracker";
 
-export default async function DashboardHome() {
+export default async function DashboardHome({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string; created?: string }>;
+}) {
   const { workspace } = await requireWorkspaceContext();
+  const { welcome, created } = await searchParams;
   const boards = await db
     .select()
     .from(schema.boards)
@@ -19,6 +26,8 @@ export default async function DashboardHome() {
 
   return (
     <div>
+      {(welcome === "email" || welcome === "invite") && <SignupTracker fire method={welcome} />}
+      <BoardCreatedTracker fire={created === "1"} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tightest text-ink">Boards</h1>

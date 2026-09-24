@@ -1,11 +1,16 @@
 "use client";
 
 import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
 import { captureClientError } from "@/lib/client-monitoring";
 
 // Catches errors in the root layout itself. Must render its own <html>/<body>.
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
+    // Root-layout errors are the most severe class this product can hit (the
+    // whole app failed to render) — same reasoning as src/app/error.tsx for
+    // why this needs an explicit Sentry.captureException call.
+    Sentry.captureException(error, { tags: { boundary: "global-error" } });
     captureClientError(error);
   }, [error]);
   return (

@@ -10,6 +10,13 @@ import { JsonLd, faqJsonLd, breadcrumbJsonLd } from "@/components/json-ld";
 import { renderRich } from "@/components/rich-text";
 import { absoluteUrl } from "@/lib/utils";
 
+function headingId(heading: string) {
+  return heading
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 export function generateStaticParams() {
   return BLOG_POSTS.map((p) => ({ slug: p.slug }));
 }
@@ -92,9 +99,20 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </div>
         )}
 
+        {post.blocks.filter((block) => block.h2).length > 0 && (
+          <nav aria-label="Table of contents" className="not-prose my-8 rounded-2xl border border-sand-200 bg-cream/60 p-5">
+            <p className="font-display text-sm font-semibold text-ink">In this guide</p>
+            <ol className="mt-3 space-y-1.5 text-sm text-ink-soft">
+              {post.blocks.filter((block) => block.h2).map((block) => (
+                <li key={block.h2}><a className="hover:text-brand-700 hover:underline" href={`#${headingId(block.h2!)}`}>{block.h2}</a></li>
+              ))}
+            </ol>
+          </nav>
+        )}
+
         {post.blocks.map((b, i) => (
           <div key={i}>
-            {b.h2 && <h2>{b.h2}</h2>}
+            {b.h2 && <h2 id={headingId(b.h2)}>{b.h2}</h2>}
             {b.p && <p>{renderRich(b.p)}</p>}
             {b.ul && <ul>{b.ul.map((li, j) => <li key={j}>{renderRich(li)}</li>)}</ul>}
             {b.quote && (

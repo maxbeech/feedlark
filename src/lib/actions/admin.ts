@@ -56,7 +56,11 @@ export async function createBoardAction(_prev: { error?: string }, formData: For
     isPrivate,
   });
   revalidatePath("/dashboard");
-  redirect("/dashboard");
+  // Marks the landing page so it can fire `board_created` client-side — see
+  // src/components/dashboard/board-created-tracker.tsx. redirect() throws
+  // (Next.js server action semantics), so the form that submitted this can
+  // never observe success itself.
+  redirect("/dashboard?created=1");
 }
 
 export async function setPostStatusAction(formData: FormData) {

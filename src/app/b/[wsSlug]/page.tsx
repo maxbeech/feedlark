@@ -10,7 +10,7 @@ import { Card } from "@/components/ui";
 import { pageMetadata } from "@/lib/seo";
 
 // ISR: cached at the edge, refreshed in the background; writes call revalidatePath.
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ wsSlug: string }> }): Promise<Metadata> {
   const { wsSlug } = await params;

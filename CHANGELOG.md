@@ -8,6 +8,8 @@
 
 ## Unreleased
 
+- **Content:** added 15 publication-ready, source-linked feedback-operations posts across Academy, News and Reviews. The set targets the remaining feedback, voting, portal, release-communication and idea-management opportunities from the SEO/GEO plan; every post is included automatically in the blog and sitemap.
+- **Blog UX:** added an accessible, generated table of contents to every blog post. New post records can now retain their supporting and long-tail keyword sets alongside the primary keyword.
 - **Billing recovery:** Stripe webhook events are recorded only after the
   matching entitlement write succeeds, so a transient database failure remains
   retryable instead of stranding a paid workspace on Free. A signed-in return

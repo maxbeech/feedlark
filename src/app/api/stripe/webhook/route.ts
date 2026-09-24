@@ -5,6 +5,8 @@ import { db, schema } from "@/lib/db";
 import { getStripe, PRICE_PRO } from "@/lib/stripe";
 import { revalidatePublicWorkspace } from "@/lib/revalidate";
 import { guardStripeEvent } from "../../../../lib/gate";
+import { configFromEnv, trackEvent } from "@/lib/openhelm-analytics-mp";
+import { EVENTS, subscriptionCanceledParams } from "@/lib/analytics-events";
 
 /** True if a subscription actually carries our Pro price (not just any product). */
 function hasProPrice(sub: Stripe.Subscription): boolean {
@@ -39,7 +41,7 @@ async function upgradeToPro(t: Target, subscriptionId: string | null) {
  * lock branding/AI, drop the custom domain, and prune extra admin seats +
  * pending invites back to the single free seat (owner only).
  */
-async function downgradeToFree(t: Target) {
+async function downgradeToFree(t: Target, reason: "canceled" | "payment_failed" | "other" = "other") {
   const ws = await resolveWorkspace(t);
   if (!ws) return;
   await db.update(schema.workspaces)
@@ -50,6 +52,21 @@ async function downgradeToFree(t: Target) {
     .where(and(eq(schema.workspaceMembers.workspaceId, ws.id), ne(schema.workspaceMembers.role, "owner")));
   await db.delete(schema.invitations).where(eq(schema.invitations.workspaceId, ws.id));
   revalidatePublicWorkspace(ws.slug);
+
+  if (reason === "canceled") {
+    // This webhook is the ONLY place a genuine cancellation is knowable — the
+    // buyer cancels inside Stripe's hosted portal and may never come back to
+    // the app, so there is no browser to fire a client-side event from. Sent
+    // via the Measurement Protocol (see openhelm-analytics-mp.ts); no-ops
+    // safely (sent:false, reason:"not_configured") if GA_API_SECRET is unset,
+    // never throws into the webhook response.
+    const cfg = configFromEnv();
+    void trackEvent(
+      { ...cfg, clientId: `workspace:${ws.id}` },
+      EVENTS.SUBSCRIPTION_CANCELED,
+      subscriptionCanceledParams(ws.id),
+    ).catch(() => {});
+  }
 }
 
 export async function POST(req: Request) {
@@ -103,13 +120,13 @@ export async function POST(req: Request) {
           // `subscription.deleted`, which downgrades. Keep Pro for now.
         } else {
           // canceled / incomplete_expired / paused → revoke + clean up.
-          await downgradeToFree(target);
+          await downgradeToFree(target, sub.status === "canceled" ? "canceled" : "other");
         }
         break;
       }
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
-        await downgradeToFree({ customerId: customerOf(sub) });
+        await downgradeToFree({ customerId: customerOf(sub) }, "canceled");
         break;
       }
     }

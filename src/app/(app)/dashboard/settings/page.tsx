@@ -2,8 +2,10 @@ import { requireWorkspaceContext } from "@/lib/auth/guard";
 import { WorkspaceSettingsForm } from "@/components/dashboard/workspace-settings-form";
 import { BillingCard } from "@/components/dashboard/billing-card";
 import { CustomDomainForm } from "@/components/dashboard/custom-domain-form";
-import { limitsFor } from "@/lib/plans";
+import { PurchaseTracker } from "@/components/dashboard/purchase-tracker";
+import { limitsFor, PRO_PRICE_MONTHLY } from "@/lib/plans";
 import { reconcileCheckoutSuccess } from "@/lib/billing/reconcile";
+import { seatUsage } from "@/lib/data/team";
 
 export default async function SettingsPage({
   searchParams,
@@ -22,9 +24,19 @@ export default async function SettingsPage({
       console.error("[billing] Checkout return reconciliation failed", error);
     }
   }
+  const seats = (await seatUsage(workspace.id)).members;
 
   return (
     <div className="mx-auto max-w-3xl">
+      {/* Only fires once reconcileCheckoutSuccess() has actually verified the
+          Checkout Session against Stripe above — never on the bare query
+          param, which a user could type into the URL bar themselves. */}
+      <PurchaseTracker
+        fire={Boolean(upgraded) && !reconciliationFailed}
+        sessionId={sessionId ?? ""}
+        priceMonthly={PRO_PRICE_MONTHLY}
+        seats={seats}
+      />
       <h1 className="font-display text-2xl font-semibold tracking-tightest text-ink">Settings</h1>
       {upgraded && (
         <div className="mt-4 rounded-xl border border-spruce-100 bg-spruce-50 px-4 py-3 text-sm font-medium text-spruce-700">
@@ -38,7 +50,7 @@ export default async function SettingsPage({
       )}
       <div className="mt-6 grid gap-6 md:grid-cols-2">
         <WorkspaceSettingsForm workspaceId={workspace.id} name={workspace.name} accentColor={workspace.accentColor} />
-        <BillingCard plan={workspace.plan} />
+        <BillingCard plan={workspace.plan} seats={seats} />
         <CustomDomainForm workspaceId={workspace.id} current={workspace.customDomain} isPro={limitsFor(workspace.plan).canCustomDomain} />
       </div>
     </div>

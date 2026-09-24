@@ -25,6 +25,10 @@ export interface BlogPost {
   description: string; // 140-158 chars
   date: string; // YYYY-MM-DD
   keyword: string;
+  /** Semantic terms deliberately covered by the article, for editorial and SEO review. */
+  supportingKeywords?: string[];
+  /** Natural-language questions and longer queries covered in headings or FAQs. */
+  longTailKeywords?: string[];
   readMins: number;
   image?: string; // Unsplash "regular" URL (1080px wide)
   imageAlt?: string;

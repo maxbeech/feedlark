@@ -4,19 +4,31 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { Lightbulb } from "lucide-react";
 import { Button, Card, Input, Label, Textarea } from "@/components/ui";
 import { submitPostAction, type PublicResult } from "@/lib/actions/public";
+import { track } from "@/lib/openhelm-analytics";
+import { EVENTS, postSubmittedParams } from "@/lib/analytics-events";
 
 export function SubmitPostForm({ boardId }: { boardId: string }) {
   const [state, action, pending] = useActionState<PublicResult, FormData>(submitPostAction, {});
   const [open, setOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const tracked = useRef(false);
 
   useEffect(() => {
     if (state.ok) {
+      // useActionState re-fires this effect on every render with the same
+      // resolved state (e.g. a parent re-render), not just on the transition
+      // that produced it — guard so one submission is one event.
+      if (!tracked.current) {
+        tracked.current = true;
+        track(EVENTS.POST_SUBMITTED, postSubmittedParams(boardId));
+      }
       formRef.current?.reset();
       const t = setTimeout(() => setOpen(false), 1800);
       return () => clearTimeout(t);
+    } else {
+      tracked.current = false;
     }
-  }, [state.ok]);
+  }, [state.ok, boardId]);
 
   if (!open) {
     return (

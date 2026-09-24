@@ -1,14 +1,19 @@
 "use client";
 
 import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
 import { Logo } from "@/components/logo";
 import { Button, LinkButton } from "@/components/ui";
 import { captureClientError } from "@/lib/client-monitoring";
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
-    // Surface to the console and our Postgres error log — never swallow.
+    // Surface to the console, Sentry, and our Postgres error log — never
+    // swallow. App Router error boundaries are NOT auto-captured by
+    // @sentry/nextjs (only onRequestError in instrumentation.ts is, and that
+    // only covers server-thrown errors) — this is the client-boundary half.
     console.error(error);
+    Sentry.captureException(error, { tags: { boundary: "route-error" } });
     captureClientError(error);
   }, [error]);
 

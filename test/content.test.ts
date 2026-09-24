@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { BLOG_POSTS, extractLinks } from "@/lib/content/blog";
+import { BLOG_FEEDBACK_OPERATIONS } from "@/lib/content/blog-feedback-operations";
 import { COMPETITORS } from "@/lib/content/competitors";
 import { USE_CASES } from "@/lib/content/use-cases";
 
@@ -15,6 +16,7 @@ const COPY_FILES = [
   "../src/lib/content/blog-reviews.ts",
   "../src/lib/content/blog-reviews-best-of.ts",
   "../src/lib/content/blog-news.ts",
+  "../src/lib/content/blog-feedback-operations.ts",
   "../src/lib/content/competitors.ts",
   "../src/lib/content/use-cases.ts",
   "../src/lib/content/faqs.ts",
@@ -101,6 +103,34 @@ describe("blog SEO constraints", () => {
     expect(cats.has("Academy")).toBe(true);
     expect(cats.has("News")).toBe(true);
     expect(cats.has("Reviews")).toBe(true);
+  });
+});
+
+describe("September feedback operations publication batch", () => {
+  it("contains exactly 15 complete, non-thin posts from the requested publication week", () => {
+    expect(BLOG_FEEDBACK_OPERATIONS).toHaveLength(15);
+    for (const post of BLOG_FEEDBACK_OPERATIONS) {
+      expect(post.date, `publication date for ${post.slug}`).toMatch(/^2026-09-(17|18|19|20|21|22|23)$/);
+      expect(post.image, `missing featured image for ${post.slug}`).toBeTruthy();
+      expect(post.imageAlt?.toLowerCase(), `missing featured-image alt text for ${post.slug}`).toContain(post.keyword.toLowerCase());
+      expect(post.supportingKeywords?.length, `supporting keywords for ${post.slug}`).toBeGreaterThanOrEqual(6);
+      expect(post.supportingKeywords?.length, `supporting keywords for ${post.slug}`).toBeLessThanOrEqual(12);
+      expect(post.longTailKeywords?.length, `long-tail keywords for ${post.slug}`).toBeGreaterThanOrEqual(2);
+      expect(post.longTailKeywords?.length, `long-tail keywords for ${post.slug}`).toBeLessThanOrEqual(4);
+
+      const visibleCopy = [
+        ...(post.takeaways ?? []),
+        ...post.blocks.flatMap((block) => [block.h2, block.p, ...(block.ul ?? []), block.quote?.text, ...(block.table?.head ?? []), ...(block.table?.rows.flat() ?? [])]),
+        ...(post.faqs ?? []).flatMap((faq) => [faq.q, faq.a]),
+      ].filter(Boolean).join(" ");
+      const wordCount = visibleCopy.match(/[A-Za-z0-9]+/g)?.length ?? 0;
+      expect(wordCount, `visible word count for ${post.slug}`).toBeGreaterThanOrEqual(1200);
+
+      const { internal, external } = extractLinks(post);
+      expect(internal.length, `internal links for ${post.slug}`).toBeGreaterThanOrEqual(3);
+      expect(external.length, `authoritative sources for ${post.slug}`).toBeGreaterThanOrEqual(2);
+      expect(external.length, `authoritative sources for ${post.slug}`).toBeLessThanOrEqual(5);
+    }
   });
 });
 

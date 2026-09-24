@@ -1,9 +1,10 @@
 import { Check, Lock } from "lucide-react";
-import { Button, Card, Badge } from "@/components/ui";
+import { Card, Badge } from "@/components/ui";
 import { ALWAYS_FREE, PRO_FEATURES, PRO_PRICE_MONTHLY } from "@/lib/plans";
 import { stripeEnabled } from "@/lib/stripe";
+import { UpgradeForm, ManageSubscriptionForm } from "@/components/dashboard/billing-actions";
 
-export function BillingCard({ plan }: { plan: string }) {
+export function BillingCard({ plan, seats = 1 }: { plan: string; seats?: number }) {
   const isPro = plan === "pro";
   return (
     <Card className="p-6">
@@ -29,14 +30,9 @@ export function BillingCard({ plan }: { plan: string }) {
             Billing isn&apos;t configured on this deployment. The Free plan is fully functional.
           </p>
         ) : isPro ? (
-          <form action="/api/stripe/portal" method="POST">
-            <Button type="submit" variant="outline">Manage subscription</Button>
-          </form>
+          <ManageSubscriptionForm />
         ) : (
-          <form action="/api/stripe/checkout" method="POST">
-            <Button type="submit">Upgrade to Pro, ${PRO_PRICE_MONTHLY}/seat/mo</Button>
-            <p className="mt-2 text-xs text-ink-muted">Flat per admin seat. Never per voter.</p>
-          </form>
+          <UpgradeForm priceMonthly={PRO_PRICE_MONTHLY} seats={seats} />
         )}
       </div>
     </Card>

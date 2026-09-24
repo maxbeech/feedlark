@@ -21,6 +21,7 @@ posts and votes on the free plan**. We never charge per voter; optional Pro is a
   notifies every voter, badging their original request as Shipped.
 - **Growth**: organic SEO (`/alternatives/*`, category + programmatic pages, blog) + GEO (`llms.txt`,
   structured data, every public board/roadmap/changelog is crawlable & AI-citable).
+- **Editorial content**: code-backed blog posts in `src/lib/content/` are generated into `/blog`, individual canonical article pages and `sitemap.xml`. Each post includes keyword metadata, accessible featured-image text, FAQ schema and source links.
 
 ## Stack
 

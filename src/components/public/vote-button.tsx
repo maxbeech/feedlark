@@ -2,7 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { ChevronUp } from "lucide-react";
+import * as Sentry from "@sentry/nextjs";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/openhelm-analytics";
+import { EVENTS, voteCastParams } from "@/lib/analytics-events";
 
 export function VoteButton({
   postId,
@@ -28,6 +31,11 @@ export function VoteButton({
     if (next) {
       setPop(true);
       window.setTimeout(() => setPop(false), 350);
+      // Track the upvote conversion itself, not the (reversible) un-vote —
+      // this is the engagement moment the "engagement_retention" journey
+      // measures. Fired optimistically so a slow/failed network response
+      // never silently drops the signal for a click the user did make.
+      track(EVENTS.VOTE_CAST, voteCastParams(postId));
     }
     start(async () => {
       try {
@@ -36,8 +44,14 @@ export function VoteButton({
           const data = await res.json();
           setCount(data.count);
           setVoted(data.voted);
+        } else {
+          throw new Error(`vote request failed: HTTP ${res.status}`);
         }
-      } catch {
+      } catch (err) {
+        // Was silent before: the UI reverted but nothing recorded *why* the
+        // vote didn't stick, which is exactly the class of "user is stranded
+        // with no exception thrown" async failure this pass is meant to close.
+        Sentry.captureException(err, { tags: { flow: "vote_cast" }, extra: { postId } });
         // revert on network failure
         setVoted(!next);
         setCount((c) => c + (next ? -1 : 1));

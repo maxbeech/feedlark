@@ -10,7 +10,7 @@ import { Markdown } from "@/components/markdown";
 import { pageMetadata } from "@/lib/seo";
 import { formatDate } from "@/lib/date";
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ wsSlug: string }> }): Promise<Metadata> {
   const { wsSlug } = await params;

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
-import { Rocket, Pin, Lock } from "lucide-react";
+import { Pin, Lock } from "lucide-react";
 import { db, schema } from "@/lib/db";
 import { requireWorkspaceContext } from "@/lib/auth/guard";
 import { listComments } from "@/lib/data/posts";
@@ -9,8 +9,8 @@ import { Card, Button, Textarea, StatusBadge, LinkButton } from "@/components/ui
 import { StatusControl } from "@/components/dashboard/status-control";
 import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
 import { EditPostForm } from "@/components/dashboard/edit-forms";
+import { ShipButton } from "@/components/dashboard/ship-button";
 import { togglePinAction, adminReplyAction, addInternalNoteAction } from "@/lib/actions/admin";
-import { shipPostAction as shipAction } from "@/lib/actions/changelog";
 import { deletePostAction, deleteCommentAction } from "@/lib/actions/moderation";
 import { statusLabel, timeAgo } from "@/lib/utils";
 
@@ -48,12 +48,7 @@ export default async function PostManagePage({ params }: { params: Promise<{ pos
             <input type="hidden" name="postId" value={post.id} />
             <Button type="submit" variant="outline" size="sm"><Pin className="h-3.5 w-3.5" /> {post.pinned ? "Unpin" : "Pin"}</Button>
           </form>
-          {!shipped && (
-            <form action={shipAction}>
-              <input type="hidden" name="postId" value={post.id} />
-              <Button type="submit" size="sm"><Rocket className="h-3.5 w-3.5" /> Ship it</Button>
-            </form>
-          )}
+          {!shipped && <ShipButton postId={post.id} voteCount={post.voteCount} />}
           <EditPostForm postId={post.id} title={post.title} body={post.body} />
           <ConfirmSubmit action={deletePostAction} fields={{ postId: post.id }} label="Delete" confirmMessage="Delete this post and all its votes/comments? This cannot be undone." />
         </div>
