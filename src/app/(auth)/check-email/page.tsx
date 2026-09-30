@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ResendVerification } from "@/components/resend-verification";
 import { SignupTracker } from "@/components/analytics/signup-tracker";
+import { readPendingSignup } from "@/lib/auth/pending-signup";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -11,13 +12,19 @@ export const metadata: Metadata = pageMetadata({
   noIndex: true,
 });
 
-export default async function CheckEmailPage({ searchParams }: { searchParams: Promise<{ email?: string }> }) {
-  const { email } = await searchParams;
+export default async function CheckEmailPage() {
+  // The email is read from a cookie, not the URL: page URLs go to analytics.
+  const pending = await readPendingSignup();
+  const email = pending?.email;
   return (
     <>
       {/* Arriving here always means signupAction() succeeded and is waiting on
           email confirmation — see src/lib/actions/auth.ts. */}
-      <SignupTracker fire method="email" />
+      <SignupTracker
+        fire
+        method="email"
+        identity={pending ? { userRef: pending.userRef, plan: "free" } : null}
+      />
       <h1 className="mb-1 font-display text-2xl font-semibold tracking-tightest text-ink">Confirm your email</h1>
       <p className="mb-2 text-sm text-ink-muted">
         We sent a confirmation link{email ? <> to <span className="font-medium text-ink">{email}</span></> : ""}. Click it to finish setting up your account.

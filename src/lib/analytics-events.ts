@@ -19,6 +19,14 @@
 export const EVENTS = {
   /** A new account finished signup (verified immediately, or sent to confirm-email). */
   SIGN_UP: "sign_up",
+  /** Signup was submitted and refused; carries a short `reason` code. */
+  SIGN_UP_FAILED: "sign_up_failed",
+  /** An existing user logged in. */
+  LOGIN: "login",
+  /** Login was submitted and refused; carries a short `reason` code. */
+  LOGIN_FAILED: "login_failed",
+  /** A free workspace was shown a Pro-only feature and its upgrade prompt. */
+  PAYWALL_SHOWN: "paywall_shown",
   /** Admin created a new feedback board. */
   BOARD_CREATED: "board_created",
   /** An end-user cast an upvote on a post (public board / roadmap). */
@@ -31,8 +39,14 @@ export const EVENTS = {
   SHIP_NOTIFIED: "ship_notified",
   /** Admin clicked Upgrade to Pro — Stripe Checkout session about to start. */
   BEGIN_CHECKOUT: "begin_checkout",
+  /** Checkout could not be started (billing off, or Stripe refused); carries `reason`. */
+  CHECKOUT_FAILED: "checkout_failed",
+  /** The buyer backed out of Stripe Checkout and came back via the cancel link. */
+  CHECKOUT_CANCELLED: "checkout_cancelled",
   /** Stripe confirmed the Pro subscription (verified checkout return). */
   PURCHASE: "purchase",
+  /** The checkout return could not be confirmed with Stripe; carries `reason`. */
+  PURCHASE_CONFIRMATION_FAILED: "purchase_confirmation_failed",
   /** Admin opened the Stripe billing portal (manage/cancel). */
   BILLING_PORTAL_OPENED: "billing_portal_opened",
   /** Stripe webhook confirmed the subscription was canceled (workspace downgraded to Free). */
@@ -84,4 +98,88 @@ export function subscriptionCanceledParams(workspaceId: string): Record<string, 
   // only stable identifier a server-side webhook (no browser, no cookie) has
   // for "who" the event is about.
   return { workspace_id: workspaceId };
+}
+
+// ---------------------------------------------------------------------------
+// OpenHelm journey contract: who the user is, why a step failed, and which
+// return trips a page has to report. All pure, so none of it needs a browser.
+// ---------------------------------------------------------------------------
+
+export type AnalyticsPlan = "anonymous" | "free" | "paid";
+export type AnalyticsIdentity = { userRef: string; plan: AnalyticsPlan };
+
+/** True for a value shaped like the identity the server hands the browser. */
+export function isAnalyticsIdentity(value: unknown): value is AnalyticsIdentity {
+  if (!value || typeof value !== "object") return false;
+  const v = value as Record<string, unknown>;
+  return typeof v.userRef === "string" && /^[0-9a-f]{16}$/.test(v.userRef)
+    && (v.plan === "anonymous" || v.plan === "free" || v.plan === "paid");
+}
+
+/**
+ * `oh_plan` for a signed-in user, from the workspace they are working in.
+ * `paid` means that workspace is on Pro; the plan only becomes `pro` through an
+ * active or trialing Pro subscription (Stripe webhook or the verified checkout
+ * return), so a lapsed or cancelled subscription is `free` again.
+ */
+export function analyticsPlanFor(workspacePlan: string | null | undefined): "free" | "paid" {
+  return workspacePlan === "pro" ? "paid" : "free";
+}
+
+/**
+ * A failure `reason` is a short lowercase code, never free text: it goes to a
+ * third party, and an error message can carry an email address or an id.
+ */
+export function failureReason(code: unknown): string {
+  return typeof code === "string" && /^[a-z][a-z0-9_]{0,39}$/.test(code) ? code : "unknown";
+}
+
+export function failedParams(code: unknown): Record<string, unknown> {
+  return { reason: failureReason(code) };
+}
+
+export function paywallShownParams(feature: "team_invites" | "custom_domain"): Record<string, unknown> {
+  return { feature };
+}
+
+/** Query flag a redirect adds so the landing page can report what just happened. */
+export const SIGNED_IN_PARAM = "signed_in";
+
+/**
+ * Add a one-off marker to an in-app path, keeping any query and hash it has.
+ * The marker's value is a nonce, so a refresh of the same URL can be told apart
+ * from a second real login.
+ */
+export function withMarker(path: string, key: string, value: string): string {
+  const url = new URL(path, "http://feedlark.invalid");
+  url.searchParams.set(key, value);
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
+export type CheckoutReconcile = "reconciled" | "not_paid" | "not_owned" | "not_entitled" | "error";
+
+/**
+ * The failure or cancel event a Checkout return has to report, or null when
+ * there is none (the plain settings page, or a confirmed purchase, which
+ * PurchaseTracker reports with its value).
+ */
+export function checkoutReturnEvent(input: {
+  checkout?: string;
+  reason?: string;
+  upgraded?: string;
+  sessionId?: string;
+  reconcile?: CheckoutReconcile;
+}): { name: EventName; params: Record<string, unknown> } | null {
+  if (input.checkout === "cancelled") return { name: EVENTS.CHECKOUT_CANCELLED, params: {} };
+  if (input.checkout === "failed") return { name: EVENTS.CHECKOUT_FAILED, params: failedParams(input.reason) };
+  if (!input.upgraded) return null;
+  if (!input.sessionId) return { name: EVENTS.PURCHASE_CONFIRMATION_FAILED, params: failedParams("missing_session_id") };
+  const reasons: Record<Exclude<CheckoutReconcile, "reconciled">, string> = {
+    not_paid: "payment_not_confirmed",
+    not_owned: "session_not_yours",
+    not_entitled: "not_entitled",
+    error: "confirmation_unavailable",
+  };
+  if (!input.reconcile || input.reconcile === "reconciled") return null;
+  return { name: EVENTS.PURCHASE_CONFIRMATION_FAILED, params: failedParams(reasons[input.reconcile]) };
 }

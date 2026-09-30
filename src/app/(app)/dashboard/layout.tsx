@@ -5,6 +5,8 @@ import { WorkspaceSwitcher } from "@/components/dashboard/workspace-switcher";
 import { requireWorkspaceContext } from "@/lib/auth/guard";
 import { logoutAction } from "@/lib/actions/auth";
 import { absoluteUrl } from "@/lib/utils";
+import { SessionAnalytics } from "@/components/analytics/session-analytics";
+import { buildAnalyticsIdentity } from "@/lib/analytics-identity";
 
 export const dynamic = "force-dynamic";
 
@@ -16,11 +18,12 @@ const links = [
 ];
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { workspace, workspaces } = await requireWorkspaceContext();
+  const { user, workspace, workspaces } = await requireWorkspaceContext();
   const publicUrl = absoluteUrl(`/b/${workspace.slug}`);
 
   return (
     <div className="min-h-screen bg-paper">
+      <SessionAnalytics identity={buildAnalyticsIdentity(user.id, workspace.plan)} />
       <header className="border-b border-sand-200 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-2">
