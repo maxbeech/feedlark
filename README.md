@@ -12,6 +12,15 @@ posts and votes on the free plan**. We never charge per voter; optional Pro is a
 
 > Built by the OpenHelm Product Factory (Funnel F3 — "proven → better → new" copy-better).
 
+## Analytics
+
+GA4 via `src/lib/openhelm-analytics.tsx` (copied from the shared `openhelm-analytics` service; unset
+`NEXT_PUBLIC_GA_MEASUREMENT_ID` means no script and no events). Event names, failure reasons and the
+`oh_user_ref` / `oh_plan` user properties live in `src/lib/analytics-events.ts` and
+`src/lib/analytics-identity.ts`. To check a change, open GA DebugView on a build with the id set and
+walk sign up, log in, create a board, hit a Pro prompt and upgrade; each step should show its event and no
+`*_failed` sibling.
+
 ## The copy-better thesis
 
 - **Proven** (replicated): public feedback boards, upvoting, comments, status-driven roadmap, changelog + widget.

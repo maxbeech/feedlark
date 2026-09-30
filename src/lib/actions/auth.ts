@@ -16,6 +16,8 @@ import { limitsFor } from "@/lib/plans";
 import { sendEmail, emailConfigured } from "@/lib/email";
 import { absoluteUrl } from "@/lib/utils";
 import { checkRateLimit, clientIp } from "@/lib/ratelimit";
+import { SIGNED_IN_PARAM, withMarker } from "@/lib/analytics-events";
+import { rememberPendingSignup } from "@/lib/auth/pending-signup";
 
 // Only require email confirmation when email actually works, so a missing
 // mail provider can never lock everyone out of signing in.
@@ -57,11 +59,12 @@ const signupSchema = z.object({
   company: z.string().trim().max(80).optional(),
 });
 
-export type ActionResult = { error?: string };
+/** `reason` is a short code for analytics (see failureReason), never shown to the user. */
+export type ActionResult = { error?: string; reason?: string };
 
 export async function signupAction(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   if (!(await checkRateLimit("signup", await clientIp()))) {
-    return { error: "Too many signups from your network. Please try again later." };
+    return { error: "Too many signups from your network. Please try again later.", reason: "rate_limited" };
   }
   const parsed = signupSchema.safeParse({
     email: formData.get("email"),
@@ -69,11 +72,11 @@ export async function signupAction(_prev: ActionResult, formData: FormData): Pro
     name: formData.get("name") || undefined,
     company: formData.get("company") || undefined,
   });
-  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  if (!parsed.success) return { error: parsed.error.issues[0].message, reason: "invalid_input" };
 
   const email = parsed.data.email.toLowerCase();
   const existing = await db.select({ id: schema.users.id }).from(schema.users).where(eq(schema.users.email, email)).limit(1);
-  if (existing.length) return { error: "An account with that email already exists. Try logging in." };
+  if (existing.length) return { error: "An account with that email already exists. Try logging in.", reason: "email_taken" };
 
   const inviteToken = String(formData.get("inviteToken") || "").trim();
   const userId = newId("usr");
@@ -108,7 +111,8 @@ export async function signupAction(_prev: ActionResult, formData: FormData): Pro
   }
   // Unverified: send the confirmation email and ask them to check their inbox.
   await sendVerificationEmail(userId, email);
-  redirect(`/check-email?email=${encodeURIComponent(email)}`);
+  await rememberPendingSignup(userId, email);
+  redirect("/check-email");
 }
 
 const loginSchema = z.object({
@@ -116,29 +120,32 @@ const loginSchema = z.object({
   password: z.string().min(1, "Enter your password"),
 });
 
-export type LoginResult = { error?: string; needsVerification?: boolean };
+export type LoginResult = { error?: string; needsVerification?: boolean; reason?: string };
 
 export async function loginAction(_prev: LoginResult, formData: FormData): Promise<LoginResult> {
   const parsed = loginSchema.safeParse({ email: formData.get("email"), password: formData.get("password") });
-  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  if (!parsed.success) return { error: parsed.error.issues[0].message, reason: "invalid_input" };
 
   const email = parsed.data.email.toLowerCase();
   if (!(await checkRateLimit("login", `${await clientIp()}:${email}`))) {
-    return { error: "Too many attempts. Please wait a few minutes and try again." };
+    return { error: "Too many attempts. Please wait a few minutes and try again.", reason: "rate_limited" };
   }
 
   const user = (await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1))[0];
   // Constant-work compare whether or not the account exists (no enumeration).
   const ok = await verifyAgainst(parsed.data.password, user?.passwordHash);
-  if (!user || !ok) return { error: "Invalid email or password." };
+  if (!user || !ok) return { error: "Invalid email or password.", reason: "invalid_credentials" };
 
   if (verificationRequired && !user.emailVerified) {
-    return { error: "Please confirm your email first. Check your inbox for the link.", needsVerification: true };
+    return { error: "Please confirm your email first. Check your inbox for the link.", needsVerification: true, reason: "email_unverified" };
   }
 
   await setSessionCookie(user.id);
   const next = String(formData.get("next") || "");
-  redirect(/^\/[^/].*/.test(next) ? next : "/dashboard");
+  // The marker lets the dashboard report `login` (a server action's redirect()
+  // means the form never sees success); its value is a nonce so a refresh of
+  // the same URL is not counted twice.
+  redirect(withMarker(/^\/[^/].*/.test(next) ? next : "/dashboard", SIGNED_IN_PARAM, Date.now().toString(36)));
 }
 
 export type ResendResult = { ok?: boolean; error?: string };

@@ -7,24 +7,30 @@ import { limitsFor, PRO_PRICE_MONTHLY } from "@/lib/plans";
 import { reconcileCheckoutSuccess } from "@/lib/billing/reconcile";
 import { seatUsage } from "@/lib/data/team";
 import { customDomainState } from "@/lib/custom-domains";
+import { analyticsUserRef } from "@/lib/analytics-identity";
+import { checkoutReturnEvent, type CheckoutReconcile } from "@/lib/analytics-events";
+import { TrackOnMount } from "@/components/analytics/track-on-mount";
 
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ upgraded?: string; session_id?: string }>;
+  searchParams: Promise<{ upgraded?: string; session_id?: string; checkout?: string; reason?: string }>;
 }) {
-  let { workspace } = await requireWorkspaceContext();
-  const { upgraded, session_id: sessionId } = await searchParams;
-  let reconciliationFailed = false;
+  let { user, workspace } = await requireWorkspaceContext();
+  const { upgraded, session_id: sessionId, checkout, reason } = await searchParams;
+  let reconcile: CheckoutReconcile | undefined;
   if (upgraded && sessionId) {
     try {
-      await reconcileCheckoutSuccess(workspace, sessionId);
-      ({ workspace } = await requireWorkspaceContext());
+      reconcile = await reconcileCheckoutSuccess(workspace, sessionId);
+      ({ user, workspace } = await requireWorkspaceContext());
     } catch (error) {
-      reconciliationFailed = true;
+      reconcile = "error";
       console.error("[billing] Checkout return reconciliation failed", error);
     }
   }
+  const reconciliationFailed = reconcile === "error";
+  // A cancel, a failed start or an unconfirmed return each send one event.
+  const returned = checkoutReturnEvent({ checkout, reason, upgraded, sessionId, reconcile });
   const seats = (await seatUsage(workspace.id)).members;
   const domain = workspace.customDomain ? await customDomainState(workspace.customDomain) : null;
 
@@ -34,12 +40,19 @@ export default async function SettingsPage({
           Checkout Session against Stripe above — never on the bare query
           param, which a user could type into the URL bar themselves. */}
       <PurchaseTracker
-        fire={Boolean(upgraded) && !reconciliationFailed}
+        fire={reconcile === "reconciled"}
+        identity={{ userRef: analyticsUserRef(user.id), plan: "paid" }}
         sessionId={sessionId ?? ""}
         priceMonthly={PRO_PRICE_MONTHLY}
         seats={seats}
       />
+      {returned && <TrackOnMount name={returned.name} params={returned.params} />}
       <h1 className="font-display text-2xl font-semibold tracking-tightest text-ink">Settings</h1>
+      {checkout === "failed" && (
+        <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          We couldn&apos;t start checkout. Nothing was charged. Please try again in a moment.
+        </p>
+      )}
       {upgraded && (
         <div className="mt-4 rounded-xl border border-spruce-100 bg-spruce-50 px-4 py-3 text-sm font-medium text-spruce-700">
           Welcome to Pro. Team seats, private boards, custom domains and more are now unlocked.

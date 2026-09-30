@@ -5,6 +5,8 @@ import { limitsFor } from "@/lib/plans";
 import { Card, Badge, LinkButton } from "@/components/ui";
 import { InviteForm } from "@/components/dashboard/invite-form";
 import { ConfirmSubmit } from "@/components/dashboard/confirm-submit";
+import { TrackOnMount } from "@/components/analytics/track-on-mount";
+import { EVENTS, paywallShownParams } from "@/lib/analytics-events";
 import { removeMemberAction, revokeInviteAction } from "@/lib/actions/team";
 
 export const dynamic = "force-dynamic";
@@ -40,6 +42,7 @@ export default async function TeamPage() {
 
         {!isPro ? (
           <div className="mt-5 rounded-xl border border-brand-200 bg-brand-50/60 p-4">
+            <TrackOnMount name={EVENTS.PAYWALL_SHOWN} params={paywallShownParams("team_invites")} />
             <p className="text-sm font-medium text-ink">Add your team with Pro</p>
             <p className="mt-1 text-sm text-ink-soft">Invite up to 10 admins, billed per seat. Voters stay free, always.</p>
             <div className="mt-3"><LinkButton href="/dashboard/settings" size="sm">Upgrade to Pro</LinkButton></div>

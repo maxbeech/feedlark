@@ -18,6 +18,19 @@
 
 ## Unreleased
 
+- **Analytics:** instrumented user journeys for OpenHelm. Refreshed `src/lib/openhelm-analytics*` from the shared
+  service (adds `identify()`), and added `login`, `paywall_shown`, `sign_up_failed`, `login_failed`,
+  `checkout_failed`, `checkout_cancelled` and `purchase_confirmation_failed` beside the existing `sign_up`,
+  `board_created`, `post_shipped`, `begin_checkout` and `purchase`. Each failure carries a short `reason` code, never
+  free text. Nothing is sent unless `NEXT_PUBLIC_GA_MEASUREMENT_ID` is set.
+- **Analytics identity:** signed-in dashboard pages set `oh_user_ref` (first 16 hex of SHA-256 of the user id, computed on
+  the server) and `oh_plan` (`free` or `paid`). `paid` means the workspace the user is working in is on Pro.
+  `purchase` identifies the user as `paid` first, so it already carries the new plan.
+- **Checkout:** a failed start now returns to Settings with a notice instead of a 500 or bare JSON, and cancelling
+  Checkout returns to `/dashboard/settings?checkout=cancelled`. `purchase` is now sent only when the return was
+  actually reconciled as paid, not on any `?upgraded=1` return.
+- **Privacy:** `/check-email` no longer carries the address in its URL (analytics records page URLs). The address
+  and the user's ref are kept in a 24 hour httpOnly cookie instead.
 - **Content:** added 15 publication-ready, source-linked feedback-operations posts across Academy, News and Reviews. The set targets the remaining feedback, voting, portal, release-communication and idea-management opportunities from the SEO/GEO plan; every post is included automatically in the blog and sitemap.
 - **Blog UX:** added an accessible, generated table of contents to every blog post. New post records can now retain their supporting and long-tail keyword sets alongside the primary keyword.
 - **Billing recovery:** Stripe webhook events are recorded only after the

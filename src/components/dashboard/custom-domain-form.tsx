@@ -4,6 +4,8 @@ import { useActionState } from "react";
 import { Button, Card, Input, Label } from "@/components/ui";
 import { updateCustomDomainAction, type CustomDomainState } from "@/lib/actions/admin";
 import type { DnsRecord } from "@/lib/custom-domains";
+import { TrackOnMount } from "@/components/analytics/track-on-mount";
+import { EVENTS, paywallShownParams } from "@/lib/analytics-events";
 
 function RecordHint({ record, certificate }: { record: DnsRecord | null; certificate?: string | null }) {
   if (!record) {
@@ -43,6 +45,7 @@ export function CustomDomainForm({
       <h2 className="font-semibold text-ink">Custom domain</h2>
       {!isPro ? (
         <p className="mt-3 rounded-lg bg-cream px-3 py-2 text-sm text-ink-muted">
+          <TrackOnMount name={EVENTS.PAYWALL_SHOWN} params={paywallShownParams("custom_domain")} />
           Host your board on your own domain (e.g. <span className="font-mono">feedback.yourcompany.com</span>) on the Pro plan.
         </p>
       ) : (
