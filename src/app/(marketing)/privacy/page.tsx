@@ -40,8 +40,8 @@ export default function PrivacyPage() {
         <h2>Processors we use</h2>
         <p>We don&apos;t sell your data. We share it only with the providers that run Feedlark, each under data-processing terms:</p>
         <ul>
-          <li><strong>Vercel</strong> — application hosting and content delivery.</li>
-          <li><strong>Turso</strong> — database hosting.</li>
+          <li><strong>Helm7</strong> — application hosting and content delivery.</li>
+          <li><strong>Supabase</strong> — database hosting.</li>
           <li><strong>Stripe</strong> — payment processing.</li>
           <li><strong>Resend</strong> — transactional and notification email.</li>
         </ul>

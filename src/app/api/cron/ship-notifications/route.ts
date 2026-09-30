@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import { lt } from "drizzle-orm";
 import { drainShipNotifications } from "@/lib/ship-drain";
 import { db, schema } from "@/lib/db";
-
-// Cron can run longer than a normal request; allow the drainer room to work.
-export const maxDuration = 300;
+import { checkCronAuth } from "@/lib/cron-auth";
 
 /**
  * Daily maintenance cron: drain any queued ship notifications left pending
@@ -12,12 +10,8 @@ export const maxDuration = 300;
  * expired rate-limit buckets + error events older than 30 days.
  */
 export async function GET(req: Request) {
-  // Vercel attaches `Authorization: Bearer <CRON_SECRET>` when CRON_SECRET is set.
-  const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = req.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const auth = checkCronAuth(req);
+  if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const result = await drainShipNotifications();
 

@@ -4,6 +4,7 @@ import type Stripe from "stripe";
 import { db, schema } from "@/lib/db";
 import { getStripe, PRICE_PRO } from "@/lib/stripe";
 import { revalidatePublicWorkspace } from "@/lib/revalidate";
+import { removeCustomDomain } from "@/lib/custom-domains";
 import { guardStripeEvent } from "../../../../lib/gate";
 import { configFromEnv, trackEvent } from "@/lib/openhelm-analytics-mp";
 import { EVENTS, subscriptionCanceledParams } from "@/lib/analytics-events";
@@ -44,6 +45,14 @@ async function upgradeToPro(t: Target, subscriptionId: string | null) {
 async function downgradeToFree(t: Target, reason: "canceled" | "payment_failed" | "other" = "other") {
   const ws = await resolveWorkspace(t);
   if (!ws) return;
+  // Detach the host before the column is cleared, or the route and certificate
+  // outlive the plan that paid for them. A failure must not fail the webhook
+  // (the downgrade is what matters and Stripe would retry it for ever), so it is
+  // logged for someone to clear by hand.
+  if (ws.customDomain) {
+    const removed = await removeCustomDomain(ws.customDomain);
+    if (!removed.ok) console.error("[billing] custom domain left attached after downgrade", ws.customDomain);
+  }
   await db.update(schema.workspaces)
     .set({ plan: "free", brandingRemoved: false, aiEnabled: false, customDomain: null, stripeSubscriptionId: null })
     .where(eq(schema.workspaces.id, ws.id));

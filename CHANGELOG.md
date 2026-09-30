@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-09-30
+
+- **Hosting moves from Vercel to Helm7** (Supabase unchanged). `vercel.json`, the `deploy` script and `@vercel/analytics` are gone; `npm start` honours `$PORT`; Sentry's environment comes from `NODE_ENV`.
+- **Cron fails closed.** `/api/cron/ship-notifications` answered anyone when `CRON_SECRET` was unset. It now returns 503 when unset and 401 when wrong, with a constant-time compare. It runs as a Helm7 cron service (`7 3 * * *`).
+- **Rate limits can no longer be dodged.** The client IP came from the first `X-Forwarded-For` entry, which a visitor can set. It now uses `X-Helm7-Client-Ip`, then `X-Real-IP`, then the last forwarded hop.
+- **Custom domains use Helm7.** Saving a domain attaches it to the Feedlark product through Helm7's domains API and shows the CNAME to add; clearing it, or a downgrade to Free, detaches it. It fails with a message when Helm7 is not configured, and only names under the customer's own domain are accepted. Needs `HELM7_API_KEY` and `HELM7_PRODUCT_ID`.
+- The middleware treats Helm7's own hosts (`*.helm7.app`) as Feedlark, not as customer domains.
+- Privacy page names Helm7 and Supabase as processors.
+- Added `test/no-vercel.test.ts`.
+
 ## 2026-09-20
 
 - **Search indexing**: made `https://www.feedlark.com` the hard fallback canonical origin across metadata, JSON-LD, feeds and shared public links. The apex remains a 308 redirect to `www`.

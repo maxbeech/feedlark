@@ -1,11 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { isOwnHost } from "@/lib/hosts";
 
 // Run on page requests only (skip _next, api, files with an extension).
 export const config = {
   matcher: ["/((?!_next/|api/|.*\\.).*)"],
 };
-
-const CANONICAL = new Set(["feedlark.com", "www.feedlark.com", "feedlark.vercel.app", "localhost", "127.0.0.1"]);
 
 /**
  * Custom-domain routing: when a request arrives on a workspace's mapped domain,
@@ -15,7 +14,7 @@ const CANONICAL = new Set(["feedlark.com", "www.feedlark.com", "feedlark.vercel.
  */
 export async function middleware(req: NextRequest) {
   const host = req.headers.get("host")?.split(":")[0]?.toLowerCase();
-  if (!host || host.endsWith(".vercel.app") || CANONICAL.has(host)) return NextResponse.next();
+  if (!host || isOwnHost(host)) return NextResponse.next();
 
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

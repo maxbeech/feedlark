@@ -27,7 +27,7 @@ posts and votes on the free plan**. We never charge per voter; optional Pro is a
 
 | Layer | Choice |
 |---|---|
-| Framework | Next.js 15 (App Router, TypeScript) on Vercel (ISR) |
+| Framework | Next.js 15 (App Router, TypeScript) on Helm7 (ISR) |
 | Styling | Tailwind CSS 3 + hand-rolled UI primitives |
 | Database | Supabase (Postgres) + Drizzle ORM (`postgres-js`, transaction pooler) |
 | Auth | Custom email + password (bcrypt + `jose` JWT in an httpOnly cookie) |
@@ -54,6 +54,18 @@ npm run typecheck
   return independently repairs a delayed/missed Pro upgrade for that workspace.
 - `/b/{workspace}` public board · `/b/{workspace}/roadmap` · `/b/{workspace}/changelog` (+ `/rss`)
 - `/widget.js` embeddable widget · `/llms.txt` · `/sitemap.xml`
+
+## Hosting
+
+Feedlark runs on Helm7 (`npm start` honours `$PORT`). The daily maintenance cron
+(`/api/cron/ship-notifications`, `7 3 * * *`) is a Helm7 cron service that sends
+`Authorization: Bearer $CRON_SECRET`; the route fails closed (503 when
+`CRON_SECRET` is unset, 401 when wrong). Rate limits key on `X-Helm7-Client-Ip`.
+
+Customer custom domains are attached through Helm7's domains API, so the app
+needs `HELM7_API_KEY` (confined to this product, domain read/write) and
+`HELM7_PRODUCT_ID`. Customers add a CNAME to the target the settings page shows.
+`test/no-vercel.test.ts` keeps Vercel-only code out.
 
 ## License
 

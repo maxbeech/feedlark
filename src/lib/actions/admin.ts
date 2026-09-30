@@ -11,6 +11,8 @@ import { revalidatePublicWorkspace } from "@/lib/revalidate";
 import { POST_STATUSES } from "@/lib/db/schema";
 import { assertMembership } from "@/lib/auth/guard";
 import { limitsFor } from "@/lib/plans";
+import { attachCustomDomain, removeCustomDomain, type DnsRecord } from "@/lib/custom-domains";
+import { normaliseCustomDomain } from "@/lib/custom-domain-name";
 
 async function uniqueBoardSlug(workspaceId: string, base: string): Promise<string> {
   const wanted = slugify(base);
@@ -166,7 +168,9 @@ export async function updateWorkspaceAction(_prev: { error?: string; ok?: boolea
 
 const domainSchema = z.object({ workspaceId: z.string().min(1), customDomain: z.string().trim().max(120).optional().or(z.literal("")) });
 
-export async function updateCustomDomainAction(_prev: { error?: string; ok?: boolean }, formData: FormData) {
+export type CustomDomainState = { error?: string; ok?: boolean; record?: DnsRecord | null; removed?: boolean };
+
+export async function updateCustomDomainAction(_prev: CustomDomainState, formData: FormData): Promise<CustomDomainState> {
   const parsed = domainSchema.safeParse({ workspaceId: formData.get("workspaceId"), customDomain: formData.get("customDomain") || undefined });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const ws = (await db.select().from(schema.workspaces).where(eq(schema.workspaces.id, parsed.data.workspaceId)).limit(1))[0];
@@ -174,18 +178,41 @@ export async function updateCustomDomainAction(_prev: { error?: string; ok?: boo
   if (!ws) return { error: "Workspace not found." };
   if (!limitsFor(ws.plan).canCustomDomain) return { error: "Custom domains are a Pro feature." };
 
-  const domain = (parsed.data.customDomain || "").toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "").trim();
-  if (domain && !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(domain)) return { error: "Enter a valid domain like feedback.yourcompany.com" };
-  if (domain) {
-    // A domain can only route to one workspace — refuse to hijack another's.
-    const clash = (await db
-      .select({ id: schema.workspaces.id })
-      .from(schema.workspaces)
-      .where(and(eq(schema.workspaces.customDomain, domain), ne(schema.workspaces.id, ws.id)))
-      .limit(1))[0];
-    if (clash) return { error: "That domain is already connected to another Feedlark workspace." };
+  const raw = (parsed.data.customDomain || "").trim();
+  const previous = ws.customDomain;
+
+  if (!raw) {
+    // Detach first: clearing the column while the host stays attached would
+    // leave a certificate and a route for a domain the workspace no longer owns.
+    if (previous) {
+      const removed = await removeCustomDomain(previous);
+      if (!removed.ok) return { error: removed.error };
+    }
+    await db.update(schema.workspaces).set({ customDomain: null }).where(eq(schema.workspaces.id, ws.id));
+    revalidatePath("/dashboard/settings");
+    return { ok: true, removed: true };
   }
-  await db.update(schema.workspaces).set({ customDomain: domain || null }).where(eq(schema.workspaces.id, ws.id));
+
+  const name = normaliseCustomDomain(raw);
+  if (!name.ok) return { error: name.error };
+  const domain = name.hostname;
+  // A domain can only route to one workspace: refuse to hijack another's.
+  const clash = (await db
+    .select({ id: schema.workspaces.id })
+    .from(schema.workspaces)
+    .where(and(eq(schema.workspaces.customDomain, domain), ne(schema.workspaces.id, ws.id)))
+    .limit(1))[0];
+  if (clash) return { error: "That domain is already connected to another Feedlark workspace." };
+
+  // Attach before saving: the row is what makes the middleware route the host,
+  // so it must only exist once the hosting side has accepted the name.
+  const attached = await attachCustomDomain(domain);
+  if (!attached.ok) return { error: attached.error };
+  await db.update(schema.workspaces).set({ customDomain: domain }).where(eq(schema.workspaces.id, ws.id));
+  if (previous && previous !== domain) {
+    const removed = await removeCustomDomain(previous);
+    if (!removed.ok) console.error("[custom-domain] old domain left attached", previous);
+  }
   revalidatePath("/dashboard/settings");
-  return { ok: true };
+  return { ok: true, record: attached.record };
 }

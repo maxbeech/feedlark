@@ -2,6 +2,7 @@ import "server-only";
 import { headers } from "next/headers";
 import { sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
+import { clientIpFrom } from "@/lib/client-ip";
 
 /**
  * Fixed-window rate limiting backed by our own Postgres (Supabase) — no external
@@ -42,10 +43,7 @@ export async function checkRateLimit(name: RateLimitName, identifier: string): P
   }
 }
 
-/** Best-effort client IP from the proxy headers Vercel sets. */
+/** Client IP for rate-limit keys; see clientIpFrom for which header is trusted and why. */
 export async function clientIp(): Promise<string> {
-  const h = await headers();
-  const fwd = h.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
-  return h.get("x-real-ip") ?? "0.0.0.0";
+  return clientIpFrom(await headers());
 }

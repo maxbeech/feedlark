@@ -6,6 +6,7 @@ import { PurchaseTracker } from "@/components/dashboard/purchase-tracker";
 import { limitsFor, PRO_PRICE_MONTHLY } from "@/lib/plans";
 import { reconcileCheckoutSuccess } from "@/lib/billing/reconcile";
 import { seatUsage } from "@/lib/data/team";
+import { customDomainState } from "@/lib/custom-domains";
 
 export default async function SettingsPage({
   searchParams,
@@ -25,6 +26,7 @@ export default async function SettingsPage({
     }
   }
   const seats = (await seatUsage(workspace.id)).members;
+  const domain = workspace.customDomain ? await customDomainState(workspace.customDomain) : null;
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -51,7 +53,13 @@ export default async function SettingsPage({
       <div className="mt-6 grid gap-6 md:grid-cols-2">
         <WorkspaceSettingsForm workspaceId={workspace.id} name={workspace.name} accentColor={workspace.accentColor} />
         <BillingCard plan={workspace.plan} seats={seats} />
-        <CustomDomainForm workspaceId={workspace.id} current={workspace.customDomain} isPro={limitsFor(workspace.plan).canCustomDomain} />
+        <CustomDomainForm
+          workspaceId={workspace.id}
+          current={workspace.customDomain}
+          isPro={limitsFor(workspace.plan).canCustomDomain}
+          record={domain?.record ?? null}
+          certificate={domain?.certificate ?? null}
+        />
       </div>
     </div>
   );

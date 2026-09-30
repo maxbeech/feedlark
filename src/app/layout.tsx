@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, Fraunces } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { SITE } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/utils";
@@ -50,7 +49,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${sans.variable} ${display.variable}`}>
       <body>
         {children}
-        <Analytics />
         <OpenHelmAnalytics />
       </body>
     </html>
