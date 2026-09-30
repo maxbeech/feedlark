@@ -76,6 +76,20 @@ declare global {
 }
 
 /**
+ * Queue one gtag command. gtag.js only acts on `arguments` objects in
+ * `dataLayer`, the shape the official `function gtag(){dataLayer.push(arguments)}`
+ * snippet produces. A plain array is silently ignored: no error, no hit sent
+ * (checked against real gtag.js, which sent nothing for an array and one hit for
+ * `arguments`). Pushing rather than calling `window.gtag` keeps events fired
+ * before gtag.js finishes loading in the queue it drains.
+ */
+function pushCommand(..._command: GtagArgs): void {
+  window.dataLayer = window.dataLayer || [];
+  // eslint-disable-next-line prefer-rest-params
+  window.dataLayer.push(arguments);
+}
+
+/**
  * Send a custom event.
  *
  * Safe to call from anywhere, including the server and before the tag has
@@ -86,10 +100,7 @@ declare global {
 export function track(event: string, params: Record<string, unknown> = {}): boolean {
   if (!analyticsEnabled) return false;
   if (typeof window === "undefined") return false;
-  window.dataLayer = window.dataLayer || [];
-  // Push the raw argument tuple rather than calling window.gtag, so events
-  // fired before gtag.js finishes loading still land in the queue it drains.
-  window.dataLayer.push(["event", event, params]);
+  pushCommand("event", event, params);
   return true;
 }
 
@@ -104,8 +115,7 @@ export function track(event: string, params: Record<string, unknown> = {}): bool
 export function identify({ userRef, plan }: { userRef: string; plan: AnalyticsPlan }): boolean {
   if (!analyticsEnabled) return false;
   if (typeof window === "undefined") return false;
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push(["set", "user_properties", { [USER_PROPERTY_REF]: userRef, [USER_PROPERTY_PLAN]: plan }]);
+  pushCommand("set", "user_properties", { [USER_PROPERTY_REF]: userRef, [USER_PROPERTY_PLAN]: plan });
   return true;
 }
 
@@ -114,12 +124,11 @@ export function identify({ userRef, plan }: { userRef: string; plan: AnalyticsPl
 export function trackPageView(url: string): boolean {
   if (!analyticsEnabled) return false;
   if (typeof window === "undefined") return false;
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push([
-    "event",
-    "page_view",
-    { page_path: url, page_location: window.location.href, page_title: document.title },
-  ]);
+  pushCommand("event", "page_view", {
+    page_path: url,
+    page_location: window.location.href,
+    page_title: document.title,
+  });
   return true;
 }
 
