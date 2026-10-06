@@ -1,3 +1,5 @@
+import { withSentryConfig } from "@sentry/nextjs";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -57,4 +59,13 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// Sentry wraps the build to upload source maps (skipped without an auth token).
+// tunnelRoute: true picks a random path per build so ad blockers do not drop reports.
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG || "maxed-labs",
+  project: process.env.SENTRY_PROJECT || "feedlark_web",
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  tunnelRoute: true,
+  sourcemaps: { deleteSourcemapsAfterUpload: true },
+});

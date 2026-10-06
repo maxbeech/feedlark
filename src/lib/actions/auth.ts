@@ -18,6 +18,7 @@ import { absoluteUrl } from "@/lib/utils";
 import { checkRateLimit, clientIp } from "@/lib/ratelimit";
 import { SIGNED_IN_PARAM, withMarker } from "@/lib/analytics-events";
 import { rememberPendingSignup } from "@/lib/auth/pending-signup";
+import { captureServerError } from "@/lib/capture";
 
 // Only require email confirmation when email actually works, so a missing
 // mail provider can never lock everyone out of signing in.
@@ -47,7 +48,7 @@ async function joinViaInvite(userId: string, email: string, token: string): Prom
   if (!ws || (await seatUsage(ws.id)).members >= limitsFor(ws.plan).seats) return false;
   await db.insert(schema.workspaceMembers).values({ id: newId("mem"), workspaceId: ws.id, userId, role: "admin" });
   await db.delete(schema.invitations).where(eq(schema.invitations.id, inv.id));
-  try { await syncSeatQuantity(ws.stripeSubscriptionId, (await seatUsage(ws.id)).members); } catch { /* reconciles later */ }
+  try { await syncSeatQuantity(ws.stripeSubscriptionId, (await seatUsage(ws.id)).members); } catch (error) { captureServerError(error, { scope: "seat-sync" }); /* reconciles later */ }
   (await cookies()).set(ACTIVE_WS_COOKIE, ws.id, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 365 });
   return true;
 }

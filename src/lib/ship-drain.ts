@@ -4,6 +4,7 @@ import { db, schema } from "@/lib/db";
 import { sendEmailBatch, unsubscribeHeaders, type EmailMessage } from "@/lib/email";
 import { configFromEnv, trackEvent, newClientId } from "@/lib/openhelm-analytics-mp";
 import { EVENTS, shipNotifiedParams } from "@/lib/analytics-events";
+import { captureServerError } from "@/lib/capture";
 
 const MAX_ATTEMPTS = 4; // give provider transients a few retries before giving up
 const SEND_CHUNK = 100; // rows claimed per pass; the sends themselves are sequential
@@ -75,7 +76,7 @@ export async function drainShipNotifications(maxRows = 5000): Promise<{ sent: nu
           { ...configFromEnv(), clientId: newClientId() },
           EVENTS.SHIP_NOTIFIED,
           shipNotifiedParams(toSend.length),
-        ).catch(() => {});
+        ).catch((error) => captureServerError(error, { scope: "ship-drain-analytics" }));
       } else {
         // Bump attempts; rows past MAX_ATTEMPTS become `failed` (stop retrying).
         await db.update(schema.shipNotifications)

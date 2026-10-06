@@ -14,6 +14,7 @@ import { seatUsage, ACTIVE_WS_COOKIE } from "@/lib/data/team";
 import { limitsFor } from "@/lib/plans";
 import { sendEmail } from "@/lib/email";
 import { syncSeatQuantity } from "@/lib/stripe-seats";
+import { captureServerError } from "@/lib/capture";
 
 const INVITE_TTL = 60 * 60 * 24 * 7; // 7 days
 
@@ -85,7 +86,7 @@ export async function removeMemberAction(formData: FormData) {
   if (!member || member.role === "owner") return; // never remove the owner
   await db.delete(schema.workspaceMembers).where(eq(schema.workspaceMembers.id, memberId));
   const used = (await seatUsage(workspace.id)).members;
-  try { await syncSeatQuantity(workspace.stripeSubscriptionId, Math.max(1, used)); } catch { /* reconciles on next change */ }
+  try { await syncSeatQuantity(workspace.stripeSubscriptionId, Math.max(1, used)); } catch (error) { captureServerError(error, { scope: "seat-sync" }); /* reconciles on next change */ }
   revalidatePath("/dashboard/team");
 }
 
@@ -103,7 +104,7 @@ export async function acceptInviteAction(_prev: TeamResult, formData: FormData):
   if (!(await userIsMember(user.id, ws.id))) {
     if ((await seatUsage(ws.id)).members >= limitsFor(ws.plan).seats) return { error: "That team is full." };
     await db.insert(schema.workspaceMembers).values({ id: newId("mem"), workspaceId: ws.id, userId: user.id, role: "admin" });
-    try { await syncSeatQuantity(ws.stripeSubscriptionId, (await seatUsage(ws.id)).members); } catch { /* reconciles later */ }
+    try { await syncSeatQuantity(ws.stripeSubscriptionId, (await seatUsage(ws.id)).members); } catch (error) { captureServerError(error, { scope: "seat-sync" }); /* reconciles later */ }
   }
   await db.delete(schema.invitations).where(eq(schema.invitations.id, inv.id));
   (await cookies()).set(ACTIVE_WS_COOKIE, ws.id, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 365 });

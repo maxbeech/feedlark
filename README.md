@@ -76,6 +76,14 @@ needs `HELM7_API_KEY` (confined to this product, domain read/write) and
 `HELM7_PRODUCT_ID`. Customers add a CNAME to the target the settings page shows.
 `test/no-vercel.test.ts` keeps Vercel-only code out.
 
+## Monitoring
+
+Sentry (org `maxed-labs`, project `feedlark_web`) receives errors, logs and user
+feedback. Set `NEXT_PUBLIC_SENTRY_DSN` and `SENTRY_DSN`; without them a warning is
+logged at boot and nothing is reported. Everything is scrubbed in `src/lib/scrub.ts`
+before it leaves the process. Server code reports failures with `captureServerError`
+(`src/lib/capture.ts`).
+
 ## License
 
 Proprietary. © 2026 Feedlark.

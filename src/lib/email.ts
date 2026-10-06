@@ -2,6 +2,7 @@ import "server-only";
 import { SignJWT, jwtVerify } from "jose";
 import { authSecret } from "@/lib/auth/session";
 import { absoluteUrl } from "@/lib/utils";
+import { captureServerError } from "@/lib/capture";
 import { sendEmail as sendViaOpenHelm, emailEnabled } from "@/lib/openhelm-mail";
 
 /**
@@ -55,6 +56,8 @@ export async function sendEmail(opts: EmailMessage): Promise<{ sent: boolean; er
     ...(opts.clientId ? { clientId: opts.clientId } : {}),
   });
   if (res.sent) return { sent: true };
+  // Not-configured is expected in dev; a real send error must become an Issue.
+  if (res.reason === "error") captureServerError(new Error(`email send failed: ${res.error ?? "send_failed"}`), { scope: "mail-send" });
   return { sent: false, error: res.reason === "error" ? res.error ?? "send_failed" : res.reason };
 }
 

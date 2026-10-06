@@ -1,5 +1,6 @@
 import "server-only";
 import { normaliseCustomDomain } from "@/lib/custom-domain-name";
+import { captureServerError } from "@/lib/capture";
 
 /**
  * Customer custom domains, attached to Feedlark's own Helm7 product.
@@ -89,6 +90,7 @@ export async function attachCustomDomain(input: string): Promise<DomainResult<Do
     return { ok: true, hostname: name.hostname, ...(found ? stateOf(found) : { record: null, verification: null, certificate: null }) };
   } catch (error) {
     console.error("[custom-domain] attach failed", error);
+    captureServerError(error, { scope: "custom-domain-attach" });
     return { ok: false, error: "We could not reach our hosting to connect that domain. Try again in a minute." };
   }
 }
@@ -108,6 +110,7 @@ export async function removeCustomDomain(hostname: string): Promise<DomainResult
     return { ok: true };
   } catch (error) {
     console.error("[custom-domain] remove failed", error);
+    captureServerError(error, { scope: "custom-domain-remove" });
     return { ok: false, error: "We could not reach our hosting to disconnect that domain. Try again in a minute." };
   }
 }
@@ -121,6 +124,7 @@ export async function customDomainState(hostname: string): Promise<DomainState |
     return found ? stateOf(found) : null;
   } catch (error) {
     console.error("[custom-domain] status failed", error);
+    captureServerError(error, { scope: "custom-domain-status" });
     return null;
   }
 }

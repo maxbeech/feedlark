@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FeedbackButton } from "@/components/feedback-button";
 import { Logo } from "@/components/logo";
 import { PUBLIC_DEMO_PATHS } from "@/lib/utils";
 
@@ -66,6 +67,11 @@ export function SiteFooter() {
                   </Link>
                 </li>
               ))}
+              {c.title === "Company" && (
+                <li>
+                  <FeedbackButton className="text-sm text-ink-muted transition-colors hover:text-brand-700" />
+                </li>
+              )}
             </ul>
           </div>
         ))}

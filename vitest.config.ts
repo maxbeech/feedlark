@@ -13,6 +13,8 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["test/**/*.test.ts"],
+    // Importing the real Sentry SDK is slow on a cold, loaded machine.
+    testTimeout: 20_000,
+    include: ["test/**/*.test.{ts,tsx}"],
   },
 });

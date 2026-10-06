@@ -8,6 +8,7 @@ import { removeCustomDomain } from "@/lib/custom-domains";
 import { guardStripeEvent } from "../../../../lib/gate";
 import { configFromEnv, trackEvent } from "@/lib/openhelm-analytics-mp";
 import { EVENTS, subscriptionCanceledParams } from "@/lib/analytics-events";
+import { captureServerError } from "@/lib/capture";
 
 /** True if a subscription actually carries our Pro price (not just any product). */
 function hasProPrice(sub: Stripe.Subscription): boolean {
@@ -151,6 +152,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ received: true, duplicate: inserted.length === 0 });
   } catch (error) {
     console.error("[stripe/webhook] entitlement sync failed", { eventId: event.id, type: event.type, error });
+    captureServerError(error, { scope: "stripe-webhook", eventId: event.id, eventType: event.type });
     // A non-2xx response is Stripe's durable retry mechanism. There is no
     // completed ledger row yet, so the redelivery re-attempts the state change.
     return NextResponse.json({ error: "entitlement_sync_failed" }, { status: 500 });

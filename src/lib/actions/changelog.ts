@@ -18,6 +18,7 @@ import {
   shipChangelogTitle,
   notifyEmailSubject,
 } from "@/lib/ship-loop";
+import { captureServerError } from "@/lib/capture";
 
 async function uniqueChangelogSlug(workspaceId: string, base: string): Promise<string> {
   const wanted = slugify(base);
@@ -127,7 +128,7 @@ export async function shipPostAction(formData: FormData) {
     }
     // Drain after the response is sent so the admin's click returns immediately.
     after(async () => {
-      try { await drainShipNotifications(); } catch { /* cron backstop retries */ }
+      try { await drainShipNotifications(); } catch (error) { captureServerError(error, { scope: "ship-drain-after" }); /* cron backstop retries */ }
     });
   }
 

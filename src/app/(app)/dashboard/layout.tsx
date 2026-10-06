@@ -5,6 +5,7 @@ import { WorkspaceSwitcher } from "@/components/dashboard/workspace-switcher";
 import { requireWorkspaceContext } from "@/lib/auth/guard";
 import { logoutAction } from "@/lib/actions/auth";
 import { absoluteUrl } from "@/lib/utils";
+import { FeedbackButton } from "@/components/feedback-button";
 import { SessionAnalytics } from "@/components/analytics/session-analytics";
 import { buildAnalyticsIdentity } from "@/lib/analytics-identity";
 
@@ -38,6 +39,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <a href={publicUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-700 hover:text-brand-800">
               View live board <ExternalLink className="h-3.5 w-3.5" />
             </a>
+            <FeedbackButton variant="header" user={{ email: user.email, name: user.name }} />
             <form action={logoutAction}>
               <button className="text-sm text-ink-muted hover:text-ink">Log out</button>
             </form>

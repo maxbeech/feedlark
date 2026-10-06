@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-06
+
+- **Sentry, properly.** Errors, logs and user feedback now go to the `feedlark_web` project. Browser, server and edge share one set of options (`src/lib/sentry-options.ts`); console output is forwarded as structured logs; the tunnel route stays on a random path.
+- **Scrubbing.** One scrubber (`src/lib/scrub.ts`) covers events, logs, breadcrumbs, transactions and spans: emails, phone numbers, JWTs, bearer tokens, API keys (`sk_`, `whsec_`, `hlm_sk_`, `sntrys_` and so on) and secret-named fields are redacted, and query strings are stripped from URLs.
+- **Send feedback.** A "Feedback" control in the dashboard header (name and email pre-filled) and in the marketing footer opens Sentry's form.
+- **Failures become Issues.** Stripe webhook and checkout, cron sweep, custom-domain calls, email sends, seat sync, ship notifications and the rate limiter now report through `captureServerError` instead of only logging or swallowing the error.
+- Removed `sentry.server.config.ts` and `sentry.edge.config.ts` (folded into `instrumentation.ts`). Tests extended to cover `.tsx`.
+
 ## 2026-09-30
 
 - **Hosting moves from Vercel to Helm7** (Supabase unchanged). `vercel.json`, the `deploy` script and `@vercel/analytics` are gone; `npm start` honours `$PORT`; Sentry's environment comes from `NODE_ENV`.

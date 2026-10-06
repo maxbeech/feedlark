@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { clientIpFrom } from "@/lib/client-ip";
+import { captureServerError } from "@/lib/capture";
 
 /**
  * Fixed-window rate limiting backed by our own Postgres (Supabase) — no external
@@ -38,7 +39,8 @@ export async function checkRateLimit(name: RateLimitName, identifier: string): P
       .returning({ count: schema.rateLimits.count });
     const count = rows[0]?.count ?? 1;
     return count <= cfg.limit;
-  } catch {
+  } catch (error) {
+    captureServerError(error, { scope: "ratelimit" });
     return true; // never block users on a limiter outage
   }
 }

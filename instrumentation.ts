@@ -1,13 +1,18 @@
 import * as Sentry from "@sentry/nextjs";
+import { sharedSentryOptions } from "@/lib/sentry-options";
 
 /**
- * Server error monitoring into our own Postgres error log (no external service).
+ * Server error reporting to Sentry, plus our own Postgres error log.
  * onRequestError fires for errors in Server Components, route handlers and server
  * actions — exactly the class of silent 500 we want captured.
  */
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs") await import("./sentry.server.config");
-  if (process.env.NEXT_RUNTIME === "edge") await import("./sentry.edge.config");
+  const dsn = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
+  if (!dsn) {
+    console.warn("[sentry] SENTRY_DSN is not set; server error reporting is off.");
+    return;
+  }
+  Sentry.init({ dsn, ...sharedSentryOptions() });
 }
 
 export async function onRequestError(

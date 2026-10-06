@@ -3,6 +3,7 @@ import { lt } from "drizzle-orm";
 import { drainShipNotifications } from "@/lib/ship-drain";
 import { db, schema } from "@/lib/db";
 import { checkCronAuth } from "@/lib/cron-auth";
+import { captureServerError } from "@/lib/capture";
 
 /**
  * Daily maintenance cron: drain any queued ship notifications left pending
@@ -21,8 +22,8 @@ export async function GET(req: Request) {
     const rl = await db.delete(schema.rateLimits).where(lt(schema.rateLimits.expiresAt, nowSec)).returning({ b: schema.rateLimits.bucket });
     const er = await db.delete(schema.errorEvents).where(lt(schema.errorEvents.createdAt, nowSec - 60 * 60 * 24 * 30)).returning({ id: schema.errorEvents.id });
     swept = { rateLimits: rl.length, errors: er.length };
-  } catch {
-    /* sweep is best-effort */
+  } catch (error) {
+    captureServerError(error, { scope: "cron-sweep" }); // best-effort, but visible
   }
 
   return NextResponse.json({ ok: true, ...result, swept });

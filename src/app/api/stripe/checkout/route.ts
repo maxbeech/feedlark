@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { getActiveWorkspaceForUser, seatUsage } from "@/lib/data/team";
 import { getStripe, stripeEnabled, PRICE_PRO } from "@/lib/stripe";
 import { absoluteUrl } from "@/lib/utils";
+import { captureServerError } from "@/lib/capture";
 
 /**
  * Send the buyer back to settings marked as failed. A form POST has no client
@@ -73,6 +74,7 @@ export async function POST() {
     return NextResponse.redirect(session.url, 303);
   } catch (error) {
     console.error("[stripe/checkout] could not start checkout", error);
+    captureServerError(error, { scope: "stripe-checkout" });
     return failed("stripe_error");
   }
 }
