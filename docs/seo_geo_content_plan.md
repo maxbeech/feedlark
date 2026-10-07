@@ -1,131 +1,104 @@
-# Content Production Prioritisation Matrix — Feedlark SEO & GEO (June 2026)
+# Feedlark SEO & GEO Content Plan (refreshed 2026-10-07)
 
-**Brand:** Free customer feedback platform — feature request boards, public roadmap, auto-generated changelog, embeddable widget. No per-user pricing. Rivals: Canny, Featurebase, Productboard, Nolt, Frill.
+**Brand:** Free customer feedback boards, public roadmap, auto-generated changelog, embeddable widget. No per-user pricing, no voter login. Rivals: Canny, Nolt, Productboard, Featurebase, Frill.
 
-**Existing posts (skip):** canny pricing · canny alternatives · public product roadmap · feature request tracking · changelog best practices · customer feedback loop
+**Basis:** Refresh of the June 2026 plan. Volumes are Google Ads Keyword Planner (US, 12-month average), snapshot 2026-10-07; format is `keyword | volume / competition (index)`. "unverified" = Keyword Planner returned no figure. Seeds: Feedlark home page, canny.io/pricing, nolt.io, plus Search Console queries. Existing posts (skip as new targets): canny pricing, canny alternatives, public product roadmap, feature request tracking, changelog best practices, customer feedback loop.
 
+**Indexation caveat:** 82 of 87 posts earn no clicks and several are "Discovered, not indexed". Strengthen and interlink the pages below before publishing new ones.
 
 ---
 
 ## 1. Authority Pillars
 
-*Head terms that define the brand. One dedicated page per keyword.*
+*Defining head terms. One dedicated page per keyword.*
 
-| Keyword | Avg/mo | Comp | CI | Entity Category |
-|---|---|---|---|---|
-| customer feedback tool | 590 | LOW | 11 | SaaS Service |
-| product roadmap software | 390 | LOW | 9 | Software Product |
-| product feedback | 1,000 | LOW | 1 | Product Category |
-| feature request software | 40 | LOW | 21 | Idea Management Tool |
-| feedback management software | 70 | LOW | 3 | Platform/Service |
-| canny alternative | 90 | LOW | 13 | Competitive Comparison |
-| changelog tool | 140 | LOW | 9 | Release Communication Tool |
+- customer feedback tool | 480 / low (6) | Entity Category: SaaS Service
+- product feedback | 1,000 / low (7) | Entity Category: Product Category
+- product roadmap software | 320 / low (10) | Entity Category: Software Product
+- customer feedback management software | 320 / low (8) | Entity Category: Platform/Service
+- changelog tool | 140 / low (18) | Entity Category: Release Communication Tool
+- canny alternative | 90 / medium (56) | Entity Category: Competitive Comparison
+- feedback management software | 70 / low (6) | Entity Category: Platform/Service
 
-**Entity instructions:**
-
-- **customer feedback tool** — Connect to feature voting, roadmap, changelog, no-login voting. Distinguish from survey tools.
-- **product roadmap software** — Define public vs internal roadmap. Differentiate from Jira/Linear. Audience: SaaS PMs.
-- **product feedback** — Narrow from broad category to structured collection tools. Link to prioritisation workflow.
-- **feature request software** — Own the full chain: idea → vote → prioritise → build → notify.
-- **feedback management software** — Differentiate from survey tools. Stress centralised inbox, AI dedup, no voter login.
-- **canny alternative** — Name Canny directly. Include 25-tracked-user cap vs Feedlark free-forever plan. Comparison table required.
-- **changelog tool** — Link changelog to close-the-loop. Feedlark auto-generates entries on ship and notifies voters.
+Entity notes: customer feedback tool ties to feature voting, roadmap, changelog, no-login voting (distinct from survey tools). product feedback narrows the broad category to structured collection and prioritisation. product roadmap software separates public from internal roadmaps and Jira/Linear. changelog tool links shipping to voter notification. canny alternative names Canny and the 25-tracked-user cap against Feedlark's free plan, with a comparison table.
 
 ---
 
 ## 2. Zero-Click & GEO Champions
 
-*Structure as direct Q&A. State connected entities explicitly — AI models use these to verify relevance.*
+*Direct Q&A pages. State Connected Entities explicitly.*
 
-| Question / Keyword | Base Term (vol) | Connected Entities |
-|---|---|---|
-| how to collect customer feedback | user feedback tools (170) | Feedback board, upvote widget, no-login voting, roadmap, email notification, in-app embed |
-| how to build a public roadmap | public roadmap (50) | Planned / In Progress / Shipped, changelog, voter notification, board visibility |
-| how to track feature requests | feature request tracking (20) | Board, voting, duplicate detection, AI merge, prioritisation, backlog triage |
-| what is a product feedback loop | feedback loop software (20) | Collect → Prioritise → Build → Notify, automated changelog, voter alerts |
-| why product roadmaps fail | product roadmap (3,600) | No customer input, internal-only planning, no changelog, no stakeholder transparency |
-| how to write a changelog | changelog tool (140) | Plain language, link to roadmap item, voter notification, what shipped and why |
-| canny pricing explained | canny pricing (70) | 25-user cap, tracked user model, Business plan cost, Feedlark free plan comparison |
+- how to collect customer feedback | 110 / low (21) | Connected Entities: feedback board, upvote widget, no-login voting, roadmap, email notification, in-app embed
+- how to build a public roadmap (base: public roadmap | 50 / low (12)) | Connected Entities: Planned / In Progress / Shipped, changelog, voter notification
+- how to track feature requests | 10 / unverified competition | Connected Entities: board, voting, duplicate detection, AI merge, backlog triage
+- what is a product feedback loop (base: feedback loop software | 20 / medium (49)) | Connected Entities: collect, prioritise, build, notify, automated changelog
+- why product roadmaps fail (base: product roadmap | 3,600 / low (20)) | Connected Entities: no customer input, internal-only planning, no changelog
+- how to write a changelog | 10 / low (1) | Connected Entities: plain language, link to roadmap item, voter notification
+- canny pricing explained (base: canny pricing | 50 / medium (52)) | Connected Entities: 25-user cap, tracked-user model, Business plan cost, Feedlark free plan
+- public roadmap examples | 10 / medium (38) | Connected Entities: Planned / In Progress / Shipped columns, live Feedlark roadmap
 
 ---
 
 ## 3. High-Intent Closers
 
-*Active tool evaluation. Include comparison tables, pricing, and free-plan proof points.*
+*Active evaluation. Comparison tables, pricing, free-plan proof.*
 
-| Keyword | Avg/mo | Comp | CI | Attribute Entities Required |
-|---|---|---|---|---|
-| best product roadmap tools | 70 | LOW | 16 | Pricing tiers, free plan, public roadmap, changelog integration, setup time |
-| best customer feedback tools | 40 | LOW | 1 | Free tier, per-user vs per-seat billing, voting, widget, changelog |
-| productboard alternative | 70 | LOW | 31 | Complexity vs simplicity, setup time, pricing, public vs internal roadmap |
-| nolt alternative | 10 | LOW | 23 | Per-board pricing vs per-seat, no free plan, limited integrations |
-| free roadmap tool | 110 | LOW | 24 | No credit card, unlimited users, unlimited boards, public roadmap, white-label |
-| customer feedback management software | 390 | LOW | 3 | Centralised inbox, AI dedup, team notes, private boards, CSV export |
-| roadmap software free | 30 | MED | 51 | Free vs freemium distinction, what's included vs locked, upgrade path |
-| best roadmapping tools | 70 | MED | 63 | Side-by-side comparison, use-case fit by team size, integration ecosystem |
+- best customer feedback tools | 90 / low (1) | Attributes: free tier, per-user vs per-seat billing, voting, widget, changelog
+- best customer feedback software | 40 / low (4) | Attributes: free tier, unlimited voters, AI duplicate merge
+- best product roadmap tools | 50 / medium (48) | Attributes: pricing tiers, free plan, public roadmap, changelog integration, setup time
+- best roadmapping tools | 70 / high (71) | Attributes: side-by-side table, fit by team size, integrations
+- productboard alternative | 50 / medium (64) | Attributes: complexity vs simplicity, setup time, pricing, public vs internal roadmap
+- free roadmap tool | 90 / medium (66) | Attributes: no credit card, unlimited users, unlimited boards, white-label
+- nolt alternative | 10 / low (12) | Attributes: per-board pricing vs per-seat, free plan, integrations
+- canny pricing | 50 / medium (52) | Attributes: tracked-user cap, plan costs, free alternative
+- roadmap software free | 20 / medium (59) | Attributes: free vs freemium, what is locked, upgrade path
 
 ---
 
 ## 4. Hidden Gems
 
-*Low-competition, high-specificity — own these now before rivals cotton on.*
+*Specific, low competition. Own these before rivals do.*
 
-| Keyword | Avg/mo | CI | Niche Context |
-|---|---|---|---|
-| feedback widget for website | 90 | 6 | Core Feedlark differentiator — one-click voting, no user login. Searchers want a drop-in embed. This is the exact answer. |
-| product changelog | 20 | 9 | Feedlark auto-generates the changelog on ship. Most tools treat it as an afterthought. Own this entity while uncrowded. |
-| in app user feedback | 30 | 3 | Mobile and SaaS teams wanting embedded collection. Maps directly to widget + mobile-apps use case. |
-| software user feedback | 70 | 5 | Massively underexploited at ci=5. Position as the first step in a product feedback workflow. |
-| intercom changelog | 20 | 1 | Users want a dedicated changelog, not a support chat bolt-on. Capture with a direct comparison page. |
-| feature request board | 20 | 63 | Precise conversion intent despite medium comp. Own the "board" entity and link to Feedlark's unlimited free boards. |
-| feedback loop software | 20 | 32 | Process-aware searcher. Maps to Feedlark's collect → build → notify workflow. Convert with a visual diagram. |
+- feedback widget for website | 90 / low (21) | Core differentiator: drop-in embed with one-click voting and no login. The exact answer to the query.
+- software user feedback | 70 / low (11) | Underused at low difficulty. Position as step one of a product feedback workflow.
+- user feedback software | 70 / low (11) | Seen on Nolt's keyword set; same intent as software user feedback, answer on one page.
+- product feedback tool | 90 / low (27) | Sits between the pillar and the widget; link both.
+- feature request tool | 40 / low (21) | Competitor-page term (Nolt); own the idea, vote, build, notify chain.
+- feedback board | 70 / medium (34) | Names the Feedlark core object; link to unlimited free boards.
+- public roadmap tool | 20 / low (0) | Zero difficulty, direct product description.
+- in app user feedback | 20 / low (0) | Mobile and SaaS teams wanting embedded collection; maps to widget plus mobile-apps use case.
+- intercom changelog | 20 / low (1) | Searchers want a dedicated changelog, not a chat bolt-on. Direct comparison page.
+- product changelog | 20 / low (19) | Feedlark generates the entry on ship; most tools treat it as an afterthought.
+- get free indie hackers comments | unverified / 54 impressions, position 14.8 | Real Search Console query landing on /use-cases/indie-hackers; check intent before investing.
 
 ---
 
 ## 5. Semantic Clusters
 
-*Remaining long-tail terms. Ordered by opportunity.*
+*Ordered by volume x low difficulty x brand fit.*
 
----
+### Cluster A: Customer Feedback Management (parent pillar: customer feedback tool)
+customer feedback management tools | 480 / low (6) · customer feedback management tool | 480 / low (6) · customer feedback software | 260 / low (8) · client feedback software | 260 / low (8) · feedback tool | 260 / medium (37) · customer feedback platform | 210 / low (13) · customer feedback analysis | 140 / medium (37) · customer feedback analysis tools | 110 / low (4) · feedback management tool | 70 / low (0) · customer feedback app | 70 / low (6) · product feedback software | 70 / medium (38) · feedback platforms | 50 / low (24) · feedback management platform | 30 / low (0)
 
-### Cluster A — Roadmap Creation & Management *(priority 1)*
-**Parent:** Product Roadmap | **Relationship:** Tasks and tools surrounding roadmap creation and sharing.  
-**Keywords:** product roadmap (3,600) · roadmap project management (390) · product development roadmap (320) · product management roadmap (320) · visual roadmap (320) · product roadmap tool (260) · roadmap create (260) · create product roadmap (140) · feature roadmap (110) · visual product roadmap (90) · create roadmap (210) · online roadmap tool (20) · roadmap planning software (10)
+### Cluster B: Roadmap Creation & Management (parent pillar: product roadmap software)
+product roadmap | 3,600 / low (20) · roadmap project management | 390 / low (28) · product development roadmap | 260 / medium (36) · product management roadmap | 260 / medium (35) · visual roadmap | 260 / low (13) · product roadmap tool | 210 / medium (46) · roadmap create | 210 / low (23) · create roadmap | 170 / medium (46) · create product roadmap | 110 / medium (44) · feature roadmap | 90 / low (9) · visual product roadmap | 70 / low (15) · online roadmap tool | 20 / medium (50) · public product roadmap | 20 / low (6) · roadmap planning software | 10 / low (21)
 
----
+### Cluster C: Feedback Widget & Embedding (parent pillar: customer feedback tool; hub: feedback widget for website)
+website feedback widgets | 90 / low (21) · feedback widget | 50 / low (23) · user feedback widget | 10 / medium (49) · customer feedback widget | 10 / unverified · free feedback widget | 10 / low (0)
 
-### Cluster B — Customer Feedback Management *(priority 2)*
-**Parent:** Feedback Management Platform | **Relationship:** Operational terms for receiving and acting on customer input.  
-**Keywords:** customer feedback management tools (590) · customer feedback management software (390) · customer feedback software (390) · customer feedback platform (260) · customer feedback analysis (210) · customer feedback analysis tools (110) · feedback management tool (110) · feedback management platform (30) · customer feedback app (70)
+### Cluster D: Changelog & Release Comms (parent pillar: changelog tool)
+change log software | 70 / low (16) · changelog management tools | 10 / medium (43)
 
----
+### Cluster E: Competitor Alternatives & Pricing (parent pillar: canny alternative)
+canny feedback | 50 / medium (56) · canny software | 30 / medium (43) · best roadmap software | 30 / medium (65) · canny io pricing | 10 / medium (57) · nolt feedback | 10 / medium (43) · productboard free alternative | 10 / high (86) · roadmunk free alternative | 10 / unverified
 
-### Cluster C — Competitor Alternatives & Pricing *(priority 3)*
-**Parent:** Canny | **Relationship:** Comparison searches for tools Feedlark already targets on landing pages.  
-**Keywords:** canny alternative (90) · canny pricing (70) · canny io pricing (10) · productboard alternative (70) · nolt alternative (10) · productboard free alternative (10) · roadmunk free alternative (10) · best roadmap software (30) · best roadmapping tools (70)
+### Cluster F: Free & Open-Source Tools (parent pillar: product roadmap software; closer: free roadmap tool)
+roadmap tool free | 90 / medium (66) · free roadmap creator | 30 / high (71) · free product roadmap tool | 20 / medium (54) · free roadmap | 20 / low (28) · free product roadmap | 10 / low (31) · best free roadmap tool | 10 / high (84) · open source roadmap tools | 10 / medium (51)
 
----
+### Cluster G: User Feedback Platforms & Research (parent pillar: product feedback)
+user feedback tools | 110 / medium (40) · user feedback platform | 70 / low (27) · client feedback tools | 70 / medium (40) · online feedback tool | 30 / low (18) · feedback analytics software | 10 / unverified
 
-### Cluster D — Free & Open-Source Tools *(priority 4)*
-**Parent:** Free Roadmap Tool | **Relationship:** Price-sensitive evaluators. Feedlark's free-forever plan is the direct answer.  
-**Keywords:** free roadmap tool (110) · roadmap tool free (110) · free product roadmap tool (30) · roadmap software free (30) · free roadmap creator (40) · free product roadmap (10) · best free roadmap tool (10) · free roadmap (30) · open source roadmap tools (10)
+### Cluster H: Feature Request Management (parent pillar: feedback management software)
+feature request software | 30 / medium (60) · feature request tracking | 10 / medium (43) · feature request management | 10 / low (0) · feature request management software | 10 / low (0) · feature request board | 10 / medium (39) · feature request platform | 10 / high (73)
 
----
-
-### Cluster E — Feedback Widget & Embedding *(priority 5)*
-**Parent:** Feedback Widget | **Relationship:** Embeddable terms — collect ideas from within a product without redirecting users.  
-**Keywords:** feedback widget for website (90) · website feedback widgets (90) · feedback widget (70) · user feedback widget (10) · customer feedback widget (10) · free feedback widget (10) · in app user feedback (30)
-
----
-
-### Cluster F — Changelog & Release Comms
-**Parent:** Changelog Tool | **Relationship:** Publishing what shipped and notifying voters automatically.  
-**Keywords:** changelog tool (140) · change log software (90) · product changelog (20) · changelog management tools (10) · intercom changelog (20)
-
----
-
-### Cluster G — User Research & Feedback Analysis
-**Parent:** User Feedback Platform | **Relationship:** Broader research terms positioning Feedlark alongside UserVoice and Intercom.  
-**Keywords:** user feedback tools (170) · user feedback platform (90) · software user feedback (70) · client feedback tools (90) · online feedback tool (50) · feedback analytics software (10) · customer feedback analysis (210)
-
-*Excluded: "customer feedback surveys" (301K) — survey creation intent (Typeform territory). Roadmap Excel/template terms — informational, no conversion path.*
+*Excluded: customer feedback surveys (survey-creation intent, Typeform territory); roadmap Excel/template terms (informational, no conversion path); pricing-software and SaaS-pricing terms from the Canny URL seed (different product category).*
