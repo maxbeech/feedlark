@@ -224,7 +224,7 @@ export const BLOG_WORKFLOW_GUIDES: BlogPost[] = [
         "The same theme keeps resurfacing as 'new': a sign categorization tags aren't being reused consistently, so patterns stay invisible.",
         "Items sit for weeks without an owner: routing is being skipped, usually because the process relies on someone remembering to do it rather than a fixed step.",
       ] },
-      { h2: "Tooling that makes triage lighter, not heavier", p: "The workflow above works with a spreadsheet, but it works a lot faster when capture and dedupe happen in the same place customers submit feedback. A [feedback board](/blog/feedback-widget-for-website) with built-in duplicate detection and status tagging turns steps one and two into something closer to automatic, leaving the actual judgment calls, categorization and routing, as the only manual work each week." },
+      { h2: "Tooling that makes triage lighter, not heavier", p: "The workflow above works with a spreadsheet, but it works a lot faster when capture and dedupe happen in the same place customers submit feedback. A [feedback board](/blog/website-feedback-widgets-compared) with built-in duplicate detection and status tagging turns steps one and two into something closer to automatic, leaving the actual judgment calls, categorization and routing, as the only manual work each week." },
     ],
     faqs: [
       { q: "How often should feedback triage happen?", a: "Weekly works well for most small-to-mid-size teams. High-volume products may need it twice a week; low-volume products can stretch to biweekly, but longer than that lets items go stale and lose momentum." },

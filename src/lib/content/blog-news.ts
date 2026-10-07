@@ -257,7 +257,7 @@ export const BLOG_NEWS: BlogPost[] = [
       },
       {
         q: "How can a feedback board reduce SaaS churn?",
-        a: "A public [feedback board](/blog/feature-request-board-guide) surfaces recurring frustrations while there is still time to act, rather than waiting for the cancellation screen. Paired with a visible roadmap and changelog, it gives customers a reason to stay for the next release instead of leaving quietly.",
+        a: "A public [feedback board](/blog/feature-request-software-guide) surfaces recurring frustrations while there is still time to act, rather than waiting for the cancellation screen. Paired with a visible roadmap and changelog, it gives customers a reason to stay for the next release instead of leaving quietly.",
       },
     ],
   },

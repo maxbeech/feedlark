@@ -19,6 +19,11 @@ const nextConfig = {
       { source: "/feedback", destination: "/b/feedlark", permanent: false },
       { source: "/feedback/roadmap", destination: "/b/feedlark/roadmap", permanent: false },
       { source: "/feedback/changelog", destination: "/b/feedlark/changelog", permanent: false },
+      // Consolidated blog posts (SEO content audit 2026-10-07): 301 to the surviving guide.
+      { source: "/blog/best-free-roadmap-tools", destination: "/blog/free-roadmap-creator-tools", permanent: true },
+      { source: "/blog/feedback-widget-for-website", destination: "/blog/website-feedback-widgets-compared", permanent: true },
+      { source: "/blog/feature-request-board-guide", destination: "/blog/feature-request-software-guide", permanent: true },
+      { source: "/blog/product-changelog-explained", destination: "/blog/changelog-tool-guide", permanent: true },
     ];
   },
   async headers() {

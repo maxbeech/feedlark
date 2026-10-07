@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-07: Blog consolidation
+
+- Removed four overlapping posts and 301-redirected each to the stronger guide on the same topic: `best-free-roadmap-tools` to `free-roadmap-creator-tools`, `feedback-widget-for-website` to `website-feedback-widgets-compared`, `feature-request-board-guide` to `feature-request-software-guide`, `product-changelog-explained` to `changelog-tool-guide`. Internal links updated; the posts leave the sitemap with their source.
+
 ## 2026-10-07: Sentry scrubber security pass
 
 - **Long secrets.** JWTs, bearer tokens, vendor keys (`sk_`, `whsec_`, `hlm_sk_`, `sntrys_`) and `key=value` secrets of any length are now redacted whole. The old bounded patterns left the tail of anything longer than their limit.
