@@ -4,8 +4,6 @@
 
 **Basis:** Refresh of the June 2026 plan. Volumes are Google Ads Keyword Planner (US, 12-month average), snapshot 2026-10-07; format is `keyword | volume / competition (index)`. "unverified" = Keyword Planner returned no figure. Seeds: Feedlark home page, canny.io/pricing, nolt.io, plus Search Console queries. Existing posts (skip as new targets): canny pricing, canny alternatives, public product roadmap, feature request tracking, changelog best practices, customer feedback loop.
 
-**Indexation caveat:** 82 of 87 posts earn no clicks and several are "Discovered, not indexed". Strengthen and interlink the pages below before publishing new ones.
-
 ---
 
 ## 1. Authority Pillars
@@ -20,7 +18,7 @@
 - canny alternative | 90 / medium (56) | Entity Category: Competitive Comparison
 - feedback management software | 70 / low (6) | Entity Category: Platform/Service
 
-Entity notes: customer feedback tool ties to feature voting, roadmap, changelog, no-login voting (distinct from survey tools). product feedback narrows the broad category to structured collection and prioritisation. product roadmap software separates public from internal roadmaps and Jira/Linear. changelog tool links shipping to voter notification. canny alternative names Canny and the 25-tracked-user cap against Feedlark's free plan, with a comparison table.
+Entity notes: customer feedback tool ties to voting, roadmap, changelog, no-login voting (not surveys). product roadmap software separates public from internal roadmaps. canny alternative names Canny and its 25-tracked-user cap, with a comparison table.
 
 ---
 
@@ -101,4 +99,4 @@ user feedback tools | 110 / medium (40) · user feedback platform | 70 / low (27
 ### Cluster H: Feature Request Management (parent pillar: feedback management software)
 feature request software | 30 / medium (60) · feature request tracking | 10 / medium (43) · feature request management | 10 / low (0) · feature request management software | 10 / low (0) · feature request board | 10 / medium (39) · feature request platform | 10 / high (73)
 
-*Excluded: customer feedback surveys (survey-creation intent, Typeform territory); roadmap Excel/template terms (informational, no conversion path); pricing-software and SaaS-pricing terms from the Canny URL seed (different product category).*
+*Excluded: customer feedback surveys, roadmap Excel/template terms, and pricing-software terms from the Canny URL seed (off-category).*
