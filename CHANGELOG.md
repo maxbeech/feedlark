@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-07
+
+- **Sentry scrubber hardened.** It now fails closed (a scrubber that throws drops the event, log, breadcrumb or transaction instead of sending it raw), cuts strings over 10k characters before matching, and uses bounded linear-time patterns. Feedback events are scrubbed like any other, keeping only the reporter's own form and name/email. Capture context is ids, counts and short strings only. Tests added for hostile input and throwing scrubbers.
+
 ## 2026-10-06
 
 - **Sentry, properly.** Errors, logs and user feedback now go to the `feedlark_web` project. Browser, server and edge share one set of options (`src/lib/sentry-options.ts`); console output is forwarded as structured logs; the tunnel route stays on a random path.

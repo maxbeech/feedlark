@@ -82,7 +82,7 @@ Sentry (org `maxed-labs`, project `feedlark_web`) receives errors, logs and user
 feedback. Set `NEXT_PUBLIC_SENTRY_DSN` and `SENTRY_DSN`; without them a warning is
 logged at boot and nothing is reported. Everything is scrubbed in `src/lib/scrub.ts`
 before it leaves the process. Server code reports failures with `captureServerError`
-(`src/lib/capture.ts`).
+(`src/lib/capture.ts`), which accepts ids, counts and short strings only. The scrubber fails closed: if it throws, the event is dropped.
 
 ## License
 

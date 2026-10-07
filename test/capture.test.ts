@@ -28,3 +28,12 @@ describe("captureServerError", () => {
     spy.mockRestore();
   });
 });
+
+import { safeContext } from "@/lib/capture";
+describe("safeContext", () => {
+  it("keeps ids, counts and enums; drops objects, arrays and long text", () => {
+    expect(safeContext({ scope: "x", id: "u_1", n: 3, ok: true, body: { a: 1 }, list: [1], text: "z".repeat(500) }).text).toHaveLength(83);
+    const out = safeContext({ scope: "x", id: "u_1", n: 3, ok: true, body: { a: 1 }, list: [1] });
+    expect(out).toEqual({ id: "u_1", n: 3, ok: true });
+  });
+});
