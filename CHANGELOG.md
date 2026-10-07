@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-07: Sentry scrubber security pass
+
+- **Long secrets.** JWTs, bearer tokens, vendor keys (`sk_`, `whsec_`, `hlm_sk_`, `sntrys_`) and `key=value` secrets of any length are now redacted whole. The old bounded patterns left the tail of anything longer than their limit.
+- **Truncation.** The 10k cut backs up to the previous delimiter, so half a secret can never survive at the boundary.
+- **Encodings, URLs and key names.** URL queries and fragments (OAuth and magic-link tokens), percent-encoded emails, `Bearer%20...`, `token%3D...`, escaped JSON, `Authorization: Basic ...`, connection-string credentials and keys such as `passwd`, `pwd`, `jwt` and `Set-Cookie` are covered at any depth.
+- **Fail closed, no bypass.** Events, transactions, breadcrumbs and logs are dropped if scrubbing throws. A second deep pass scrubs stack-frame vars, spans, contexts and tags, feedback events included (only the reporter's own `contexts.feedback` and user are kept).
+- **Tests.** `test/scrub-hardening.test.ts` covers long JWTs, varied key lengths, secrets straddling the truncation boundary, hostile 20k strings, key variants and fail-closed behaviour.
+
 ## 2026-10-07
 
 - **Sentry scrubber hardened.** It now fails closed (a scrubber that throws drops the event, log, breadcrumb or transaction instead of sending it raw), cuts strings over 10k characters before matching, and uses bounded linear-time patterns. Feedback events are scrubbed like any other, keeping only the reporter's own form and name/email. Capture context is ids, counts and short strings only. Tests added for hostile input and throwing scrubbers.

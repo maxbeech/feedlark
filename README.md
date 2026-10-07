@@ -84,6 +84,8 @@ logged at boot and nothing is reported. Everything is scrubbed in `src/lib/scrub
 before it leaves the process. Server code reports failures with `captureServerError`
 (`src/lib/capture.ts`), which accepts ids, counts and short strings only. The scrubber fails closed: if it throws, the event is dropped.
 
+The Sentry scrubber (`src/lib/scrub.ts`) redacts secrets of any length, backs up to a clean boundary when it truncates, and fails closed; its regression tests are in `test/scrub-hardening.test.ts`.
+
 ## License
 
 Proprietary. © 2026 Feedlark.
