@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import sitemap from "@/app/sitemap";
 import robots from "@/app/robots";
+import { GET } from "@/app/llms.txt/route";
+import { PLAN_LIMITS, PRO_PRICE_MONTHLY } from "@/lib/plans";
+import { jsonLdString, softwareAppJsonLd } from "@/lib/structured-data";
 import { PUBLIC_DEMO_PATHS, PUBLIC_ORIGIN, absoluteUrl } from "@/lib/utils";
 
 describe("search-facing routing", () => {
@@ -16,5 +19,32 @@ describe("search-facing routing", () => {
 
   it("advertises the canonical sitemap in robots.txt", () => {
     expect(robots().sitemap).toBe(absoluteUrl("/sitemap.xml"));
+  });
+
+  it.each(["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended", "CCBot"])(
+    "explicitly welcomes %s while keeping private paths closed",
+    (userAgent) => {
+      const rule = robots().rules;
+      const group = (Array.isArray(rule) ? rule : [rule]).find((r) => r.userAgent === userAgent);
+      expect(group, `no robots.txt group for ${userAgent}`).toBeDefined();
+      expect(group?.allow).toBe("/");
+      expect(group?.disallow).toEqual(expect.arrayContaining(["/dashboard", "/api/", "/login", "/signup"]));
+    },
+  );
+});
+
+describe("machine-readable pricing", () => {
+  it("emits the Pro offer at the plan constant as a monthly per-seat price that parses", () => {
+    const parsed = JSON.parse(jsonLdString(softwareAppJsonLd()));
+    const pro = parsed.offers.find((o: { name: string }) => o.name.startsWith("Pro"));
+    expect(pro.price).toBe(String(PRO_PRICE_MONTHLY));
+    expect(pro.priceSpecification.billingDuration).toBe("P1M");
+    expect(pro.priceSpecification.price).toBe(String(PRO_PRICE_MONTHLY));
+  });
+
+  it("states the same Pro price and seat limit in llms.txt", async () => {
+    const body = await (await GET()).text();
+    expect(body).toContain(`$${PRO_PRICE_MONTHLY} per ADMIN seat / month`);
+    expect(body).toContain(`up to ${PLAN_LIMITS.pro.seats} seats`);
   });
 });

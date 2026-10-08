@@ -1,5 +1,6 @@
 /** Pure JSON-LD helpers (no JSX) so they're unit-testable. */
 import { absoluteUrl } from "@/lib/utils";
+import { PRO_PRICE_MONTHLY } from "@/lib/plans";
 
 /** Serialise JSON-LD with `<` escaped to prevent `</script>` breakout (XSS-safe). */
 export function jsonLdString(data: unknown): string {
@@ -62,7 +63,19 @@ export function softwareAppJsonLd() {
       "Free customer feedback boards, public roadmap and changelog. Unlimited end-users, no per-user growth tax.",
     offers: [
       { "@type": "Offer", price: "0", priceCurrency: "USD", name: "Free" },
-      { "@type": "Offer", price: "19", priceCurrency: "USD", name: "Pro (per seat / mo)" },
+      {
+        "@type": "Offer",
+        name: "Pro (per seat / mo)",
+        price: String(PRO_PRICE_MONTHLY),
+        priceCurrency: "USD",
+        priceSpecification: {
+          "@type": "UnitPriceSpecification",
+          price: String(PRO_PRICE_MONTHLY),
+          priceCurrency: "USD",
+          billingDuration: "P1M",
+          referenceQuantity: { "@type": "QuantitativeValue", value: 1, unitText: "admin seat" },
+        },
+      },
     ],
   };
 }
