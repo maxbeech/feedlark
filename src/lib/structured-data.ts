@@ -7,6 +7,7 @@ export function jsonLdString(data: unknown): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");
 }
 
+/** FAQ answers carry inline `[label](url)` links for the page; the schema text keeps only the label. */
 export function faqJsonLd(faqs: { q: string; a: string }[]) {
   return {
     "@context": "https://schema.org",
@@ -14,7 +15,7 @@ export function faqJsonLd(faqs: { q: string; a: string }[]) {
     mainEntity: faqs.map((f) => ({
       "@type": "Question",
       name: f.q,
-      acceptedAnswer: { "@type": "Answer", text: f.a },
+      acceptedAnswer: { "@type": "Answer", text: f.a.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") },
     })),
   };
 }

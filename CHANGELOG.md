@@ -4,7 +4,8 @@
 
 - **Explicit AI-crawler access.** `robots.txt` now names GPTBot, ClaudeBot, PerplexityBot, Google-Extended and CCBot and allows them everywhere except the private paths, the same as all other crawlers.
 - **Pricing from one source.** The SoftwareApplication Pro offer and `/llms.txt` read the Pro price and seat limit from `src/lib/plans.ts`, so they cannot drift from what the product charges. The offer also states the price as a monthly, per-admin-seat `UnitPriceSpecification`.
-- **Tests.** `test/seo-routing.test.ts` covers the crawler groups, the parsed Pro offer and the llms.txt price.
+- **FAQ schema text.** FAQPage answers keep the link label and drop the markdown link syntax, so the structured data matches the visible answer.
+- **Tests.** `test/seo-routing.test.ts` covers the crawler groups, the parsed Pro offer, the llms.txt price and FAQ text.
 
 ## 2026-10-07: Blog consolidation
 

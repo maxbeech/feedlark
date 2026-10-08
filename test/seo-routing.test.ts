@@ -3,7 +3,7 @@ import sitemap from "@/app/sitemap";
 import robots from "@/app/robots";
 import { GET } from "@/app/llms.txt/route";
 import { PLAN_LIMITS, PRO_PRICE_MONTHLY } from "@/lib/plans";
-import { jsonLdString, softwareAppJsonLd } from "@/lib/structured-data";
+import { faqJsonLd, jsonLdString, softwareAppJsonLd } from "@/lib/structured-data";
 import { PUBLIC_DEMO_PATHS, PUBLIC_ORIGIN, absoluteUrl } from "@/lib/utils";
 
 describe("search-facing routing", () => {
@@ -31,6 +31,17 @@ describe("search-facing routing", () => {
       expect(group?.disallow).toEqual(expect.arrayContaining(["/dashboard", "/api/", "/login", "/signup"]));
     },
   );
+});
+
+describe("FAQ structured data", () => {
+  it("keeps the link label and drops markdown link syntax from FAQ answer text", () => {
+    const answer =
+      "Surveys validate questions, while [feedback management software](/blog/feedback-management-software-explained) surfaces ideas.";
+    const schema = faqJsonLd([{ q: "Do surveys replace feedback tools?", a: answer }]);
+    const text = schema.mainEntity[0].acceptedAnswer.text;
+    expect(text).toBe("Surveys validate questions, while feedback management software surfaces ideas.");
+    expect(text).not.toMatch(/\]\(/);
+  });
 });
 
 describe("machine-readable pricing", () => {
