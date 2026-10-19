@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BLOG_POSTS, getPost } from "@/lib/content/blog";
+import { relatedPosts } from "@/lib/content/blog-related";
 import { DEFAULT_AUTHOR, DEFAULT_CATEGORY } from "@/lib/content/blog-types";
 import { LinkButton } from "@/components/ui";
 import { pageMetadata, SITE } from "@/lib/seo";
@@ -35,6 +36,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   const author = post.author ?? DEFAULT_AUTHOR;
   const category = post.category ?? DEFAULT_CATEGORY;
+  const related = relatedPosts(post, BLOG_POSTS);
 
   const articleLd = {
     "@context": "https://schema.org",
@@ -156,6 +158,20 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             ))}
           </dl>
         </div>
+      )}
+
+      {related.length > 0 && (
+        <nav aria-label="Related guides" className="mt-12">
+          <h2 className="font-display text-2xl font-semibold tracking-tightest text-ink">Related guides</h2>
+          <ul className="mt-4 divide-y divide-sand-200 border-t border-sand-200">
+            {related.map((r) => (
+              <li key={r.slug} className="py-4">
+                <Link href={`/blog/${r.slug}`} className="font-medium text-ink hover:text-brand-700 hover:underline">{r.title}</Link>
+                <p className="mt-1 text-sm text-ink-soft">{r.description}</p>
+              </li>
+            ))}
+          </ul>
+        </nav>
       )}
 
       {post.authorBio && (

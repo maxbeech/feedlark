@@ -59,3 +59,14 @@ describe("machine-readable pricing", () => {
     expect(body).toContain(`up to ${PLAN_LIMITS.pro.seats} seats`);
   });
 });
+
+describe("blog internal linking", () => {
+  it("links every blog post from at least one other post's related guides", async () => {
+    const { BLOG_POSTS } = await import("@/lib/content/blog");
+    const { relatedPosts } = await import("@/lib/content/blog-related");
+    const linked = new Set<string>();
+    for (const p of BLOG_POSTS) for (const r of relatedPosts(p, BLOG_POSTS)) linked.add(r.slug);
+    const stranded = ["beta-tester-feedback-guide", "changelog-management-tools-compared", "changelog-software-compared", "client-feedback-tools-for-agencies", "customer-feedback-analysis-tools", "customer-feedback-app-case-study"];
+    for (const s of stranded) expect(linked.has(s), s).toBe(true);
+  });
+});

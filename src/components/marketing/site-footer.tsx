@@ -20,6 +20,7 @@ const cols: { title: string; links: { href: string; label: string }[] }[] = [
       { href: "/alternatives/featurebase", label: "Featurebase alternative" },
       { href: "/alternatives/productboard", label: "Productboard alternative" },
       { href: "/alternatives/nolt", label: "Nolt alternative" },
+      { href: "/alternatives/frill", label: "Frill alternative" },
     ],
   },
   {
