@@ -24,7 +24,7 @@ export default function HomePage() {
               Turn customer feedback into a roadmap they can <span className="italic text-brand-600">watch you ship</span>.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft text-pretty">
-              Collect feature requests, prioritise a public roadmap, and publish a changelog in one place.
+              Collect feature requests, prioritise a <a href="/blog/how-to-build-public-roadmap">public roadmap</a>, and publish a changelog in one place.
               Unlimited end users, posts and votes. Your 26th user is free. So is your 26,000th.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
