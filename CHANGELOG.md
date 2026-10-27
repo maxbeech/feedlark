@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-27: Blog consolidation pass 2
+
+- Merged `best-product-roadmap-tools` into `best-roadmapping-tools`: its integration-depth and common-mistakes sections moved across, and the old URL 301s to the survivor.
+- Merged `free-feedback-widget-guide` into `feedback-widget-guide`: the free-plan checks moved into the survivor's context, and the old URL 301s to the survivor.
+- `next.config.mjs` gained the two permanent redirects. No internal links pointed at the removed slugs.
+
 ## 2026-10-08: Machine-readable pricing and AI-crawler policy
 
 - **Explicit AI-crawler access.** `robots.txt` now names GPTBot, ClaudeBot, PerplexityBot, Google-Extended and CCBot and allows them everywhere except the private paths, the same as all other crawlers.
