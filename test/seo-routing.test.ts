@@ -58,6 +58,12 @@ describe("machine-readable pricing", () => {
     expect(body).toContain(`$${PRO_PRICE_MONTHLY} per ADMIN seat / month`);
     expect(body).toContain(`up to ${PLAN_LIMITS.pro.seats} seats`);
   });
+
+  it("links the live demo roadmap and changelog from llms.txt", async () => {
+    const body = await (await GET()).text();
+    expect(body).toContain(absoluteUrl(PUBLIC_DEMO_PATHS.roadmap));
+    expect(body).toContain(absoluteUrl(PUBLIC_DEMO_PATHS.changelog));
+  });
 });
 
 describe("blog internal linking", () => {

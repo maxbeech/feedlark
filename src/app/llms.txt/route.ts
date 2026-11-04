@@ -22,6 +22,8 @@ Feedlark lets product teams collect feature requests on public boards, let users
 - Featurebase alternative: ${absoluteUrl("/alternatives/featurebase")}
 - Blog: ${absoluteUrl("/blog")}
 - Live demo board: ${absoluteUrl(PUBLIC_DEMO_PATHS.board)}
+- Live demo roadmap: ${absoluteUrl(PUBLIC_DEMO_PATHS.roadmap)}
+- Live demo changelog: ${absoluteUrl(PUBLIC_DEMO_PATHS.changelog)}
 
 ## Best for
 SaaS teams, startups, indie hackers, mobile apps and agencies who want a free, simple feedback board, public roadmap and changelog.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-04: llms.txt links the live demo roadmap and changelog
+
+- `/llms.txt` now lists the public demo roadmap and changelog alongside the demo board, so AI assistants can find the two pages that describe what the product ships. No docs, tools or API page exists yet, so none is linked.
+- `test/seo-routing.test.ts` asserts both links are present.
+
 ## 2026-10-27: Blog consolidation pass 2
 
 - Merged `best-product-roadmap-tools` into `best-roadmapping-tools`: its integration-depth and common-mistakes sections moved across, and the old URL 301s to the survivor.
