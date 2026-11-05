@@ -26,6 +26,8 @@ const nextConfig = {
       { source: "/blog/product-changelog-explained", destination: "/blog/changelog-tool-guide", permanent: true },
       { source: "/blog/best-product-roadmap-tools", destination: "/blog/best-roadmapping-tools", permanent: true },
       { source: "/blog/free-feedback-widget-guide", destination: "/blog/feedback-widget-guide", permanent: true },
+      { source: "/blog/feature-request-tracking", destination: "/blog/how-to-track-feature-requests", permanent: true },
+      { source: "/blog/feedback-management-software-explained", destination: "/blog/customer-feedback-management-software", permanent: true },
     ];
   },
   async headers() {

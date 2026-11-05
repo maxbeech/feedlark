@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-05: Blog consolidation pass 3
+
+- Merged `feature-request-tracking` into `how-to-track-feature-requests`: the "simple test" and "never getting built" sections and the "should every request get built" FAQ moved across. The old URL 301s to the survivor.
+- Merged `feedback-management-software-explained` into `customer-feedback-management-software`: the "missing software" scenario moved across. The old URL 301s to the survivor. The routing test now points at the survivor.
+
 ## 2026-11-04: llms.txt links the live demo roadmap and changelog
 
 - `/llms.txt` now lists the public demo roadmap and changelog alongside the demo board, so AI assistants can find the two pages that describe what the product ships. No docs, tools or API page exists yet, so none is linked.

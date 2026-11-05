@@ -36,7 +36,7 @@ describe("search-facing routing", () => {
 describe("FAQ structured data", () => {
   it("keeps the link label and drops markdown link syntax from FAQ answer text", () => {
     const answer =
-      "Surveys validate questions, while [feedback management software](/blog/feedback-management-software-explained) surfaces ideas.";
+      "Surveys validate questions, while [feedback management software](/blog/customer-feedback-management-software) surfaces ideas.";
     const schema = faqJsonLd([{ q: "Do surveys replace feedback tools?", a: answer }]);
     const text = schema.mainEntity[0].acceptedAnswer.text;
     expect(text).toBe("Surveys validate questions, while feedback management software surfaces ideas.");
@@ -74,5 +74,22 @@ describe("blog internal linking", () => {
     for (const p of BLOG_POSTS) for (const r of relatedPosts(p, BLOG_POSTS)) linked.add(r.slug);
     const stranded = ["beta-tester-feedback-guide", "changelog-management-tools-compared", "changelog-software-compared", "client-feedback-tools-for-agencies", "customer-feedback-analysis-tools", "customer-feedback-app-case-study"];
     for (const s of stranded) expect(linked.has(s), s).toBe(true);
+  });
+});
+
+describe("consolidated blog redirects", () => {
+  it("301s each retired guide to a surviving post that is still published", async () => {
+    const { default: nextConfig } = await import("../next.config.mjs");
+    const { BLOG_POSTS } = await import("@/lib/content/blog");
+    const redirects = await nextConfig.redirects!();
+    const retired = [
+      ["/blog/feature-request-tracking", "/blog/how-to-track-feature-requests"],
+      ["/blog/feedback-management-software-explained", "/blog/customer-feedback-management-software"],
+    ];
+    for (const [source, destination] of retired) {
+      expect(redirects, source).toContainEqual(expect.objectContaining({ source, destination, permanent: true }));
+      expect(BLOG_POSTS.some((p) => `/blog/${p.slug}` === destination), destination).toBe(true);
+      expect(BLOG_POSTS.some((p) => `/blog/${p.slug}` === source), `${source} should be removed`).toBe(false);
+    }
   });
 });
