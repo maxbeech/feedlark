@@ -107,8 +107,12 @@ describe("blog SEO constraints", () => {
 });
 
 describe("September feedback operations publication batch", () => {
-  it("contains exactly 15 complete, non-thin posts from the requested publication week", () => {
-    expect(BLOG_FEEDBACK_OPERATIONS).toHaveLength(15);
+  it("keeps the fourteen surviving publication-week posts after the documented consolidation", () => {
+    // ea0a063 consolidated free-feedback-widget-guide into feedback-widget-guide.
+    // The redirect is independently checked in seo-routing.test.ts.
+    expect(BLOG_FEEDBACK_OPERATIONS).toHaveLength(14);
+    expect(BLOG_FEEDBACK_OPERATIONS.some(post => post.slug === "feedback-widget-guide")).toBe(true);
+    expect(BLOG_FEEDBACK_OPERATIONS.some(post => post.slug === "free-feedback-widget-guide")).toBe(false);
     for (const post of BLOG_FEEDBACK_OPERATIONS) {
       expect(post.date, `publication date for ${post.slug}`).toMatch(/^2026-09-(17|18|19|20|21|22|23)$/);
       expect(post.image, `missing featured image for ${post.slug}`).toBeTruthy();

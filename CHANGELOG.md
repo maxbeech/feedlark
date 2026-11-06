@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-06: active return measurement
+
+- Record first measured visits and intentional returns using the shared three-hour, seven-day browser contract.
+- Preserve the product analytics boundary and add regression tests for passive tabs, continuous sessions, consent and storage errors.
+
 ## 2026-11-05: Blog consolidation pass 3
 
 - Merged `feature-request-tracking` into `how-to-track-feature-requests`: the "simple test" and "never getting built" sections and the "should every request get built" FAQ moved across. The old URL 301s to the survivor.
