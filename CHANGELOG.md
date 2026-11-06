@@ -238,3 +238,5 @@ Initial release. Built end-to-end by the OpenHelm Product Factory (Funnel F3).
 - **Smart duplicate detection** (Pro): similarity clustering of feedback titles.
 - **Marketing + SEO/GEO**: home, pricing, programmatic `/alternatives/*` and `/use-cases/*` pages, a 6-post blog, `sitemap.xml`, `robots.txt`, `llms.txt`, schema.org JSON-LD.
 - Vitest suite covering pure logic + SEO content constraints (21 tests).
+
+2026-11-06: The shared GA bootstrap disables implicit page views before startup, so the explicit route tracker owns the initial and subsequent SPA page views. Product value and active-return events remain enabled.
