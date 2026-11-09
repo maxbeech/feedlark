@@ -61,6 +61,15 @@ const nextConfig = {
         ],
       },
       {
+        // Feeds and the generated social image are resources, not pages: keep them out of the index.
+        source: "/b/:wsSlug/changelog/rss",
+        headers: [{ key: "X-Robots-Tag", value: "noindex" }],
+      },
+      {
+        source: "/opengraph-image",
+        headers: [{ key: "X-Robots-Tag", value: "noindex" }],
+      },
+      {
         source: "/api/widget/:path*",
         headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
       },
