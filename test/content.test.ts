@@ -107,10 +107,12 @@ describe("blog SEO constraints", () => {
 });
 
 describe("September feedback operations publication batch", () => {
-  it("keeps the fourteen surviving publication-week posts after the documented consolidation", () => {
+  it("keeps the thirteen surviving publication-week posts after the documented consolidations", () => {
     // ea0a063 consolidated free-feedback-widget-guide into feedback-widget-guide.
     // The redirect is independently checked in seo-routing.test.ts.
-    expect(BLOG_FEEDBACK_OPERATIONS).toHaveLength(14);
+    expect(BLOG_FEEDBACK_OPERATIONS).toHaveLength(13);
+    // 2026-11-10 audit: changelog-communication-guide merged into changelog-tool-guide.
+    expect(BLOG_FEEDBACK_OPERATIONS.some(post => post.slug === "changelog-communication-guide")).toBe(false);
     expect(BLOG_FEEDBACK_OPERATIONS.some(post => post.slug === "feedback-widget-guide")).toBe(true);
     expect(BLOG_FEEDBACK_OPERATIONS.some(post => post.slug === "free-feedback-widget-guide")).toBe(false);
     for (const post of BLOG_FEEDBACK_OPERATIONS) {

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-10: Blog consolidation pass 4
+
+- Merged `changelog-communication-guide` into `changelog-tool-guide`: the outcome-led writing advice and a release-note checklist moved across. The old URL 301s to the survivor (`next.config.mjs`). The guide's entry is removed from the feedback-operations publication set, so it drops out of the sitemap.
+- `test/content.test.ts` now expects thirteen surviving publication-week posts; `test/seo-routing.test.ts` asserts the new redirect and that the removed slug is gone.
+
 ## 2026-11-06: active return measurement
 
 - Record first measured visits and intentional returns using the shared three-hour, seven-day browser contract.

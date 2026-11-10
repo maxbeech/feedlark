@@ -28,6 +28,8 @@ const nextConfig = {
       { source: "/blog/free-feedback-widget-guide", destination: "/blog/feedback-widget-guide", permanent: true },
       { source: "/blog/feature-request-tracking", destination: "/blog/how-to-track-feature-requests", permanent: true },
       { source: "/blog/feedback-management-software-explained", destination: "/blog/customer-feedback-management-software", permanent: true },
+      // SEO content audit 2026-11-10: merged into the changelog tool guide.
+      { source: "/blog/changelog-communication-guide", destination: "/blog/changelog-tool-guide", permanent: true },
     ];
   },
   async headers() {

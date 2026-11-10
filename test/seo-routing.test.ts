@@ -85,6 +85,7 @@ describe("consolidated blog redirects", () => {
     const retired = [
       ["/blog/feature-request-tracking", "/blog/how-to-track-feature-requests"],
       ["/blog/feedback-management-software-explained", "/blog/customer-feedback-management-software"],
+      ["/blog/changelog-communication-guide", "/blog/changelog-tool-guide"],
     ];
     for (const [source, destination] of retired) {
       expect(redirects, source).toContainEqual(expect.objectContaining({ source, destination, permanent: true }));
