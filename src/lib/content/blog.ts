@@ -22,6 +22,7 @@ import { BLOG_BENCHMARKS } from "./blog-benchmarks";
 import { BLOG_WORKFLOW_GUIDES } from "./blog-workflow-guides";
 import { BLOG_PRODUCT_ROADMAP_TOOL } from "./blog-product-roadmap-tool";
 import { BLOG_FEEDBACK_OPERATIONS } from "./blog-feedback-operations";
+import { BLOG_INDIE_HACKERS_COMMENTS } from "./blog-indie-hackers-comments";
 
 export const BLOG_POSTS: BlogPost[] = [
   ...BLOG_FEEDBACK_BASICS,
@@ -43,6 +44,7 @@ export const BLOG_POSTS: BlogPost[] = [
   ...BLOG_WORKFLOW_GUIDES,
   ...BLOG_PRODUCT_ROADMAP_TOOL,
   ...BLOG_FEEDBACK_OPERATIONS,
+  ...BLOG_INDIE_HACKERS_COMMENTS,
 ];
 
 export function getPost(slug: string): BlogPost | undefined {
