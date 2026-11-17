@@ -64,6 +64,12 @@ describe("machine-readable pricing", () => {
     expect(body).toContain(absoluteUrl(PUBLIC_DEMO_PATHS.roadmap));
     expect(body).toContain(absoluteUrl(PUBLIC_DEMO_PATHS.changelog));
   });
+
+  it("links the about page and the SaaS use case from llms.txt", async () => {
+    const body = await (await GET()).text();
+    expect(body).toContain(absoluteUrl("/about"));
+    expect(body).toContain(absoluteUrl("/use-cases/saas"));
+  });
 });
 
 describe("blog internal linking", () => {

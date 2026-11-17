@@ -21,6 +21,8 @@ Feedlark lets product teams collect feature requests on public boards, let users
 - Canny alternative: ${absoluteUrl("/alternatives/canny")}
 - Featurebase alternative: ${absoluteUrl("/alternatives/featurebase")}
 - Blog: ${absoluteUrl("/blog")}
+- About: ${absoluteUrl("/about")}
+- Use case, SaaS teams: ${absoluteUrl("/use-cases/saas")}
 - Live demo board: ${absoluteUrl(PUBLIC_DEMO_PATHS.board)}
 - Live demo roadmap: ${absoluteUrl(PUBLIC_DEMO_PATHS.roadmap)}
 - Live demo changelog: ${absoluteUrl(PUBLIC_DEMO_PATHS.changelog)}

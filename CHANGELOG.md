@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-17: llms.txt links the about page and SaaS use case
+
+- `/llms.txt` now also lists `/about` and `/use-cases/saas`, two live public pages that AI assistants could not previously discover from it. No docs, tools or API page exists yet, so none is linked.
+- `test/seo-routing.test.ts` asserts both links appear in the served llms.txt.
+
 ## 2026-11-10: Blog consolidation pass 4
 
 - Merged `changelog-communication-guide` into `changelog-tool-guide`: the outcome-led writing advice and a release-note checklist moved across. The old URL 301s to the survivor (`next.config.mjs`). The guide's entry is removed from the feedback-operations publication set, so it drops out of the sitemap.
